@@ -141,7 +141,7 @@ The default algorithm is AES-GCM with a 256-bit key. Rotate the key every 2 bill
 
 ### XChaCha20
 
-[Install Libsodium](https://github.com/crypto-rb/rbnacl/wiki/Installing-libsodium) and add [rbnacl](https://github.com/crypto-rb/rbnacl) to your application’s Gemfile:
+[Install Libsodium](https://github.com/crypto-rb/rbnacl/wiki/Installing-libsodium) >= 1.0.12 and add [rbnacl](https://github.com/crypto-rb/rbnacl) to your application’s Gemfile:
 
 ```ruby
 gem 'rbnacl'
