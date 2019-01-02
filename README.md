@@ -6,6 +6,8 @@ Supports Active Storage and CarrierWave
 
 Uses AES-GCM by default for [authenticated encryption](https://tonyarcieri.com/all-the-crypto-code-youve-ever-written-is-probably-broken)
 
+[![Build Status](https://travis-ci.org/ankane/lockbox.svg?branch=master)](https://travis-ci.org/ankane/lockbox)
+
 ## Installation
 
 Add this line to your application’s Gemfile:
