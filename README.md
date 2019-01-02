@@ -39,13 +39,13 @@ box = Lockbox.new(key: key)
 Encrypt
 
 ```ruby
-box.encrypt(File.binread("license.jpg"))
+ciphertext = box.encrypt(File.binread("license.jpg"))
 ```
 
 Decrypt
 
 ```ruby
-box.decrypt(File.binread("license.jpg.enc"))
+box.decrypt(ciphertext)
 ```
 
 ## Active Storage
