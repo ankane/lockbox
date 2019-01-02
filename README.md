@@ -2,9 +2,11 @@
 
 :lock: File encryption for Ruby and Rails
 
-Supports Active Storage and CarrierWave
+- Supports Active Storage and CarrierWave
+- Uses AES-GCM by default for [authenticated encryption](https://tonyarcieri.com/all-the-crypto-code-youve-ever-written-is-probably-broken)
+- Makes key rotation easy
 
-Uses AES-GCM by default for [authenticated encryption](https://tonyarcieri.com/all-the-crypto-code-youve-ever-written-is-probably-broken)
+Check out [this post](https://ankane.org/sensitive-data-rails) for more info on securing sensitive data.
 
 [![Build Status](https://travis-ci.org/ankane/lockbox.svg?branch=master)](https://travis-ci.org/ankane/lockbox)
 
