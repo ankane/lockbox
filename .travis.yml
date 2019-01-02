@@ -1,0 +1,12 @@
+dist: xenial
+language: ruby
+rvm:
+  - 2.5.3
+  - 2.3.8
+gemfile:
+  - Gemfile
+script: bundle exec rake test
+notifications:
+  email:
+    on_success: never
+    on_failure: change
