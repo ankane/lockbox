@@ -1,3 +1,7 @@
+# ideally encrypt and decrypt would happen at the blob/service level
+# however, there isn't really a great place to define encryption settings there
+# instead, we encrypt and decrypt at the attachment level,
+# and we define encryption settings at the model level
 class Lockbox
   module ActiveStorageExtensions
     module Attached
