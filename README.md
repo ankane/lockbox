@@ -26,7 +26,7 @@ Generate an encryption key.
 SecureRandom.hex(32)
 ```
 
-Store the key with your other secrets (typically Rails credentials or an environment variable). Be sure to use different keys in development and production.
+Store the key with your other secrets. This is typically Rails credentials or an environment variable ([dotenv](https://github.com/bkeepers/dotenv) is great for this). Be sure to use different keys in development and production. You can use both binary and hex keys.
 
 Alternatively, you can use a [key management service](#key-management) to manage your keys.
 
