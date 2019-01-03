@@ -32,16 +32,14 @@ class Lockbox
   end
 
   def encrypt(message, **options)
-    message = message.read if message.respond_to?(:read)
+    message = check_string(message, "message")
     @boxes.first.encrypt(message, **options)
   end
 
   def decrypt(ciphertext, **options)
-    ciphertext = ciphertext.read if ciphertext.respond_to?(:read)
-    raise TypeError, "can't convert ciphertext to string" unless ciphertext.respond_to?(:to_str)
+    ciphertext = check_string(ciphertext, "ciphertext")
 
     # ensure binary
-    ciphertext = ciphertext.to_str
     if ciphertext.encoding != Encoding::BINARY
       # dup to prevent mutation
       ciphertext = ciphertext.dup.force_encoding(Encoding::BINARY)
@@ -60,5 +58,13 @@ class Lockbox
         end
       end
     end
+  end
+
+  private
+
+  def check_string(str, name)
+    str = str.read if str.respond_to?(:read)
+    raise TypeError, "can't convert #{name} to string" unless str.respond_to?(:to_str)
+    str.to_str
   end
 end
