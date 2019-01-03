@@ -11,6 +11,8 @@ class Lockbox
       encrypt
 
       class_eval do
+        # TODO need a way to rotate encryption context
+        # one idea: add version to metatdata
         define_method :encryption_context do
           {
             bucket: aws_bucket,
