@@ -48,8 +48,14 @@ class Lockbox
     @boxes.each_with_index do |box, i|
       begin
         return box.decrypt(ciphertext, **options)
-      rescue DecryptionError, RbNaCl::LengthError, RbNaCl::CryptoError
-        raise DecryptionError, "Decryption failed" if i == @boxes.size - 1
+      rescue => e
+        error_classes = [DecryptionError]
+        error_classes += [RbNaCl::LengthError, RbNaCl::CryptoError] if defined?(RbNaCl)
+        if error_classes.any? { |ec| e.is_a?(ec) }
+          raise DecryptionError, "Decryption failed" if i == @boxes.size - 1
+        else
+          raise e
+        end
       end
     end
   end
