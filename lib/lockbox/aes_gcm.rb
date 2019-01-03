@@ -29,11 +29,13 @@ class Lockbox
     end
 
     def decrypt(nonce, ciphertext, associated_data)
-      auth_tag, ciphertext = extract_auth_tag(ciphertext.to_s)
+      ciphertext.seek(-auth_tag_bytes, IO::SEEK_END)
+      auth_tag_pos = ciphertext.pos
+      auth_tag = ciphertext.read
+      ciphertext.pos = nonce_bytes
 
       fail_decryption if nonce.to_s.bytesize != nonce_bytes
       fail_decryption if auth_tag.to_s.bytesize != auth_tag_bytes
-      fail_decryption if ciphertext.to_s.bytesize == 0
 
       cipher = OpenSSL::Cipher.new("aes-256-gcm")
       cipher.decrypt
@@ -46,7 +48,18 @@ class Lockbox
       cipher.auth_data = associated_data || ""
 
       begin
-        cipher.update(ciphertext) + cipher.final
+        plaintext = String.new
+        loop do
+          read_bytes = auth_tag_pos - ciphertext.pos
+          if read_bytes > CHUNK_SIZE
+            read_bytes = CHUNK_SIZE
+          elsif read_bytes <= 0
+            break
+          end
+          plaintext << cipher.update(ciphertext.read(read_bytes))
+        end
+        plaintext << cipher.final
+        plaintext
       rescue OpenSSL::Cipher::CipherError
         fail_decryption
       end

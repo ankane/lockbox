@@ -30,7 +30,8 @@ class Lockbox
     end
 
     def decrypt(ciphertext, associated_data: nil)
-      nonce, ciphertext = extract_nonce(ciphertext)
+      nonce = ciphertext.read(nonce_bytes)
+      ciphertext = ciphertext.read if @algorithm == "xchacha20"
       @box.decrypt(nonce, ciphertext, associated_data)
     end
 
@@ -47,11 +48,6 @@ class Lockbox
 
     def generate_nonce
       SecureRandom.random_bytes(nonce_bytes)
-    end
-
-    def extract_nonce(bytes)
-      nonce = bytes.slice(0, nonce_bytes)
-      [nonce, bytes.slice(nonce_bytes..-1)]
     end
   end
 end

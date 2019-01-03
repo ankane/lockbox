@@ -40,22 +40,21 @@ class Lockbox
   end
 
   def decrypt(ciphertext, **options)
-    raise TypeError, "can't convert ciphertext to string" unless ciphertext.respond_to?(:to_str)
-
-    # ensure binary
-    ciphertext = ciphertext.to_str
-    if ciphertext.encoding != Encoding::BINARY
-      # dup to prevent mutation
-      ciphertext = ciphertext.dup.force_encoding(Encoding::BINARY)
+    unless ciphertext.respond_to?(:eof?)
+      raise TypeError, "can't convert ciphertext to string" unless ciphertext.respond_to?(:to_str)
+      ciphertext = StringIO.new(ciphertext.to_str)
     end
+
+    starting_pos = ciphertext.pos
 
     @boxes.each_with_index do |box, i|
       begin
         return box.decrypt(ciphertext, **options)
       rescue => e
-        error_classes = [DecryptionError]
+        error_classes = [DecryptionError, Errno::EINVAL]
         error_classes += [RbNaCl::LengthError, RbNaCl::CryptoError] if defined?(RbNaCl)
         if error_classes.any? { |ec| e.is_a?(ec) }
+          ciphertext.pos = starting_pos
           raise DecryptionError, "Decryption failed" if i == @boxes.size - 1
         else
           raise e

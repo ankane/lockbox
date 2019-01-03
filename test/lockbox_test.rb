@@ -3,7 +3,7 @@ require_relative "test_helper"
 class LockboxTest < Minitest::Test
   def test_aes_gcm
     box = Lockbox.new(key: random_key)
-    message = "it works!"
+    message = "it works!" * 10000
     ciphertext = box.encrypt(message)
     assert_equal message, box.decrypt(ciphertext)
 
