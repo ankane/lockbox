@@ -1,3 +1,5 @@
+require "openssl"
+
 class Lockbox
   class AES_GCM
     def initialize(key)

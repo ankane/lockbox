@@ -1,7 +1,3 @@
-# dependencies
-require "openssl"
-require "securerandom"
-
 # modules
 require "lockbox/box"
 require "lockbox/utils"
