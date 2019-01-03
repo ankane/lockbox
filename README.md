@@ -6,7 +6,7 @@
 - Uses AES-GCM by default for [authenticated encryption](https://tonyarcieri.com/all-the-crypto-code-youve-ever-written-is-probably-broken)
 - Makes key rotation easy
 
-Check out [this post](https://ankane.org/sensitive-data-rails) for more info on securing sensitive data
+Check out [this post](https://ankane.org/sensitive-data-rails) for more info on securing sensitive data with Rails
 
 [![Build Status](https://travis-ci.org/ankane/lockbox.svg?branch=master)](https://travis-ci.org/ankane/lockbox)
 
