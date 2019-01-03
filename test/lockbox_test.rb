@@ -138,6 +138,8 @@ class LockboxTest < Minitest::Test
   end
 
   def test_xchacha20_decrypt_utf8
+    skip if travis?
+
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!"
     ciphertext = box.encrypt(message)
