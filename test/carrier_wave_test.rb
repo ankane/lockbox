@@ -84,6 +84,8 @@ class CarrierWaveTest < Minitest::Test
   end
 
   def test_kms_encrypt
+    skip unless ENV["KMS_KEY_ID"]
+
     message = "hello world"
 
     uploader = CloudUploader.new
