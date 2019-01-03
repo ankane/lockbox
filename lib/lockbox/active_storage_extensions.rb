@@ -19,7 +19,7 @@ class Lockbox
 
         case attachable
         when ActiveStorage::Blob
-          raise NotImplemented, "Not supported yet"
+          raise NotImplemented, "Not supported"
         when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
           attachable = {
             io: StringIO.new(box.encrypt(attachable.read)),
@@ -33,7 +33,7 @@ class Lockbox
             content_type: attachable[:content_type]
           }
         when String
-          raise NotImplemented, "Not supported yet"
+          raise NotImplemented, "Not supported"
         else
           nil
         end
