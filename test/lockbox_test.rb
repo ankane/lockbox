@@ -3,7 +3,7 @@ require_relative "test_helper"
 class LockboxTest < Minitest::Test
   def test_aes_gcm
     box = Lockbox.new(key: random_key)
-    message = "it works!"
+    message = "it works!" * 10000
     ciphertext = box.encrypt(message)
     assert_equal message, box.decrypt(ciphertext)
 
@@ -42,7 +42,7 @@ class LockboxTest < Minitest::Test
     skip if travis?
 
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
-    message = "it works!"
+    message = "it works!" * 10000
     ciphertext = box.encrypt(message)
     assert_equal message, box.decrypt(ciphertext)
 
@@ -129,8 +129,18 @@ class LockboxTest < Minitest::Test
     refute_includes box.to_s, "key"
   end
 
-  def test_decrypt_utf8
+  def test_aes_gcm_decrypt_utf8
     box = Lockbox.new(key: random_key)
+    message = "it works!"
+    ciphertext = box.encrypt(message)
+    ciphertext.force_encoding(Encoding::UTF_8)
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_xchacha20_decrypt_utf8
+    skip if travis?
+
+    box = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!"
     ciphertext = box.encrypt(message)
     ciphertext.force_encoding(Encoding::UTF_8)
@@ -158,6 +168,30 @@ class LockboxTest < Minitest::Test
     message = "it works!"
     ciphertext = box.encrypt(message)
     assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_encrypt_file
+    box = Lockbox.new(key: SecureRandom.hex(32))
+    message = "it works!"
+
+    file = Tempfile.new
+    file.write(message)
+    file.rewind
+
+    ciphertext = box.encrypt(file)
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_decrypt_file
+    box = Lockbox.new(key: SecureRandom.hex(32))
+    message = "it works!"
+    ciphertext = box.encrypt(message)
+
+    file = Tempfile.new(encoding: Encoding::BINARY)
+    file.write(ciphertext)
+    file.rewind
+
+    assert_equal message, box.decrypt(file)
   end
 
   private

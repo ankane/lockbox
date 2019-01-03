@@ -1,7 +1,3 @@
-# dependencies
-require "openssl"
-require "securerandom"
-
 # modules
 require "lockbox/box"
 require "lockbox/utils"
@@ -31,15 +27,15 @@ class Lockbox
       Array(previous_versions).map { |v| Box.new(v[:key], algorithm: v[:algorithm]) }
   end
 
-  def encrypt(*args)
-    @boxes.first.encrypt(*args)
+  def encrypt(message, **options)
+    message = check_string(message, "message")
+    @boxes.first.encrypt(message, **options)
   end
 
   def decrypt(ciphertext, **options)
-    raise TypeError, "can't convert ciphertext to string" unless ciphertext.respond_to?(:to_str)
+    ciphertext = check_string(ciphertext, "ciphertext")
 
     # ensure binary
-    ciphertext = ciphertext.to_str
     if ciphertext.encoding != Encoding::BINARY
       # dup to prevent mutation
       ciphertext = ciphertext.dup.force_encoding(Encoding::BINARY)
@@ -48,9 +44,23 @@ class Lockbox
     @boxes.each_with_index do |box, i|
       begin
         return box.decrypt(ciphertext, **options)
-      rescue DecryptionError, RbNaCl::LengthError, RbNaCl::CryptoError
-        raise DecryptionError, "Decryption failed" if i == @boxes.size - 1
+      rescue => e
+        error_classes = [DecryptionError]
+        error_classes += [RbNaCl::LengthError, RbNaCl::CryptoError] if defined?(RbNaCl)
+        if error_classes.any? { |ec| e.is_a?(ec) }
+          raise DecryptionError, "Decryption failed" if i == @boxes.size - 1
+        else
+          raise e
+        end
       end
     end
+  end
+
+  private
+
+  def check_string(str, name)
+    str = str.read if str.respond_to?(:read)
+    raise TypeError, "can't convert #{name} to string" unless str.respond_to?(:to_str)
+    str.to_str
   end
 end

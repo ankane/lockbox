@@ -1,3 +1,7 @@
+# ideally encrypt and decrypt would happen at the blob/service level
+# however, there isn't really a great place to define encryption settings there
+# instead, we encrypt and decrypt at the attachment level,
+# and we define encryption settings at the model level
 class Lockbox
   module ActiveStorageExtensions
     module Attached
@@ -15,7 +19,7 @@ class Lockbox
 
         case attachable
         when ActiveStorage::Blob
-          raise NotImplemented, "Not supported yet"
+          raise NotImplemented, "Not supported"
         when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
           attachable = {
             io: StringIO.new(box.encrypt(attachable.read)),
@@ -29,7 +33,7 @@ class Lockbox
             content_type: attachable[:content_type]
           }
         when String
-          raise NotImplemented, "Not supported yet"
+          raise NotImplemented, "Not supported"
         else
           nil
         end
