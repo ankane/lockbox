@@ -34,24 +34,26 @@ class DocumentUploader < CarrierWave::Uploader::Base
   encrypt key: SecureRandom.random_bytes(32)
 end
 
-require "carrierwave-aws"
+if ENV["KMS_KEY_ID"]
+  require "carrierwave-aws"
 
-class CloudUploader < CarrierWave::Uploader::Base
-  storage :aws
-  kms_encrypt kms_key_id: ENV["KMS_KEY_ID"]
+  class CloudUploader < CarrierWave::Uploader::Base
+    storage :aws
+    kms_encrypt kms_key_id: ENV["KMS_KEY_ID"]
 
-  def aws_bucket
-    ENV["S3_BUCKET"]
-  end
+    def aws_bucket
+      ENV["S3_BUCKET"]
+    end
 
-  def store_dir
-    "uploads"
-  end
+    def store_dir
+      "uploads"
+    end
 
-  def aws_write_options
-    {
-      metadata: {"hello" => "world"}
-    }
+    def aws_write_options
+      {
+        metadata: {"hello" => "world"}
+      }
+    end
   end
 end
 
