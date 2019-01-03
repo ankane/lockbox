@@ -8,8 +8,6 @@ class Lockbox
       require "aws-sdk-kms"
       require "base64"
 
-      client = Aws::KMS::Client.new
-
       encrypt
 
       class_eval do
@@ -28,6 +26,10 @@ class Lockbox
           end
         end
 
+        def kms_client
+          @kms_client ||= Aws::KMS::Client.new
+        end
+
         define_method :encrypt_options do
           ensure_carrierwave_aws
 
@@ -38,7 +40,7 @@ class Lockbox
             plaintext: key,
             encryption_context: encryption_context
           }
-          encrypted_key = client.encrypt(aws_options).ciphertext_blob
+          encrypted_key = kms_client.encrypt(aws_options).ciphertext_blob
 
           @encrypted_key = Base64.strict_encode64(encrypted_key)
 
@@ -58,7 +60,7 @@ class Lockbox
             ciphertext_blob: encrypted_key,
             encryption_context: encryption_context
           }
-          key = client.decrypt(aws_options).plaintext
+          key = kms_client.decrypt(aws_options).plaintext
 
           options.merge(key: key)
         end
