@@ -144,6 +144,13 @@ class LockboxTest < Minitest::Test
     assert_equal message, box.decrypt(ciphertext)
   end
 
+  def test_uppercase_hex_key
+    box = Lockbox.new(key: SecureRandom.hex(32).upcase)
+    message = "it works!"
+    ciphertext = box.encrypt(message)
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
   def test_xchacha20_hex_key
     skip if travis?
 
