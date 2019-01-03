@@ -160,6 +160,30 @@ class LockboxTest < Minitest::Test
     assert_equal message, box.decrypt(ciphertext)
   end
 
+  def test_encrypt_file
+    box = Lockbox.new(key: SecureRandom.hex(32))
+    message = "it works!"
+
+    file = Tempfile.new
+    file.write(message)
+    file.rewind
+
+    ciphertext = box.encrypt(file)
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_decrypt_file
+    box = Lockbox.new(key: SecureRandom.hex(32))
+    message = "it works!"
+    ciphertext = box.encrypt(message)
+
+    file = Tempfile.new(encoding: Encoding::BINARY)
+    file.write(ciphertext)
+    file.rewind
+
+    assert_equal message, box.decrypt(file)
+  end
+
   private
 
   def random_key

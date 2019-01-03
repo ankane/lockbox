@@ -31,11 +31,13 @@ class Lockbox
       Array(previous_versions).map { |v| Box.new(v[:key], algorithm: v[:algorithm]) }
   end
 
-  def encrypt(*args)
-    @boxes.first.encrypt(*args)
+  def encrypt(message, **options)
+    message = message.read if message.respond_to?(:read)
+    @boxes.first.encrypt(message, **options)
   end
 
   def decrypt(ciphertext, **options)
+    ciphertext = ciphertext.read if ciphertext.respond_to?(:read)
     raise TypeError, "can't convert ciphertext to string" unless ciphertext.respond_to?(:to_str)
 
     # ensure binary
