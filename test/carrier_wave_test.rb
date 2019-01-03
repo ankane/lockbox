@@ -82,4 +82,18 @@ class CarrierWaveTest < Minitest::Test
     user = User.last
     assert_equal message, user.document.read
   end
+
+  def test_kms_encrypt
+    message = "hello world"
+
+    uploader = CloudUploader.new
+
+    file = Tempfile.new
+    file.write(message)
+    uploader.store!(file)
+
+    assert_equal message, uploader.read
+    refute_equal uploader.file.read, uploader.read
+    assert_equal "world", uploader.file.file.metadata["hello"]
+  end
 end

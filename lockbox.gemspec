@@ -27,4 +27,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "combustion"
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "rbnacl"
+  spec.add_development_dependency "carrierwave-aws"
+  spec.add_development_dependency "aws-sdk-kms"
 end
