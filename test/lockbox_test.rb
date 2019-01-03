@@ -3,7 +3,7 @@ require_relative "test_helper"
 class LockboxTest < Minitest::Test
   def test_aes_gcm
     box = Lockbox.new(key: random_key)
-    message = "it works!"
+    message = "it works!" * 10000
     ciphertext = box.encrypt(message)
     assert_equal message, box.decrypt(ciphertext)
 
@@ -42,7 +42,7 @@ class LockboxTest < Minitest::Test
     skip if travis?
 
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
-    message = "it works!"
+    message = "it works!" * 10000
     ciphertext = box.encrypt(message)
     assert_equal message, box.decrypt(ciphertext)
 
@@ -129,8 +129,16 @@ class LockboxTest < Minitest::Test
     refute_includes box.to_s, "key"
   end
 
-  def test_decrypt_utf8
+  def test_aes_gcm_decrypt_utf8
     box = Lockbox.new(key: random_key)
+    message = "it works!"
+    ciphertext = box.encrypt(message)
+    ciphertext.force_encoding(Encoding::UTF_8)
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_xchacha20_decrypt_utf8
+    box = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!"
     ciphertext = box.encrypt(message)
     ciphertext.force_encoding(Encoding::UTF_8)
