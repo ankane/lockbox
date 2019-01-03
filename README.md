@@ -6,7 +6,7 @@
 - Uses AES-GCM by default for [authenticated encryption](https://tonyarcieri.com/all-the-crypto-code-youve-ever-written-is-probably-broken)
 - Makes key rotation easy
 
-Check out [this post](https://ankane.org/sensitive-data-rails) for more info on securing sensitive data.
+Check out [this post](https://ankane.org/sensitive-data-rails) for more info on securing sensitive data
 
 [![Build Status](https://travis-ci.org/ankane/lockbox.svg?branch=master)](https://travis-ci.org/ankane/lockbox)
 
@@ -20,13 +20,13 @@ gem 'lockbox'
 
 ## Key Generation
 
-Generate an encryption key.
+Generate an encryption key
 
 ```ruby
 SecureRandom.hex(32)
 ```
 
-Store the key with your other secrets. This is typically Rails credentials or an environment variable ([dotenv](https://github.com/bkeepers/dotenv) is great for this). Be sure to use different keys in development and production. You can use both binary and hex keys.
+Store the key with your other secrets. This is typically Rails credentials or an environment variable ([dotenv](https://github.com/bkeepers/dotenv) is great for this). Be sure to use different keys in development and production. Keys don’t need to be hex-encoded, but it’s often easier to store them this way.
 
 Alternatively, you can use a [key management service](#key-management) to manage your keys.
 
