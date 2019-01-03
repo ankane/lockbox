@@ -139,7 +139,7 @@ user.license.rotate_encryption!
 
 ### AES-GCM
 
-The default algorithm is AES-GCM with a 256-bit key. Rotate the key every 2 billion files to minimize the chance of a [nonce collision](https://www.cryptologie.net/article/402/is-symmetric-security-solved/).
+The default algorithm is AES-GCM with a 256-bit key. Rotate the key every 2 billion files to minimize the chance of a [nonce collision](https://www.cryptologie.net/article/402/is-symmetric-security-solved/), which will leak the key.
 
 ### XChaCha20
 
