@@ -1,5 +1,7 @@
 class Lockbox
   class AES_GCM
+    CHUNK_SIZE = 4096
+
     def initialize(key)
       raise ArgumentError, "Key must be 32 bytes" unless key && key.bytesize == 32
       raise ArgumentError, "Key must be binary" unless key.encoding == Encoding::BINARY
@@ -17,8 +19,11 @@ class Lockbox
       # In encryption mode, it must be set after calling #encrypt and setting #key= and #iv=
       cipher.auth_data = associated_data || ""
 
-      ciphertext = cipher.update(message) + cipher.final
-      ciphertext << cipher.auth_tag
+      ciphertext = String.new
+      while !message.eof?
+        ciphertext << cipher.update(message.read(CHUNK_SIZE))
+      end
+      ciphertext << cipher.final + cipher.auth_tag
 
       ciphertext
     end

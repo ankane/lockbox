@@ -31,8 +31,12 @@ class Lockbox
       Array(previous_versions).map { |v| Box.new(v[:key], algorithm: v[:algorithm]) }
   end
 
-  def encrypt(*args)
-    @boxes.first.encrypt(*args)
+  def encrypt(message, **options)
+    unless message.respond_to?(:eof?)
+      raise TypeError, "can't convert message to string" unless message.respond_to?(:to_str)
+      message = StringIO.new(message.to_str)
+    end
+    @boxes.first.encrypt(message, **options)
   end
 
   def decrypt(ciphertext, **options)

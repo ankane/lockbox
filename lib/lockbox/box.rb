@@ -18,10 +18,13 @@ class Lockbox
       else
         raise ArgumentError, "Unknown algorithm: #{algorithm}"
       end
+
+      @algorithm = algorithm
     end
 
     def encrypt(message, associated_data: nil)
       nonce = generate_nonce
+      message = message.read if @algorithm == "xchacha20"
       ciphertext = @box.encrypt(nonce, message, associated_data)
       nonce + ciphertext
     end
