@@ -11,6 +11,7 @@ class Lockbox
 
     def encrypt(nonce, message, associated_data)
       cipher = OpenSSL::Cipher.new("aes-256-gcm")
+      # do not change order of operations
       cipher.encrypt
       cipher.key = @key
       cipher.iv = nonce
@@ -33,6 +34,7 @@ class Lockbox
       fail_decryption if ciphertext.to_s.bytesize == 0
 
       cipher = OpenSSL::Cipher.new("aes-256-gcm")
+      # do not change order of operations
       cipher.decrypt
       cipher.key = @key
       cipher.iv = nonce
