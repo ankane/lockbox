@@ -12,6 +12,12 @@ class LockboxTest < Minitest::Test
     assert_equal Encoding::BINARY, box.decrypt(ciphertext).encoding
   end
 
+  def test_same_message_different_ciphertext
+    box = Lockbox.new(key: random_key)
+    message = "it works!"
+    refute_equal box.encrypt(message), box.encrypt(message)
+  end
+
   def test_encrypt_nil
     box = Lockbox.new(key: random_key)
     assert_raises(TypeError) do
