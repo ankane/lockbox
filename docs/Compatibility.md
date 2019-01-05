@@ -4,7 +4,7 @@ Here’s how to decrypt files in other languages.
 
 ## Python
 
-AES-GCM
+Install the [cryptography](https://cryptography.io/en/latest/) package and do:
 
 ```py
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
