@@ -200,6 +200,8 @@ end
 
 It’s easy to read encrypted files in another language if needed.
 
+Here are [some examples](docs/Compatibility.md).
+
 The format for AES-GCM is:
 
 - nonce (IV) - 12 bytes
