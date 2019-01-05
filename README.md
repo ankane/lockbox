@@ -196,6 +196,18 @@ end
 
 **Note:** KMS Encrypted’s key rotation does not know to rotate encrypted files, so avoid calling `record.rotate_kms_key!` on models with file uploads for now.
 
+## Compatibility
+
+It’s easy to read encrypted files in another language if needed.
+
+The format for AES-GCM is:
+
+- nonce (IV) - 12 bytes
+- ciphertext - variable length
+- authentication tag - 16 bytes
+
+For XChaCha20, use the appropriate [Libsodium library](https://libsodium.gitbook.io/doc/bindings_for_other_languages).
+
 ## Reference
 
 Pass associated data to encryption and decryption
