@@ -45,8 +45,6 @@ class LockboxTest < Minitest::Test
   end
 
   def test_xchacha20
-    skip if travis?
-
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!" * 10000
     ciphertext = box.encrypt(message)
@@ -58,8 +56,6 @@ class LockboxTest < Minitest::Test
   end
 
   def test_xchacha20_associated_data
-    skip if travis?
-
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!"
     associated_data = "boom"
@@ -95,8 +91,6 @@ class LockboxTest < Minitest::Test
   end
 
   def test_bad_ciphertext_xchacha20
-    skip if travis?
-
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
 
     assert_raises(Lockbox::DecryptionError) do
@@ -128,8 +122,6 @@ class LockboxTest < Minitest::Test
   end
 
   def test_xchacha20_inspect
-    skip if travis?
-
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
     refute_includes box.inspect, "key"
     refute_includes box.to_s, "key"
@@ -144,8 +136,6 @@ class LockboxTest < Minitest::Test
   end
 
   def test_xchacha20_decrypt_utf8
-    skip if travis?
-
     box = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!"
     ciphertext = box.encrypt(message)
@@ -168,8 +158,6 @@ class LockboxTest < Minitest::Test
   end
 
   def test_xchacha20_hex_key
-    skip if travis?
-
     box = Lockbox.new(key: SecureRandom.hex(32), algorithm: "xchacha20")
     message = "it works!"
     ciphertext = box.encrypt(message)
@@ -204,9 +192,5 @@ class LockboxTest < Minitest::Test
 
   def random_key
     SecureRandom.random_bytes(32)
-  end
-
-  def travis?
-    ENV["TRAVIS"]
   end
 end

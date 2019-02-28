@@ -5,6 +5,13 @@ rvm:
   - 2.3.8
 gemfile:
   - Gemfile
+before_install:
+  - export LIBSODIUM_VERSION=1.0.17
+  - ./test/ci/install_libsodium.sh
+  - export LD_LIBRARY_PATH=$HOME/libsodium/$LIBSODIUM_VERSION/lib:$LD_LIBRARY_PATH
+cache:
+  directories:
+    - $HOME/libsodium
 script: bundle exec rake test
 notifications:
   email:
