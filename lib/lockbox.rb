@@ -46,7 +46,8 @@ class Lockbox
         return box.decrypt(ciphertext, **options)
       rescue => e
         error_classes = [DecryptionError]
-        error_classes += [RbNaCl::LengthError, RbNaCl::CryptoError] if defined?(RbNaCl)
+        error_classes << RbNaCl::LengthError if defined?(RbNaCl::LengthError)
+        error_classes << RbNaCl::CryptoError if defined?(RbNaCl::CryptoError)
         if error_classes.any? { |ec| e.is_a?(ec) }
           raise DecryptionError, "Decryption failed" if i == @boxes.size - 1
         else
