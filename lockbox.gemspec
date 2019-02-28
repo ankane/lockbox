@@ -25,6 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "activestorage"
   spec.add_development_dependency "activejob"
   spec.add_development_dependency "combustion"
-  spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency "sqlite3", "~> 1.3.0"
   spec.add_development_dependency "rbnacl"
 end
