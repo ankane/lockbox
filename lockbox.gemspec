@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "combustion"
   spec.add_development_dependency "sqlite3", "~> 1.3.0"
   spec.add_development_dependency "rbnacl"
+  spec.add_development_dependency "attr_encrypted"
 end

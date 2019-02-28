@@ -5,6 +5,7 @@ require "active_storage/engine"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
+require "attr_encrypted"
 
 CarrierWave.configure do |config|
   config.storage = :file

@@ -174,6 +174,43 @@ Lockbox.default_options = {algorithm: "xchacha20"}
 
 You can also pass an algorithm to `previous_versions` for key rotation.
 
+## Hybrid Cryptography [master]
+
+[Hybrid cryptography](https://en.wikipedia.org/wiki/Hybrid_cryptosystem) allows servers to encrypt data without being able to decrypt it.
+
+[Install Libsodium](https://github.com/crypto-rb/rbnacl/wiki/Installing-libsodium) and add [rbnacl](https://github.com/crypto-rb/rbnacl) to your application’s Gemfile:
+
+```ruby
+gem 'rbnacl'
+```
+
+Generate a key pair with:
+
+```ruby
+Lockbox.generate_key_pair
+```
+
+Store the keys with your other secrets. Then use:
+
+```ruby
+# files
+box = Lockbox.new(algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key)
+
+# Active Storage
+class User < ApplicationRecord
+  attached_encrypted :license, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
+end
+
+# CarrierWave
+class LicenseUploader < CarrierWave::Uploader::Base
+  encrypt algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
+end
+```
+
+Make sure `decryption_key` is `nil` on servers that shouldn’t decrypt.
+
+This uses X25519 for key exchange and XSalsa20-Poly1305 for encryption.
+
 ## Key Management
 
 You can use a key management service to manage your keys with [KMS Encrypted](https://github.com/ankane/kms_encrypted).
@@ -209,6 +246,51 @@ The format for AES-GCM is:
 - authentication tag - 16 bytes
 
 For XChaCha20, use the appropriate [Libsodium library](https://libsodium.gitbook.io/doc/bindings_for_other_languages).
+
+## Database Fields [master]
+
+Lockbox can also be used with [attr_encrypted](https://github.com/attr-encrypted/attr_encrypted) for database fields. This gives you:
+
+1. Easy key rotation
+2. XChaCha20
+3. Hybrid cryptography
+4. No need for separate IV columns
+
+Add to your Gemfile:
+
+```ruby
+gem 'attr_encrypted'
+```
+
+Create a migration to add a new column for the encrypted data. We don’t need a separate IV column, as this will be included in the encrypted data.
+
+```ruby
+class AddEncryptedPhoneToUsers < ActiveRecord::Migration[5.2]
+  def change
+    add_column :users, :encrypted_phone, :string
+  end
+end
+```
+
+All Lockbox options are supported.
+
+```ruby
+class User < ApplicationRecord
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key, algorithm: "xchacha20", previous_versions: [{key: previous_key}]
+
+  attribute :encrypted_phone_iv # prevent attr_encrypted error
+end
+```
+
+For hybrid cryptography, use:
+
+```ruby
+class User < ApplicationRecord
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: ENV["PHONE_ENCRYPTION_KEY"], decryption_key: ENV["PHONE_DECRYPTION_KEY"]
+
+  attribute :encrypted_phone_iv # prevent attr_encrypted error
+end
+```
 
 ## Reference
 

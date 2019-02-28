@@ -67,6 +67,30 @@ class LockboxTest < Minitest::Test
     end
   end
 
+  def test_hybrid
+    key_pair = Lockbox.generate_key_pair
+
+    box = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:encryption_key])
+    message = "it works!" * 10000
+    ciphertext = box.encrypt(message)
+
+    box = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:decryption_key])
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_hybrid_swapped
+    key_pair = Lockbox.generate_key_pair
+
+    box = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:decryption_key])
+    message = "it works!" * 10000
+    ciphertext = box.encrypt(message)
+
+    box = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:encryption_key])
+    assert_raises(Lockbox::DecryptionError) do
+      box.decrypt(ciphertext)
+    end
+  end
+
   def test_bad_algorithm
     error = assert_raises(ArgumentError) do
       Lockbox.new(key: random_key, algorithm: "bad")

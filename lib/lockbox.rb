@@ -1,5 +1,6 @@
 # modules
 require "lockbox/box"
+require "lockbox/encryptor"
 require "lockbox/utils"
 require "lockbox/version"
 
@@ -16,15 +17,13 @@ class Lockbox
   end
   self.default_options = {algorithm: "aes-gcm"}
 
-  def initialize(key: nil, algorithm: nil, previous_versions: nil)
-    default_options = self.class.default_options
-    key ||= default_options[:key]
-    algorithm ||= default_options[:algorithm]
-    previous_versions ||= default_options[:previous_versions]
+  def initialize(**options)
+    options = self.class.default_options.merge(options)
+    previous_versions = options.delete(:previous_versions)
 
     @boxes =
-      [Box.new(key, algorithm: algorithm)] +
-      Array(previous_versions).map { |v| Box.new(v[:key], algorithm: v[:algorithm]) }
+      [Box.new(options)] +
+      Array(previous_versions).map { |v| Box.new(v) }
   end
 
   def encrypt(message, **options)
@@ -55,6 +54,20 @@ class Lockbox
         end
       end
     end
+  end
+
+  def self.generate_key_pair
+    require "rbnacl"
+    # encryption and decryption servers exchange public keys
+    # this produces smaller ciphertext than sealed box
+    alice = RbNaCl::PrivateKey.generate
+    bob = RbNaCl::PrivateKey.generate
+    # alice is sending message to bob
+    # use bob first in both cases to prevent keys being swappable
+    {
+      encryption_key: (bob.public_key.to_bytes + alice.to_bytes).unpack("H*").first,
+      decryption_key: (bob.to_bytes + alice.public_key.to_bytes).unpack("H*").first
+    }
   end
 
   private
