@@ -278,7 +278,7 @@ All Lockbox options are supported.
 class User < ApplicationRecord
   attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key, algorithm: "xchacha20", previous_versions: [{key: previous_key}]
 
-  attribute :encrypted_phone_iv # prevent attr_encrypted error
+  attr_accessor :encrypted_phone_iv # prevent attr_encrypted error
 end
 ```
 
@@ -288,7 +288,7 @@ For hybrid cryptography, use:
 class User < ApplicationRecord
   attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
 
-  attribute :encrypted_phone_iv # prevent attr_encrypted error
+  attr_accessor :encrypted_phone_iv # prevent attr_encrypted error
 end
 ```
 
