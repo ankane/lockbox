@@ -174,7 +174,7 @@ Lockbox.default_options = {algorithm: "xchacha20"}
 
 You can also pass an algorithm to `previous_versions` for key rotation.
 
-## Hybrid Cryptography [master]
+## Hybrid Cryptography
 
 [Hybrid cryptography](https://en.wikipedia.org/wiki/Hybrid_cryptosystem) allows servers to encrypt data without being able to decrypt it.
 
@@ -247,7 +247,7 @@ The format for AES-GCM is:
 
 For XChaCha20, use the appropriate [Libsodium library](https://libsodium.gitbook.io/doc/bindings_for_other_languages).
 
-## Database Fields [master]
+## Database Fields
 
 Lockbox can also be used with [attr_encrypted](https://github.com/attr-encrypted/attr_encrypted) for database fields. This gives you:
 
@@ -286,7 +286,7 @@ For hybrid cryptography, use:
 
 ```ruby
 class User < ApplicationRecord
-  attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: ENV["PHONE_ENCRYPTION_KEY"], decryption_key: ENV["PHONE_DECRYPTION_KEY"]
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
 
   attribute :encrypted_phone_iv # prevent attr_encrypted error
 end
