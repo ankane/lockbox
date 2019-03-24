@@ -276,15 +276,19 @@ Add to your model:
 
 ```ruby
 class User < ApplicationRecord
-  attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key, iv: ""
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key
+
+  attr_accessor :encrypted_phone_iv # prevent attr_encrypted error
 end
 ```
 
-Set `iv` to empty string as Lockbox takes care of the IV. All Lockbox options are supported.
+All Lockbox options are supported.
 
 ```ruby
 class User < ApplicationRecord
-  attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key, iv: "", algorithm: "xchacha20", previous_versions: [{key: previous_key}]
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key, algorithm: "xchacha20", previous_versions: [{key: previous_key}]
+
+  attr_accessor :encrypted_phone_iv # prevent attr_encrypted error
 end
 ```
 
@@ -292,7 +296,9 @@ For hybrid cryptography, use:
 
 ```ruby
 class User < ApplicationRecord
-  attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key, iv: ""
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
+
+  attr_accessor :encrypted_phone_iv # prevent attr_encrypted error
 end
 ```
 
