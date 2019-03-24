@@ -272,23 +272,21 @@ class AddEncryptedPhoneToUsers < ActiveRecord::Migration[5.2]
 end
 ```
 
-All Lockbox options are supported.
+Add to your model:
 
 ```ruby
 class User < ApplicationRecord
-  attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key, algorithm: "xchacha20", previous_versions: [{key: previous_key}]
-
-  attr_accessor :encrypted_phone_iv # prevent attr_encrypted error
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, key: key, algorithm: "xchacha20", previous_versions: [{key: previous_key}], iv: ""
 end
 ```
+
+All Lockbox options are supported. Set `iv` to empty string as Lockbox take care of the IV.
 
 For hybrid cryptography, use:
 
 ```ruby
 class User < ApplicationRecord
-  attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
-
-  attr_accessor :encrypted_phone_iv # prevent attr_encrypted error
+  attr_encrypted :phone, encryptor: Lockbox::Encryptor, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key, iv: ""
 end
 ```
 
