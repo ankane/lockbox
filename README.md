@@ -280,7 +280,7 @@ class User < ApplicationRecord
 end
 ```
 
-All Lockbox options are supported. Set `iv` to empty string as Lockbox take care of the IV.
+All Lockbox options are supported. Set `iv` to empty string as Lockbox takes care of the IV.
 
 For hybrid cryptography, use:
 
