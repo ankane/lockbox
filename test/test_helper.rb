@@ -14,7 +14,7 @@ CarrierWave.configure do |config|
 end
 
 class TextUploader < CarrierWave::Uploader::Base
-  encrypt key: SecureRandom.random_bytes(32)
+  encrypt key: Lockbox.generate_key
 
   process append: "!!"
 
@@ -28,11 +28,11 @@ class TextUploader < CarrierWave::Uploader::Base
 end
 
 class AvatarUploader < CarrierWave::Uploader::Base
-  encrypt key: SecureRandom.random_bytes(32)
+  encrypt key: Lockbox.generate_key
 end
 
 class DocumentUploader < CarrierWave::Uploader::Base
-  encrypt key: SecureRandom.random_bytes(32)
+  encrypt key: Lockbox.generate_key
 end
 
 class ImageUploader < CarrierWave::Uploader::Base

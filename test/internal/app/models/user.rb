@@ -1,16 +1,16 @@
 class User < ActiveRecord::Base
   has_one_attached :avatar
-  attached_encrypted :avatar, key: SecureRandom.random_bytes(32)
+  attached_encrypted :avatar, key: Lockbox.generate_key
 
   has_many_attached :avatars
-  attached_encrypted :avatars, key: SecureRandom.random_bytes(32)
+  attached_encrypted :avatars, key: Lockbox.generate_key
 
   has_one_attached :image
   has_many_attached :images
 
   mount_uploader :document, DocumentUploader
 
-  attr_encrypted :email, encryptor: Lockbox::Encryptor, key: SecureRandom.random_bytes(32), previous_versions: [{key: SecureRandom.random_bytes(32)}]
+  attr_encrypted :email, encryptor: Lockbox::Encryptor, key: Lockbox.generate_key, previous_versions: [{key: Lockbox.generate_key}]
   attr_accessor :encrypted_email_iv
 
   key_pair = Lockbox.generate_key_pair

@@ -1,3 +1,6 @@
+# dependencies
+require "securerandom"
+
 # modules
 require "lockbox/box"
 require "lockbox/encryptor"
@@ -54,6 +57,10 @@ class Lockbox
         end
       end
     end
+  end
+
+  def self.generate_key
+    SecureRandom.hex(32)
   end
 
   def self.generate_key_pair
