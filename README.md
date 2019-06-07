@@ -75,6 +75,20 @@ There are a few limitations to be aware of:
 - Metadata like image width and height are not extracted when encrypted
 - Direct uploads cannot be encrypted
 
+**Note:** With Rails 6, attachments are not encrypted with:
+
+```ruby
+User.create!(avatar: params[:avatar])
+```
+
+Until this is addressed, use:
+
+```ruby
+user = User.new
+user.attach(params[:avatar])
+user.save!
+```
+
 ## CarrierWave
 
 Add to your uploader:
