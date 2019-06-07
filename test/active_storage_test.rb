@@ -21,8 +21,8 @@ class ActiveStorageTest < Minitest::Test
     file.rewind
     user.avatar.attach(ActionDispatch::Http::UploadedFile.new(filename: "test.txt", tempfile: file))
 
-    assert_equal message, user.avatar.download
     refute_equal message, user.avatar.blob.download
+    assert_equal message, user.avatar.download
 
     user = User.last
     assert_equal message, user.avatar.download
@@ -36,8 +36,8 @@ class ActiveStorageTest < Minitest::Test
     file.rewind
     user = User.create!(avatar: ActionDispatch::Http::UploadedFile.new(filename: "test.txt", tempfile: file))
 
-    assert_equal message, user.avatar.download
     refute_equal message, user.avatar.blob.download
+    assert_equal message, user.avatar.download
 
     user = User.last
     assert_equal message, user.avatar.download
