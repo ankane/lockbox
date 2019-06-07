@@ -51,7 +51,7 @@ class ActiveStorageTest < Minitest::Test
     messages = ["hello world", "goodbye moon"]
     user = User.create!
     messages.each do |message|
-      user.avatars.attach(io: StringIO.new(message), filename: "test.txt")
+      user.avatars.attach(io: StringIO.new(message), filename: "#{message.gsub(" ", "_")}.txt")
     end
     assert_equal messages, user.avatars.map(&:download)
     refute_equal messages, user.avatars.map { |a| a.blob.download }
