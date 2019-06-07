@@ -1,12 +1,14 @@
 class User < ActiveRecord::Base
-  has_one_attached :avatar
-  attached_encrypted :avatar, key: Lockbox.generate_key
+  if defined?(ActiveStorage)
+    has_one_attached :avatar
+    attached_encrypted :avatar, key: Lockbox.generate_key
 
-  has_many_attached :avatars
-  attached_encrypted :avatars, key: Lockbox.generate_key
+    has_many_attached :avatars
+    attached_encrypted :avatars, key: Lockbox.generate_key
 
-  has_one_attached :image
-  has_many_attached :images
+    has_one_attached :image
+    has_many_attached :images
+  end
 
   mount_uploader :document, DocumentUploader
 

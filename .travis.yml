@@ -1,10 +1,11 @@
 dist: xenial
 language: ruby
-rvm:
-  - 2.5.3
-  - 2.3.8
+rvm: 2.6.3
 gemfile:
   - Gemfile
+  - test/gemfiles/rails52.gemfile
+  - test/gemfiles/rails51.gemfile
+  - test/gemfiles/rails50.gemfile
 before_install:
   - export LIBSODIUM_VERSION=1.0.17
   - ./test/ci/install_libsodium.sh
