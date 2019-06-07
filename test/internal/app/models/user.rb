@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  if defined?(ActiveStorage)
+  if respond_to?(:has_one_attached)
     has_one_attached :avatar
     attached_encrypted :avatar, key: Lockbox.generate_key
 
