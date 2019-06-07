@@ -84,9 +84,8 @@ User.create!(avatar: params[:avatar])
 Until this is addressed, use:
 
 ```ruby
-user = User.new
+user = User.create!
 user.attach(params[:avatar])
-user.save!
 ```
 
 ## CarrierWave
