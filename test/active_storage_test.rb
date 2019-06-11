@@ -32,6 +32,27 @@ class ActiveStorageTest < Minitest::Test
     assert_equal message, user.avatar.download
   end
 
+  def test_encrypt_blob
+    message = "hello world"
+    user = User.create!
+    user.avatar.attach(io: StringIO.new(message), filename: "test.txt")
+
+    user2 = User.create!
+
+    assert_raises NotImplementedError do
+      user2.avatar.attach(user.avatar.blob)
+    end
+  end
+
+  def test_encrypt_string
+    message = "hello world"
+    user = User.create!
+
+    assert_raises NotImplementedError do
+      user.avatar.attach(message)
+    end
+  end
+
   def test_encrypt_create
     message = "hello world"
 
