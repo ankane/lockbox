@@ -23,8 +23,9 @@ ActiveRecord::Schema.define do
   end
 
   create_table :users do |t|
+    t.string :name
     t.string :document
-    t.string :encrypted_email
-    t.string :encrypted_phone
+    t.string :email_ciphertext
+    t.string :phone_ciphertext
   end
 end

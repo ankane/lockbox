@@ -8,7 +8,6 @@ class Lockbox
         ActiveStorage::Attached.prepend(Lockbox::ActiveStorageExtensions::Attached)
         ActiveStorage::Attached::One.prepend(Lockbox::ActiveStorageExtensions::AttachedOne)
         ActiveStorage::Attached::Many.prepend(Lockbox::ActiveStorageExtensions::AttachedMany)
-        ActiveRecord::Base.extend(Lockbox::ActiveStorageExtensions::Model) if defined?(ActiveRecord)
       end
 
       app.config.to_prepare do

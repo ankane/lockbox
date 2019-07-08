@@ -36,7 +36,21 @@ class Lockbox
         private
 
         define_method :lockbox do
-          @lockbox ||= Utils.build_box(self, options)
+          @lockbox ||= begin
+            table = model ? model.class.table_name : "_uploader"
+            attribute =
+              if mounted_as
+                mounted_as.to_s
+              else
+                uploader = self
+                while uploader.parent_version
+                  uploader = uploader.parent_version
+                end
+                uploader.class.name.sub(/Uploader\z/, "").underscore
+              end
+
+            Utils.build_box(self, options, table, attribute)
+          end
         end
       end
     end

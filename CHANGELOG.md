@@ -1,6 +1,9 @@
-## 0.1.2 [unreleased]
+## 0.2.0 [unreleased]
 
+- Added `encrypts` method for database fields
+- Added `encrypts_attached` method
 - Added `generate_key` method
+- Added support for XSalsa20
 
 ## 0.1.1
 

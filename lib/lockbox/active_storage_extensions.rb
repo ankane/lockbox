@@ -10,12 +10,12 @@ class Lockbox
       def encrypted?
         # could use record_type directly
         # but record should already be loaded most of the time
-        Utils.encrypted_options(record, name).present?
+        !Utils.encrypted_options(record, name).nil?
       end
 
       def encrypt_attachable(attachable)
         options = Utils.encrypted_options(record, name)
-        box = Utils.build_box(record, options)
+        box = Utils.build_box(record, options, record.class.table_name, name)
 
         case attachable
         when ActiveStorage::Blob
@@ -107,7 +107,7 @@ class Lockbox
 
         options = Utils.encrypted_options(record, name)
         if options
-          result = Utils.build_box(record, options).decrypt(result)
+          result = Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
         end
 
         result
@@ -121,31 +121,6 @@ class Lockbox
 
       included do
         after_save :mark_analyzed
-      end
-    end
-
-    module Model
-      def attached_encrypted(name, **options)
-        class_eval do
-          @encrypted_attachments ||= {}
-
-          unless respond_to?(:encrypted_attachments)
-            def self.encrypted_attachments
-              parent_attachments =
-                if superclass.respond_to?(:encrypted_attachments)
-                  superclass.encrypted_attachments
-                else
-                  {}
-                end
-
-              parent_attachments.merge(@encrypted_attachments || {})
-            end
-          end
-
-          raise ArgumentError, "Duplicate encrypted attachment: #{name}" if encrypted_attachments[name]
-
-          @encrypted_attachments[name] = options
-        end
       end
     end
   end

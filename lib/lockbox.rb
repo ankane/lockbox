@@ -4,6 +4,7 @@ require "securerandom"
 # modules
 require "lockbox/box"
 require "lockbox/encryptor"
+require "lockbox/key_generator"
 require "lockbox/utils"
 require "lockbox/version"
 
@@ -11,14 +12,62 @@ require "lockbox/version"
 require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
 require "lockbox/railtie" if defined?(Rails)
 
+if defined?(ActiveSupport)
+  ActiveSupport.on_load(:active_record) do
+    require "lockbox/model"
+    extend Lockbox::Model
+  end
+end
+
 class Lockbox
   class Error < StandardError; end
   class DecryptionError < Error; end
 
   class << self
     attr_accessor :default_options
+    attr_writer :master_key
   end
-  self.default_options = {algorithm: "aes-gcm"}
+  self.default_options = {}
+
+  def self.master_key
+    @master_key ||= ENV["LOCKBOX_MASTER_KEY"]
+  end
+
+  def self.migrate(model, restart: false)
+    # get fields
+    fields = model.lockbox_attributes.select { |k, v| v[:migrating] }
+
+    # get blind indexes
+    blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
+
+    # build relation
+    relation = model.unscoped
+
+    unless restart
+      attributes = fields.map { |_, v| v[:encrypted_attribute] }
+      attributes += blind_indexes.map { |_, v| v[:bidx_attribute] }
+
+      attributes.each_with_index do |attribute, i|
+        relation =
+          if i == 0
+            relation.where(attribute => nil)
+          else
+            relation.or(model.where(attribute => nil))
+          end
+      end
+    end
+
+    # migrate
+    relation.find_each do |record|
+      fields.each do |k, v|
+        record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
+      end
+      blind_indexes.each do |k, v|
+        record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+      end
+      record.save(validate: false) if record.changed?
+    end
+  end
 
   def initialize(**options)
     options = self.class.default_options.merge(options)
@@ -72,9 +121,22 @@ class Lockbox
     # alice is sending message to bob
     # use bob first in both cases to prevent keys being swappable
     {
-      encryption_key: (bob.public_key.to_bytes + alice.to_bytes).unpack("H*").first,
-      decryption_key: (bob.to_bytes + alice.public_key.to_bytes).unpack("H*").first
+      encryption_key: to_hex(bob.public_key.to_bytes + alice.to_bytes),
+      decryption_key: to_hex(bob.to_bytes + alice.public_key.to_bytes)
     }
+  end
+
+  def self.attribute_key(table:, attribute:, master_key: nil, encode: true)
+    master_key ||= Lockbox.master_key
+    raise ArgumentError, "Missing master key" unless master_key
+
+    key = Lockbox::KeyGenerator.new(master_key).attribute_key(table: table, attribute: attribute)
+    key = to_hex(key) if encode
+    key
+  end
+
+  def self.to_hex(str)
+    str.unpack("H*").first
   end
 
   private

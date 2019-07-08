@@ -5,8 +5,9 @@ require "active_storage/engine" if Rails.version >= "5.2"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
-require "active_record"
-require "attr_encrypted"
+require "rbnacl"
+
+Lockbox.master_key = SecureRandom.random_bytes(32)
 
 CarrierWave.configure do |config|
   config.storage = :file
@@ -15,7 +16,7 @@ CarrierWave.configure do |config|
 end
 
 class TextUploader < CarrierWave::Uploader::Base
-  encrypt key: Lockbox.generate_key
+  encrypt
 
   process append: "!!"
 
@@ -29,11 +30,11 @@ class TextUploader < CarrierWave::Uploader::Base
 end
 
 class AvatarUploader < CarrierWave::Uploader::Base
-  encrypt key: Lockbox.generate_key
+  encrypt
 end
 
 class DocumentUploader < CarrierWave::Uploader::Base
-  encrypt key: Lockbox.generate_key
+  encrypt
 end
 
 class ImageUploader < CarrierWave::Uploader::Base
