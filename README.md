@@ -364,7 +364,7 @@ end
 
 Make sure `decryption_key` is `nil` on servers that shouldn’t decrypt.
 
-This uses X25519 for key exchange and XSalsa20-Poly1305 for encryption.
+This uses X25519 for key exchange and XSalsa20 for encryption.
 
 ## Key Separation
 
