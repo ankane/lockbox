@@ -8,7 +8,7 @@
 - Requires you to only manage a single encryption key
 - Makes migrating existing data and key rotation easy
 
-Check out [this post](https://ankane.org/modern-encryption-rails) for more info on its design, and [this post](https://ankane.org/sensitive-data-rails) for more info on securing sensitive data with Rails
+Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [how to secure emails](https://ankane.org/securing-user-emails-lockbox), and [how to secure sensitive data in Rails](https://ankane.org/sensitive-data-rails)
 
 [![Build Status](https://travis-ci.org/ankane/lockbox.svg?branch=master)](https://travis-ci.org/ankane/lockbox)
 
