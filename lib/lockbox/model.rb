@@ -121,8 +121,8 @@ class Lockbox
                 if ciphertext.nil? || ciphertext == ""
                   ciphertext
                 else
-                  decoded = Base64.decode64(ciphertext)
-                  Lockbox::Utils.build_box(self, options, self.class.table_name, encrypted_attribute).decrypt(decoded)
+                  ciphertext = Base64.decode64(ciphertext)
+                  Lockbox::Utils.build_box(self, options, self.class.table_name, encrypted_attribute).decrypt(ciphertext)
                 end
 
               # set previous attribute on first decrypt
@@ -140,7 +140,8 @@ class Lockbox
 
           # for fixtures
           define_singleton_method class_method_name do |message, **opts|
-            Base64.strict_encode64(Lockbox::Utils.build_box(opts[:context], options, table_name, encrypted_attribute).encrypt(message))
+            ciphertext = Lockbox::Utils.build_box(opts[:context], options, table_name, encrypted_attribute).encrypt(message)
+            Base64.strict_encode64(ciphertext)
           end
         end
       end
