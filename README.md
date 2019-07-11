@@ -74,7 +74,7 @@ If you need to query encrypted fields, check out [Blind Index](https://github.co
 
 ### Validations
 
-Validations work the same as with unencrypted fields with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).
+Validations work as expected with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).
 
 ## Files
 
