@@ -134,10 +134,16 @@ class ActiveRecordTest < Minitest::Test
     assert post.valid?
   end
 
-  def test_validations_invalid
+  def test_validations_presence
     post = Post.new
     assert !post.valid?
     assert_equal "Title can't be blank", post.errors.full_messages.first
+  end
+
+  def test_validations_length
+    post = Post.new(title: "Hi")
+    assert !post.valid?
+    assert_equal "Title is too short (minimum is 3 characters)", post.errors.full_messages.first
   end
 
   def test_attribute_key_encrypted_column
