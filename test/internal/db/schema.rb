@@ -25,7 +25,11 @@ ActiveRecord::Schema.define do
   create_table :users do |t|
     t.string :name
     t.string :document
-    t.string :email_ciphertext
-    t.string :phone_ciphertext
+    t.text :email_ciphertext
+    t.text :phone_ciphertext
+  end
+
+  create_table :posts do |t|
+    t.text :title_ciphertext
   end
 end

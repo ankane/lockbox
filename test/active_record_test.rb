@@ -126,6 +126,20 @@ class ActiveRecordTest < Minitest::Test
     assert_equal user.phone, phone
   end
 
+  def test_validations_valid
+    post = Post.new(title: "Hello World")
+    assert post.valid?
+    post.save!
+    post = Post.last
+    assert post.valid?
+  end
+
+  def test_validations_invalid
+    post = Post.new
+    assert !post.valid?
+    assert_equal "Title can't be blank", post.errors.full_messages.first
+  end
+
   def test_attribute_key_encrypted_column
     email = "test@example.org"
     user = User.create!(email: email)
