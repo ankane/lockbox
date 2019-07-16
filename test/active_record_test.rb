@@ -5,7 +5,7 @@ class ActiveRecordTest < Minitest::Test
     email = "test@example.org"
     User.create!(email: email)
     user = User.last
-    assert_equal user.email, email
+    assert_equal email, user.email
   end
 
   def test_rotation
@@ -14,7 +14,7 @@ class ActiveRecordTest < Minitest::Test
     box = Lockbox.new(key: key)
     user = User.create!(email_ciphertext: Base64.strict_encode64(box.encrypt(email)))
     user = User.last
-    assert_equal user.email, email
+    assert_equal email, user.email
   end
 
   # ensure consistent with normal attributes
@@ -32,8 +32,11 @@ class ActiveRecordTest < Minitest::Test
     assert !user.email_changed?
 
     assert_equal original_name, user.name_was
-    # unsure if possible
-    # assert_equal original_email, user.email_was
+    if ActiveRecord::VERSION::STRING >= "5.2"
+      assert_nil user.email_was
+    else
+      assert_equal original_email, user.email_was
+    end
 
     # update
     user.name = new_name
@@ -123,7 +126,7 @@ class ActiveRecordTest < Minitest::Test
     phone = "555-555-5555"
     User.create!(phone: phone)
     user = User.last
-    assert_equal user.phone, phone
+    assert_equal phone, user.phone
   end
 
   def test_validations_valid
