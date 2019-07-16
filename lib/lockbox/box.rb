@@ -2,7 +2,7 @@ require "securerandom"
 
 class Lockbox
   class Box
-    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil)
+    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false)
       raise ArgumentError, "Cannot pass both key and public/private key" if key && (encryption_key || decryption_key)
 
       key = Lockbox::Utils.decode_key(key) if key
@@ -34,9 +34,11 @@ class Lockbox
       end
 
       @algorithm = algorithm
+      @padding = padding
     end
 
     def encrypt(message, associated_data: nil)
+      message = Lockbox.pad(message) if @padding
       case @algorithm
       when "hybrid"
         raise ArgumentError, "No public key set" unless @encryption_box
@@ -54,19 +56,22 @@ class Lockbox
     end
 
     def decrypt(ciphertext, associated_data: nil)
-      case @algorithm
-      when "hybrid"
-        raise ArgumentError, "No private key set" unless @decryption_box
-        raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
-        nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
-        @decryption_box.decrypt(nonce, ciphertext)
-      when "xsalsa20"
-        nonce, ciphertext = extract_nonce(@box, ciphertext)
-        @box.decrypt(nonce, ciphertext)
-      else
-        nonce, ciphertext = extract_nonce(@box, ciphertext)
-        @box.decrypt(nonce, ciphertext, associated_data)
-      end
+      message =
+        case @algorithm
+        when "hybrid"
+          raise ArgumentError, "No private key set" unless @decryption_box
+          raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
+          nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
+          @decryption_box.decrypt(nonce, ciphertext)
+        when "xsalsa20"
+          nonce, ciphertext = extract_nonce(@box, ciphertext)
+          @box.decrypt(nonce, ciphertext)
+        else
+          nonce, ciphertext = extract_nonce(@box, ciphertext)
+          @box.decrypt(nonce, ciphertext, associated_data)
+        end
+      message = Lockbox.unpad(message) if @padding
+      message
     end
 
     # protect key for xchacha20 and hybrid

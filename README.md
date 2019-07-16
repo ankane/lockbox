@@ -406,6 +406,14 @@ end
 
 **Note:** KMS Encrypted’s key rotation does not know to rotate encrypted files, so avoid calling `record.rotate_kms_key!` on models with file uploads for now.
 
+## Reference
+
+Add padding to hide exact length of messages [master]
+
+```ruby
+box = Lockbox.new(padding: true)
+```
+
 ## Compatibility
 
 It’s easy to read encrypted data in another language if needed.

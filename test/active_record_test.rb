@@ -164,4 +164,21 @@ class ActiveRecordTest < Minitest::Test
     box = Lockbox.new(key: key)
     assert_equal email, box.decrypt(Base64.decode64(ciphertext))
   end
+
+  def test_padding
+    user = User.create!(city: "New York")
+    assert_equal 12 + 16 + 16, Base64.decode64(user.city_ciphertext).bytesize
+  end
+
+  def test_padding_empty_string
+    user = User.create!(city: "")
+    assert_equal 12 + 16 + 16, Base64.decode64(user.city_ciphertext).bytesize
+  end
+
+  def test_padding_invalid
+    user = User.create!(city_ciphertext: "")
+    assert_raises(Lockbox::DecryptionError) do
+      user.city
+    end
+  end
 end

@@ -22,6 +22,7 @@ end
 class Lockbox
   class Error < StandardError; end
   class DecryptionError < Error; end
+  class PaddingError < Error; end
 
   class << self
     attr_accessor :default_options
@@ -137,6 +138,49 @@ class Lockbox
 
   def self.to_hex(str)
     str.unpack("H*").first
+  end
+
+  PAD_BLOCK_SIZE = 16
+  PAD_FIRST_BYTE = "\x80".b
+  PAD_ZERO_BYTE = "\x00".b
+
+  # ISO/IEC 7816-4
+  # same as Libsodium
+  # https://libsodium.gitbook.io/doc/padding
+  # apply prior to encryption
+  # TODO minimize side channels
+  def self.pad(str)
+    str = String.new(str, encoding: Encoding::BINARY)
+
+    pad_length = PAD_BLOCK_SIZE - 1
+    pad_length -= str.bytesize % PAD_BLOCK_SIZE
+
+    str << PAD_FIRST_BYTE
+    pad_length.times do
+      str << PAD_ZERO_BYTE
+    end
+
+    str
+  end
+
+  def self.unpad(str)
+    if str.encoding != Encoding::BINARY
+      str = str.dup.force_encoding(Encoding::BINARY)
+    end
+
+    i = 1
+    while i <= PAD_BLOCK_SIZE
+      case str[-i]
+      when PAD_ZERO_BYTE
+        i += 1
+      when PAD_FIRST_BYTE
+        return str[0..-(i + 1)]
+      else
+        break
+      end
+    end
+
+    raise Lockbox::PaddingError, "Invalid padding"
   end
 
   private

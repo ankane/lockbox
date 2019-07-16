@@ -27,6 +27,7 @@ ActiveRecord::Schema.define do
     t.string :document
     t.text :email_ciphertext
     t.text :phone_ciphertext
+    t.text :city_ciphertext
   end
 
   create_table :posts do |t|

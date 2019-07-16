@@ -258,6 +258,34 @@ class LockboxTest < Minitest::Test
     assert_equal "d96ffa3fe916b3a9b57d084f5781e95748333b877e32e6399e387d3d75b238a1", key
   end
 
+  def test_padding
+    box = Lockbox.new(key: random_key, padding: true)
+    message = "it works!"
+    ciphertext = box.encrypt(message)
+    # nonce + ciphertext + auth tag
+    assert_equal 12 + 16 + 16, ciphertext.bytesize
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_pad
+    assert_equal "80000000000000000000000000000000", Lockbox.to_hex(Lockbox.pad(""))
+    assert_equal "6162636465666768696a6b6c6d6e6f80", Lockbox.to_hex(Lockbox.pad("abcdefghijklmno"))
+    assert_equal "6162636465666768696a6b6c6d6e6f7080000000000000000000000000000000", Lockbox.to_hex(Lockbox.pad("abcdefghijklmnop"))
+  end
+
+  def test_unpad
+    assert_equal "", Lockbox.unpad(Lockbox.pad(""))
+    assert_equal "abcdefghijklmno", Lockbox.unpad(Lockbox.pad("abcdefghijklmno"))
+    assert_equal "abcdefghijklmnop", Lockbox.unpad(Lockbox.pad("abcdefghijklmnop"))
+  end
+
+  def test_unpad_invalid
+    error = assert_raises(Lockbox::PaddingError) do
+      Lockbox.unpad("hi")
+    end
+    assert_equal "Invalid padding", error.message
+  end
+
   private
 
   def random_key

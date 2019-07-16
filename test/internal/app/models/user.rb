@@ -16,4 +16,6 @@ class User < ActiveRecord::Base
 
   key_pair = Lockbox.generate_key_pair
   encrypts :phone, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: key_pair[:decryption_key]
+
+  encrypts :city, padding: true
 end

@@ -1,3 +1,7 @@
+## 0.2.1 [unreleased]
+
+- Added support for padding
+
 ## 0.2.0
 
 - Added `encrypts` method for database fields
