@@ -103,7 +103,7 @@ class Lockbox
             end
 
             ciphertext =
-              if message.nil? || message == ""
+              if message.nil? || (message == "" && !options[:padding])
                 message
               else
                 self.class.send(class_method_name, message, context: self)
@@ -118,7 +118,7 @@ class Lockbox
             unless message
               ciphertext = send(encrypted_attribute)
               message =
-                if ciphertext.nil? || ciphertext == ""
+                if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                   ciphertext
                 else
                   ciphertext = Base64.decode64(ciphertext)
