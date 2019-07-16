@@ -1,3 +1,3 @@
 test:
-  adapter:  sqlite3
-  database: db/combustion_test.sqlite
+  adapter:  <%= ENV["ADAPTER"] || "sqlite3" %>
+  database: <%= ENV["ADAPTER"] == "postgresql" ? "lockbox_test" : "db/combustion_test.sqlite" %>
