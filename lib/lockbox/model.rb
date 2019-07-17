@@ -221,7 +221,7 @@ class Lockbox
                 when :float
                   message = ActiveRecord::Type::Float.new.deserialize(message.unpack("G").first)
                 when :string
-                  message = message.force_encoding(Encoding::UTF_8)
+                  message = message.encode(Encoding::UTF_8)
                 when :binary
                   # do nothing
                   # decrypt returns binary string
