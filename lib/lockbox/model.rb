@@ -159,9 +159,11 @@ class Lockbox
               when :integer
                 message = ActiveRecord::Type::Integer.new(limit: 8).serialize(message)
                 message = 0 if message.nil?
+                # signed 64-bit integer, big endian
                 message = [message].pack("q>")
               when :float
                 message = ActiveRecord::Type::Float.new.serialize(message)
+                # double precision, big endian
                 message = [message].pack("G") unless message.nil?
               when :string, :binary
                 # do nothing
