@@ -1,5 +1,7 @@
 ## 0.2.1 [unreleased]
 
+- Added support for types
+- Added support for serialized attributes
 - Added support for padding
 
 ## 0.2.0

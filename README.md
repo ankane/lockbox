@@ -72,6 +72,34 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
+### Types [master]
+
+Specify the type of a field with:
+
+```ruby
+class User < ApplicationRecord
+  encrypts :dob, type: :date
+  encrypts :signed_at, type: :datetime
+  encrypts :active, type: :boolean
+  encrypts :sign_in_count, type: :integer
+  encrypts :latitude, type: :float
+  encrypts :video, type: :binary
+  encrypts :properties, type: :json
+  encrypts :settings, type: :hash
+end
+```
+
+**Note:** Always use a `text` or `binary` column in migrations, regardless of the type
+
+Lockbox automatically works with serialized fields.
+
+```ruby
+class User < ApplicationRecord
+  serialize :properties, JSON
+  encrypts :properties
+end
+```
+
 ### Validations
 
 Validations work as expected with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).

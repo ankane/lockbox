@@ -17,5 +17,23 @@ class User < ActiveRecord::Base
   key_pair = Lockbox.generate_key_pair
   encrypts :phone, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: key_pair[:decryption_key]
 
+  serialize :properties, JSON
+  serialize :properties2, JSON
+
+  serialize :settings, Hash
+  serialize :settings2, Hash
+  serialize :info, Hash
+
+  encrypts :properties2, :settings2
+
+  encrypts :country2, type: :string
+  encrypts :active2, type: :boolean
+  encrypts :dob2, type: :date
+  encrypts :signed_at2, type: :datetime
+  encrypts :sign_in_count2, type: :integer
+  encrypts :latitude2, type: :float
+  encrypts :video2, type: :binary
+  encrypts :data2, type: :json
+  encrypts :info2, type: :hash
   encrypts :city, padding: true
 end

@@ -47,6 +47,7 @@ Combustion.initialize! :active_record, :active_job do
   end
   config.active_job.queue_adapter = :inline
   config.active_storage.service = :test if defined?(ActiveStorage)
+  config.time_zone = "Mountain Time (US & Canada)"
 end
 
 if ENV["VERBOSE"]

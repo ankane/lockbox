@@ -27,6 +27,28 @@ ActiveRecord::Schema.define do
     t.string :document
     t.text :email_ciphertext
     t.text :phone_ciphertext
+    t.text :properties
+    t.text :properties2_ciphertext
+    t.text :settings
+    t.text :settings2_ciphertext
+    t.string :country
+    t.text :country2_ciphertext
+    t.boolean :active
+    t.text :active2_ciphertext
+    t.date :dob
+    t.text :dob2_ciphertext
+    t.datetime :signed_at
+    t.text :signed_at2_ciphertext
+    t.bigint :sign_in_count
+    t.text :sign_in_count2_ciphertext
+    t.float :latitude
+    t.text :latitude2_ciphertext
+    t.binary :video
+    t.text :video2_ciphertext
+    t.column :data, :json
+    t.text :data2_ciphertext
+    t.text :info
+    t.text :info2_ciphertext
     t.text :city_ciphertext
   end
 
