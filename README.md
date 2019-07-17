@@ -91,7 +91,7 @@ end
 
 **Note:** Always use a `text` or `binary` column in migrations, regardless of the type
 
-Lockbox automatically works with serialized fields.
+Lockbox automatically works with serialized fields for maximum compatibility with existing codd and libraries.
 
 ```ruby
 class User < ApplicationRecord
