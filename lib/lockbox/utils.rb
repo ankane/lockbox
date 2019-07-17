@@ -1,7 +1,7 @@
 class Lockbox
   class Utils
     def self.build_box(context, options, table, attribute)
-      options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type)
+      options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type, :encode)
       options.each do |k, v|
         if v.is_a?(Proc)
           options[k] = context.instance_exec(&v) if v.respond_to?(:call)

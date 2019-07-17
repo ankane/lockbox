@@ -436,10 +436,24 @@ end
 
 ## Reference
 
+Set default options in an initializer with:
+
+```ruby
+Lockbox.default_options = {algorithm: "xsalsa20"}
+```
+
 Add padding to hide exact length of messages [master]
 
 ```ruby
 box = Lockbox.new(padding: true)
+```
+
+For database fields, encrypted data is encoded in Base64. If you use `binary` columns instead of `text` columns, set: [master]
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, encode: false
+end
 ```
 
 ## Compatibility

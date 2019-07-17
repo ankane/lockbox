@@ -149,6 +149,16 @@ class ActiveRecordTest < Minitest::Test
     assert_equal "Title is too short (minimum is 3 characters)", post.errors.full_messages.first
   end
 
+  def test_encode
+    ssn = "123-45-6789"
+    User.create!(ssn: ssn)
+    user = User.last
+    assert_equal user.ssn, ssn
+    nonce_size = 12
+    auth_tag_size = 16
+    assert_equal nonce_size + ssn.bytesize + auth_tag_size, user.ssn_ciphertext.bytesize
+  end
+
   def test_attribute_key_encrypted_column
     email = "test@example.org"
     user = User.create!(email: email)

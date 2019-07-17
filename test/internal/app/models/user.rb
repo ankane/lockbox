@@ -36,4 +36,5 @@ class User < ActiveRecord::Base
   encrypts :data2, type: :json
   encrypts :info2, type: :hash
   encrypts :city, padding: true
+  encrypts :ssn, encode: false
 end

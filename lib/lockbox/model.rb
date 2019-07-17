@@ -31,7 +31,7 @@ class Lockbox
       end
     end
 
-    def encrypts(*attributes, **options)
+    def encrypts(*attributes, encode: true, **options)
       # support objects
       # case options[:type]
       # when Date
@@ -101,7 +101,7 @@ class Lockbox
           end
 
           raise "Duplicate encrypted attribute: #{original_name}" if lockbox_attributes[original_name]
-          @lockbox_attributes[original_name] = options
+          @lockbox_attributes[original_name] = options.merge(encode: encode)
 
           if @lockbox_attributes.size == 1
             def serializable_hash(options = nil)
@@ -202,7 +202,7 @@ class Lockbox
                 if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                   ciphertext
                 else
-                  ciphertext = Base64.decode64(ciphertext)
+                  ciphertext = Base64.decode64(ciphertext) if encode
                   Lockbox::Utils.build_box(self, options, self.class.table_name, encrypted_attribute).decrypt(ciphertext)
                 end
 
@@ -248,7 +248,8 @@ class Lockbox
           # for fixtures
           define_singleton_method class_method_name do |message, **opts|
             ciphertext = Lockbox::Utils.build_box(opts[:context], options, table_name, encrypted_attribute).encrypt(message)
-            Base64.strict_encode64(ciphertext)
+            ciphertext = Base64.strict_encode64(ciphertext) if encode
+            ciphertext
           end
         end
       end

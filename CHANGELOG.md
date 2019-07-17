@@ -3,6 +3,7 @@
 - Added support for types
 - Added support for serialized attributes
 - Added support for padding
+- Added `encode` option for binary columns
 
 ## 0.2.0
 
