@@ -442,7 +442,7 @@ Set default options in an initializer with:
 Lockbox.default_options = {algorithm: "xsalsa20"}
 ```
 
-Add padding to hide exact length of messages [master]
+Add padding to conceal the exact length of messages [master]
 
 ```ruby
 box = Lockbox.new(padding: true)
