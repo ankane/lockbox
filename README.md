@@ -1,6 +1,6 @@
 # Lockbox
 
-:lock: Modern encryption for Rails
+:package: Modern encryption for Rails
 
 - Uses state-of-the-art algorithms
 - Works with database fields, files, and strings
