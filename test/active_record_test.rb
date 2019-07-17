@@ -188,7 +188,7 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_boolean_bytesize
-    assert_bytesize :active, true, false
+    assert_bytesize :active, true, false, size: 1
   end
 
   def test_type_boolean_invalid
@@ -206,9 +206,9 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_date_bytesize
-    assert_bytesize :dob, Date.current, Date.current + 10000
-    assert_bytesize :dob, Date.current, Date.current - 10000
-    assert_bytesize :dob, Date.current, Date.parse("999-01-01")
+    assert_bytesize :dob, Date.current, Date.current + 10000, size: 10
+    assert_bytesize :dob, Date.current, Date.current - 10000, size: 10
+    assert_bytesize :dob, Date.current, Date.parse("999-01-01"), size: 10
     refute_bytesize :dob, Date.current, Date.parse("99999-01-01")
   end
 
@@ -222,8 +222,8 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_datetime_bytesize
-    assert_bytesize :dob, Time.current, Time.current + 100.years
-    assert_bytesize :dob, Time.current, Time.current - 100.years
+    assert_bytesize :signed_at, Time.current, Time.current + 100.years, size: 30
+    assert_bytesize :signed_at, Time.current, Time.current - 100.years, size: 30
   end
 
   def test_type_datetime_invalid
@@ -241,8 +241,8 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_integer_bytesize
-    assert_bytesize :sign_in_count, 10, 1_000_000_000
-    assert_bytesize :sign_in_count, -1_000_000_000, 1_000_000_000
+    assert_bytesize :sign_in_count, 10, 1_000_000_000, size: 8
+    assert_bytesize :sign_in_count, -1_000_000_000, 1_000_000_000, size: 8
   end
 
   def test_type_integer_invalid
@@ -294,8 +294,8 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_float_bytesize
-    assert_bytesize :latitude, 10, 1_000_000_000.123
-    assert_bytesize :latitude, -1_000_000_000.123, 1_000_000_000.123
+    assert_bytesize :latitude, 10, 1_000_000_000.123, size: 8
+    assert_bytesize :latitude, -1_000_000_000.123, 1_000_000_000.123, size: 8
   end
 
   def test_type_float_invalid
@@ -488,8 +488,10 @@ class ActiveRecordTest < Minitest::Test
     end
   end
 
-  def assert_bytesize(*args)
-    assert_equal *bytesizes(*args)
+  def assert_bytesize(*args, size: nil)
+    sizes = bytesizes(*args)
+    assert_equal *sizes
+    assert_equal size, sizes[0] - 12 - 16 if size
   end
 
   def refute_bytesize(*args)
