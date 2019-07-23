@@ -148,7 +148,8 @@ class Lockbox
   # same as Libsodium
   # https://libsodium.gitbook.io/doc/padding
   # apply prior to encryption
-  # TODO minimize side channels
+  # note: current implementation does not
+  # try to minimize side channels
   def self.pad(str)
     str = str.dup.force_encoding(Encoding::BINARY)
 
@@ -163,6 +164,8 @@ class Lockbox
     str
   end
 
+  # note: current implementation does not
+  # try to minimize side channels
   def self.unpad(str)
     if str.encoding != Encoding::BINARY
       str = str.dup.force_encoding(Encoding::BINARY)
