@@ -150,7 +150,7 @@ class Lockbox
   # apply prior to encryption
   # TODO minimize side channels
   def self.pad(str)
-    str = String.new(str, encoding: Encoding::BINARY)
+    str = str.dup.force_encoding(Encoding::BINARY)
 
     pad_length = PAD_BLOCK_SIZE - 1
     pad_length -= str.bytesize % PAD_BLOCK_SIZE
