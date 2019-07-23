@@ -28,7 +28,7 @@ class User < ActiveRecord::Base
 
   encrypts :country2, type: :string
   encrypts :active2, type: :boolean
-  encrypts :dob2, type: :date
+  encrypts :born_on2, type: :date
   encrypts :signed_at2, type: :datetime
   encrypts :sign_in_count2, type: :integer
   encrypts :latitude2, type: :float

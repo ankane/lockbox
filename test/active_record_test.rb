@@ -201,19 +201,19 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_date
-    dob = Date.current
-    assert_attribute :dob, dob, format: dob.strftime("%Y-%m-%d")
+    born_on = Date.current
+    assert_attribute :born_on, born_on, format: born_on.strftime("%Y-%m-%d")
   end
 
   def test_type_date_bytesize
-    assert_bytesize :dob, Date.current, Date.current + 10000, size: 10
-    assert_bytesize :dob, Date.current, Date.current - 10000, size: 10
-    assert_bytesize :dob, Date.current, Date.parse("999-01-01"), size: 10
-    refute_bytesize :dob, Date.current, Date.parse("99999-01-01")
+    assert_bytesize :born_on, Date.current, Date.current + 10000, size: 10
+    assert_bytesize :born_on, Date.current, Date.current - 10000, size: 10
+    assert_bytesize :born_on, Date.current, Date.parse("999-01-01"), size: 10
+    refute_bytesize :born_on, Date.current, Date.parse("99999-01-01")
   end
 
   def test_type_date_invalid
-    assert_attribute :dob, "invalid", expected: nil
+    assert_attribute :born_on, "invalid", expected: nil
   end
 
   def test_type_datetime

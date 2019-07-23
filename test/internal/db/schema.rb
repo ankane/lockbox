@@ -35,8 +35,8 @@ ActiveRecord::Schema.define do
     t.text :country2_ciphertext
     t.boolean :active
     t.text :active2_ciphertext
-    t.date :dob
-    t.text :dob2_ciphertext
+    t.date :born_on
+    t.text :born_on2_ciphertext
     t.datetime :signed_at
     t.text :signed_at2_ciphertext
     t.bigint :sign_in_count

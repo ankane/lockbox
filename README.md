@@ -78,7 +78,7 @@ Specify the type of a field with:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :dob, type: :date
+  encrypts :born_on, type: :date
   encrypts :signed_at, type: :datetime
   encrypts :active, type: :boolean
   encrypts :sign_in_count, type: :integer
