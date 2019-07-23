@@ -267,6 +267,21 @@ class LockboxTest < Minitest::Test
     assert_equal message, box.decrypt(ciphertext)
   end
 
+  def test_padding_integer
+    box = Lockbox.new(key: random_key, padding: 13)
+    message = "it works!"
+    ciphertext = box.encrypt(message)
+    # nonce + ciphertext + auth tag
+    assert_equal 12 + 13 + 16, ciphertext.bytesize
+    assert_equal message, box.decrypt(ciphertext)
+  end
+
+  def test_padding_invalid_size
+    assert_raises ArgumentError do
+      Lockbox.pad("hi", size: 0)
+    end
+  end
+
   def test_pad
     assert_equal "80000000000000000000000000000000", Lockbox.to_hex(Lockbox.pad(""))
     assert_equal "6162636465666768696a6b6c6d6e6f80", Lockbox.to_hex(Lockbox.pad("abcdefghijklmno"))

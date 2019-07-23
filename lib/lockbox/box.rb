@@ -34,11 +34,11 @@ class Lockbox
       end
 
       @algorithm = algorithm
-      @padding = padding
+      @padding = padding == true ? 16 : padding
     end
 
     def encrypt(message, associated_data: nil)
-      message = Lockbox.pad(message) if @padding
+      message = Lockbox.pad(message, size: @padding) if @padding
       case @algorithm
       when "hybrid"
         raise ArgumentError, "No public key set" unless @encryption_box
@@ -70,7 +70,7 @@ class Lockbox
           nonce, ciphertext = extract_nonce(@box, ciphertext)
           @box.decrypt(nonce, ciphertext, associated_data)
         end
-      message = Lockbox.unpad(message) if @padding
+      message = Lockbox.unpad(message, size: @padding) if @padding
       message
     end
 

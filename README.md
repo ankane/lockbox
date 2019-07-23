@@ -434,18 +434,26 @@ end
 
 **Note:** KMS Encrypted’s key rotation does not know to rotate encrypted files, so avoid calling `record.rotate_kms_key!` on models with file uploads for now.
 
+## Padding [master]
+
+Add padding to conceal the exact length of messages.
+
+```ruby
+Lockbox.new(padding: true)
+```
+
+The block size for padding is 16 bytes by default. Change this with:
+
+```ruby
+Lockbox.new(padding: 32) # bytes
+```
+
 ## Reference
 
 Set default options in an initializer with:
 
 ```ruby
 Lockbox.default_options = {algorithm: "xsalsa20"}
-```
-
-Add padding to conceal the exact length of messages [master]
-
-```ruby
-box = Lockbox.new(padding: true)
 ```
 
 For database fields, encrypted data is encoded in Base64. If you use `binary` columns instead of `text` columns, set: [master]

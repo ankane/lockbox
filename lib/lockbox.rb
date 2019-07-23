@@ -140,7 +140,6 @@ class Lockbox
     str.unpack("H*").first
   end
 
-  PAD_BLOCK_SIZE = 16
   PAD_FIRST_BYTE = "\x80".b
   PAD_ZERO_BYTE = "\x00".b
 
@@ -150,11 +149,13 @@ class Lockbox
   # apply prior to encryption
   # note: current implementation does not
   # try to minimize side channels
-  def self.pad(str)
+  def self.pad(str, size: 16)
+    raise ArgumentError, "Invalid size" if size < 1
+
     str = str.dup.force_encoding(Encoding::BINARY)
 
-    pad_length = PAD_BLOCK_SIZE - 1
-    pad_length -= str.bytesize % PAD_BLOCK_SIZE
+    pad_length = size - 1
+    pad_length -= str.bytesize % size
 
     str << PAD_FIRST_BYTE
     pad_length.times do
@@ -166,13 +167,15 @@ class Lockbox
 
   # note: current implementation does not
   # try to minimize side channels
-  def self.unpad(str)
+  def self.unpad(str, size: 16)
+    raise ArgumentError, "Invalid size" if size < 1
+
     if str.encoding != Encoding::BINARY
       str = str.dup.force_encoding(Encoding::BINARY)
     end
 
     i = 1
-    while i <= PAD_BLOCK_SIZE
+    while i <= size
       case str[-i]
       when PAD_ZERO_BYTE
         i += 1
