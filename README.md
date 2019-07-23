@@ -81,7 +81,7 @@ class User < ApplicationRecord
   encrypts :born_on, type: :date
   encrypts :signed_at, type: :datetime
   encrypts :active, type: :boolean
-  encrypts :sign_in_count, type: :integer
+  encrypts :salary, type: :integer
   encrypts :latitude, type: :float
   encrypts :video, type: :binary
   encrypts :properties, type: :json
