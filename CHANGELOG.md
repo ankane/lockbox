@@ -1,4 +1,4 @@
-## 0.2.1 [unreleased]
+## 0.2.1
 
 - Added support for types
 - Added support for serialized attributes

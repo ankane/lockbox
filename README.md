@@ -72,7 +72,7 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
-### Types [master]
+### Types
 
 Specify the type of a field with:
 
@@ -434,7 +434,7 @@ end
 
 **Note:** KMS Encrypted’s key rotation does not know to rotate encrypted files, so avoid calling `record.rotate_kms_key!` on models with file uploads for now.
 
-## Padding [master]
+## Padding
 
 Add padding to conceal the exact length of messages.
 
@@ -456,7 +456,7 @@ Set default options in an initializer with:
 Lockbox.default_options = {algorithm: "xsalsa20"}
 ```
 
-For database fields, encrypted data is encoded in Base64. If you use `binary` columns instead of `text` columns, set: [master]
+For database fields, encrypted data is encoded in Base64. If you use `binary` columns instead of `text` columns, set:
 
 ```ruby
 class User < ApplicationRecord
