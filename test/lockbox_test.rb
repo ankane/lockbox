@@ -166,6 +166,10 @@ class LockboxTest < Minitest::Test
     ciphertext = box.encrypt(message)
     new_box = Lockbox.new(key: key, padding: true, previous_versions: [{key: key}])
     assert_equal message, new_box.decrypt(ciphertext)
+
+    assert_raises Lockbox::DecryptionError do
+      Lockbox.new(key: key, padding: true).decrypt(ciphertext)
+    end
   end
 
   def test_inspect
