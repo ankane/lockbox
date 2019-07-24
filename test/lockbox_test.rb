@@ -168,7 +168,7 @@ class LockboxTest < Minitest::Test
     assert_equal message, new_box.decrypt(ciphertext)
 
     # returning DecryptionError instead of PaddingError
-    # is for convenience, not for security
+    # is for end-user convenience, not for security
     assert_raises Lockbox::DecryptionError do
       Lockbox.new(key: key, padding: true).decrypt(ciphertext)
     end
