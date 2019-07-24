@@ -98,6 +98,8 @@ class Lockbox
       begin
         return box.decrypt(ciphertext, **options)
       rescue => e
+        # returning DecryptionError instead of PaddingError
+        # is for convenience, not for security
         error_classes = [DecryptionError, PaddingError]
         error_classes << RbNaCl::LengthError if defined?(RbNaCl::LengthError)
         error_classes << RbNaCl::CryptoError if defined?(RbNaCl::CryptoError)
