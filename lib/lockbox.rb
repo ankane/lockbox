@@ -98,14 +98,11 @@ class Lockbox
       begin
         return box.decrypt(ciphertext, **options)
       rescue => e
-        error_classes = [DecryptionError]
+        error_classes = [DecryptionError, PaddingError]
         error_classes << RbNaCl::LengthError if defined?(RbNaCl::LengthError)
         error_classes << RbNaCl::CryptoError if defined?(RbNaCl::CryptoError)
-        last_attempt = i == @boxes.size - 1
         if error_classes.any? { |ec| e.is_a?(ec) }
-          raise DecryptionError, "Decryption failed" if last_attempt
-        elsif e.is_a?(Lockbox::PaddingError)
-          raise e if last_attempt
+          raise DecryptionError, "Decryption failed" if i == @boxes.size - 1
         else
           raise e
         end
