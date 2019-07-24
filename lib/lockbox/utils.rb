@@ -18,7 +18,7 @@ class Lockbox
     end
 
     def self.encrypted_options(record, name)
-      record.class.respond_to?(:lockbox_attachments) && record.class.lockbox_attachments[name.to_sym]
+      record.class.respond_to?(:lockbox_attachments) ? record.class.lockbox_attachments[name.to_sym] : nil
     end
 
     def self.decode_key(key)
