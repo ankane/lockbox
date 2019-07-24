@@ -1,5 +1,3 @@
-require "securerandom"
-
 class Lockbox
   class Box
     def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false)

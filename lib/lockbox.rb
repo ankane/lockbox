@@ -1,4 +1,5 @@
 # dependencies
+require "openssl"
 require "securerandom"
 
 # modules
