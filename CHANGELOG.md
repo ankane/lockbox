@@ -1,3 +1,7 @@
+## 0.2.3 [unreleased]
+
+- Added support for rotating padding
+
 ## 0.2.2
 
 - Fixed error with models that have attachments but no encrypted attachments
