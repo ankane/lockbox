@@ -159,7 +159,7 @@ class LockboxTest < Minitest::Test
     assert_equal message, new_box.decrypt(ciphertext)
   end
 
-  def test_rotation_padding
+  def test_rotation_padding_only
     key = random_key
     box = Lockbox.new(key: key)
     message = "it works!"
