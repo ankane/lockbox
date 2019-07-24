@@ -1,6 +1,6 @@
 ## 0.2.3 [unreleased]
 
-- Added support for rotating padding
+- Added support for rotating padding with same key
 
 ## 0.2.2
 
