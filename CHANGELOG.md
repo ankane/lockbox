@@ -1,3 +1,7 @@
+## 0.2.2
+
+- Fixed error with models that have attachments but no encrypted attachments
+
 ## 0.2.1
 
 - Added support for types
