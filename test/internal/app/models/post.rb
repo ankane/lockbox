@@ -1,6 +1,8 @@
 class Post < ActiveRecord::Base
-  has_one_attached :photo
-
   encrypts :title
   validates :title, presence: true, length: {minimum: 3}
+
+  if respond_to?(:has_one_attached)
+    has_one_attached :photo
+  end
 end
