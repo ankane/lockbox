@@ -1,4 +1,4 @@
-## 0.2.2 [unreleased]
+## 0.2.2
 
 - Fixed error with models that have attachments but no encrypted attachments
 
