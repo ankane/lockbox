@@ -72,7 +72,7 @@ class Lockbox
       message
     end
 
-    # protect key for xchacha20 and hybrid
+    # protect key for xsalsa20, xchacha20, and hybrid
     def inspect
       to_s
     end
