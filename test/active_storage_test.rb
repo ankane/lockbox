@@ -164,4 +164,12 @@ class ActiveStorageTest < Minitest::Test
     assert_equal "image.png", user.avatar.filename.to_s
     assert_equal File.binread(path), user.avatar.download
   end
+
+  def test_unencrypted_model
+    message = "hello world"
+    post = Post.create!(title: "123")
+    post.photo.attach(io: StringIO.new(message), filename: "test.txt")
+    assert_equal message, post.photo.download
+    assert_equal message, post.photo.blob.download
+  end
 end
