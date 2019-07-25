@@ -15,7 +15,7 @@ class Lockbox
     end
 
     private
-      
+
     def hash_hmac(hash, ikm, salt)
       OpenSSL::HMAC.digest(hash, salt, ikm)
     end
