@@ -15,13 +15,13 @@ class Lockbox
     end
 
     private
-
+      
     def hash_hmac(hash, ikm, salt)
       OpenSSL::HMAC.digest(hash, salt, ikm)
     end
 
     def hkdf(ikm, salt:, info:, length:, hash:)
-      if OpenSSL::KDF.respond_to?(:hkdf)
+      if defined?(OpenSSL::KDF.hkdf)
         return OpenSSL::KDF.hkdf(ikm, salt: salt, info: info, length: length, hash: hash)
       end
 
