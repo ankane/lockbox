@@ -1,6 +1,7 @@
 ## 0.2.3 [unreleased]
 
 - Added support for rotating padding with same key
+- Fixed `OpenSSL::KDF` error on some platforms
 
 ## 0.2.2
 
