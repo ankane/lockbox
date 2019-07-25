@@ -16,24 +16,12 @@ class Lockbox
 
     private
 
-    def hasKDF()
-      if !instance_variable_defined?(:@hasKDF)
-        begin
-          Object.const_get('OpenSSL::KDF')
-          instance_variable_set(:@hasKDF, true)
-        rescue => x
-          instance_variable_set(:@hasKDF, false)
-        end
-      end
-      instance_variable_get(:@hasKDF)
-    end
-      
     def hash_hmac(hash, ikm, salt)
       OpenSSL::HMAC.digest(hash, salt, ikm)
     end
 
     def hkdf(ikm, salt:, info:, length:, hash:)
-      if hasKDF && OpenSSL::KDF.respond_to?(:hkdf)
+      if defined?(OpenSSL::KDF) && OpenSSL::KDF.respond_to?(:hkdf)
         return OpenSSL::KDF.hkdf(ikm, salt: salt, info: info, length: length, hash: hash)
       end
 
