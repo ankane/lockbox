@@ -50,7 +50,7 @@ class Lockbox
       #   options[:type] = :float
       # end
 
-      raise ArgumentError, "Unknown type: #{options[:type]}" unless [nil, :string, :boolean, :date, :datetime, :integer, :float, :binary, :json, :hash].include?(options[:type])
+      raise ArgumentError, "Unknown type: #{options[:type]}" unless [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
 
       attribute_type =
         case options[:type]
@@ -156,6 +156,11 @@ class Lockbox
                 message = ActiveRecord::Type::DateTime.new.serialize(message)
                 message = nil unless message.respond_to?(:iso8601) # for Active Record < 5.2
                 message = message.iso8601(9) unless message.nil?
+              when :time
+                message = ActiveRecord::Type::Time.new.serialize(message)
+                message = nil unless message.respond_to?(:strftime)
+                message = message.strftime("%H:%M:%S.%N") unless message.nil?
+                message
               when :integer
                 message = ActiveRecord::Type::Integer.new(limit: 8).serialize(message)
                 message = 0 if message.nil?
@@ -216,6 +221,8 @@ class Lockbox
                   message = ActiveRecord::Type::Date.new.deserialize(message)
                 when :datetime
                   message = ActiveRecord::Type::DateTime.new.deserialize(message)
+                when :time
+                  message = ActiveRecord::Type::Time.new.deserialize(message)
                 when :integer
                   message = ActiveRecord::Type::Integer.new(limit: 8).deserialize(message.unpack("q>").first)
                 when :float

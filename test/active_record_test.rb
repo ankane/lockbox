@@ -230,6 +230,19 @@ class ActiveRecordTest < Minitest::Test
     assert_attribute :signed_at, "invalid", expected: nil
   end
 
+  def test_type_time
+    opens_at = Time.current.round(6).utc.change(year: 2000, month: 1, day: 1)
+    assert_attribute :opens_at, opens_at, format: opens_at.utc.strftime("%H:%M:%S.%N")
+  end
+
+  def test_type_time_bytesize
+    assert_bytesize :opens_at, Time.current, Time.current + 5.minutes, size: 18
+  end
+
+  def test_type_time_invalid
+    assert_attribute :opens_at, "invalid", expected: nil
+  end
+
   def test_type_integer
     sign_in_count = 10
     assert_attribute :sign_in_count, sign_in_count, format: [sign_in_count].pack("q>")

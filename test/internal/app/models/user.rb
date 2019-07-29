@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
   encrypts :active2, type: :boolean
   encrypts :born_on2, type: :date
   encrypts :signed_at2, type: :datetime
+  encrypts :opens_at2, type: :time
   encrypts :sign_in_count2, type: :integer
   encrypts :latitude2, type: :float
   encrypts :video2, type: :binary

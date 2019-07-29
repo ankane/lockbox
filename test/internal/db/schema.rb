@@ -39,6 +39,8 @@ ActiveRecord::Schema.define do
     t.text :born_on2_ciphertext
     t.datetime :signed_at
     t.text :signed_at2_ciphertext
+    t.time :opens_at
+    t.text :opens_at2_ciphertext
     t.bigint :sign_in_count
     t.text :sign_in_count2_ciphertext
     t.float :latitude

@@ -80,6 +80,7 @@ Specify the type of a field with:
 class User < ApplicationRecord
   encrypts :born_on, type: :date
   encrypts :signed_at, type: :datetime
+  encrypts :opens_at, type: :time # [master]
   encrypts :active, type: :boolean
   encrypts :salary, type: :integer
   encrypts :latitude, type: :float
