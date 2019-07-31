@@ -187,7 +187,7 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_string_utf8
-    assert_attribute :country, "Łukasz", format: "Łukasz".force_encoding(Encoding::BINARY)
+    assert_attribute :country, "Łukasz", format: "Łukasz"
   end
 
   def test_type_boolean_true
@@ -495,7 +495,7 @@ class ActiveRecordTest < Minitest::Test
     if format
       key = Lockbox.attribute_key(table: "users", attribute: encrypted_attribute)
       box = Lockbox.new(key: key)
-      assert_equal format, box.decrypt(Base64.decode64(user.send(encrypted_attribute)))
+      assert_equal format.force_encoding(Encoding::BINARY), box.decrypt(Base64.decode64(user.send(encrypted_attribute)))
     end
 
     user.send("#{attribute2}=", nil)
