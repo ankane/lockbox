@@ -187,7 +187,7 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_string_utf8
-    assert_attribute :country, "Łukasz" #, format: "Łukasz".force_encoding(Encoding::BINARY)
+    assert_attribute :country, "Łukasz", format: "Łukasz".force_encoding(Encoding::BINARY)
   end
 
   def test_type_boolean_true
