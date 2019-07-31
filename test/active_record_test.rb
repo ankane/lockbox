@@ -15,6 +15,13 @@ class ActiveRecordTest < Minitest::Test
     assert_equal email, user.email
   end
 
+  def test_non_utf8
+    email = "hi \255"
+    User.create!(email: email)
+    user = User.last
+    assert_equal email, user.email
+  end
+
   def test_rotation
     email = "test@example.org"
     key = User.lockbox_attributes[:email][:previous_versions].first[:key]
@@ -188,6 +195,21 @@ class ActiveRecordTest < Minitest::Test
 
   def test_type_string_utf8
     assert_attribute :country, "Łukasz", format: "Łukasz"
+  end
+
+  def test_type_string_non_utf8
+    if postgresql? || mysql?
+      error = assert_raises(ActiveRecord::StatementInvalid) do
+        assert_attribute :country, "Hi \255", format: "Hi \255"
+      end
+      if postgresql?
+        assert_includes error.message, "PG::CharacterNotInRepertoire"
+      else
+        assert_includes error.message, "Incorrect string value"
+      end
+    else
+      assert_attribute :country, "Hi \255", format: "Hi \255"
+    end
   end
 
   def test_type_boolean_true
