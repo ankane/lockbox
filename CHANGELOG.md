@@ -1,4 +1,4 @@
-## 0.2.3 [unreleased]
+## 0.2.3
 
 - Added time type
 - Added support for rotating padding with same key
