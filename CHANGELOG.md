@@ -3,6 +3,7 @@
 - Added time type
 - Added support for rotating padding with same key
 - Fixed `OpenSSL::KDF` error on some platforms
+- Fixed UTF-8 error
 
 ## 0.2.2
 

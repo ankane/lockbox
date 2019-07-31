@@ -8,6 +8,13 @@ class ActiveRecordTest < Minitest::Test
     assert_equal email, user.email
   end
 
+  def test_utf8
+    email = "Łukasz"
+    User.create!(email: email)
+    user = User.last
+    assert_equal email, user.email
+  end
+
   def test_rotation
     email = "test@example.org"
     key = User.lockbox_attributes[:email][:previous_versions].first[:key]
@@ -177,6 +184,10 @@ class ActiveRecordTest < Minitest::Test
 
   def test_type_string
     assert_attribute :country, "USA", format: "USA"
+  end
+
+  def test_type_string_utf8
+    assert_attribute :country, "Łukasz" #, format: "Łukasz".force_encoding(Encoding::BINARY)
   end
 
   def test_type_boolean_true
