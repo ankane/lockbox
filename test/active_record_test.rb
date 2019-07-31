@@ -228,6 +228,8 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_datetime
+    skip if mysql?
+
     signed_at = Time.current.round(6)
     assert_attribute :signed_at, signed_at, format: signed_at.utc.iso8601(9), time_zone: true
   end
@@ -242,6 +244,8 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_time
+    skip if mysql?
+
     opens_at = Time.current.round(6).utc.change(year: 2000, month: 1, day: 1)
     assert_attribute :opens_at, opens_at, format: opens_at.utc.strftime("%H:%M:%S.%N")
   end
@@ -301,17 +305,21 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_float
+    skip if mysql?
+
     latitude = 10.12345678
     assert_attribute :latitude, latitude, format: [latitude].pack("G")
   end
 
   def test_type_float_negative
+    skip if mysql?
+
     latitude = -10.12345678
     assert_attribute :latitude, latitude, format: [latitude].pack("G")
   end
 
   def test_type_float_bigdecimal
-    skip if ENV["ADAPTER"] == "postgresql"
+    skip if postgresql? || mysql?
 
     latitude = BigDecimal("123456789.123456789123456789")
     assert_attribute :latitude, latitude, expected: latitude.to_f, format: [latitude].pack("G")
@@ -328,11 +336,13 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_type_float_infinity
+    skip if mysql?
     assert_attribute :latitude, Float::INFINITY, expected: Float::INFINITY, format: [Float::INFINITY].pack("G")
     assert_attribute :latitude, -Float::INFINITY, expected: -Float::INFINITY, format: [-Float::INFINITY].pack("G")
   end
 
   def test_type_float_nan
+    skip if mysql?
     assert_attribute :latitude, Float::NAN, expected: Float::NAN, format: [Float::NAN].pack("G")
   end
 
@@ -348,6 +358,7 @@ class ActiveRecordTest < Minitest::Test
   def test_type_json
     # json type isn't recognized with SQLite in Rails < 5.2
     skip if ActiveRecord::VERSION::STRING < "5.2"
+    skip if mysql?
 
     data = {a: 1, b: "hi"}.as_json
     assert_attribute :data, data, format: data.to_json
@@ -530,5 +541,13 @@ class ActiveRecordTest < Minitest::Test
     result1 = Base64.decode64(user1.send(encrypted_attribute)).bytesize
     result2 = Base64.decode64(user2.send(encrypted_attribute)).bytesize
     [result1, result2]
+  end
+
+  def mysql?
+    ENV["ADAPTER"] == "mysql2"
+  end
+
+  def postgresql?
+    ENV["ADAPTER"] == "postgresql"
   end
 end
