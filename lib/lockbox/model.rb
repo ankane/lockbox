@@ -237,6 +237,7 @@ class Lockbox
                   if type.is_a?(ActiveRecord::Type::Serialized)
                     message = type.deserialize(message)
                   else
+                    # default to string if not serialized
                     message.force_encoding(Encoding::UTF_8)
                   end
                 end
