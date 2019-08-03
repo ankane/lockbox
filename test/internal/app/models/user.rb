@@ -12,6 +12,8 @@ class User < ActiveRecord::Base
 
   mount_uploader :document, DocumentUploader
 
+  include LicenseUploader::Attachment.new(:license)
+
   encrypts :email, previous_versions: [{key: Lockbox.generate_key}]
 
   key_pair = Lockbox.generate_key_pair

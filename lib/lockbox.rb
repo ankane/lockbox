@@ -12,6 +12,7 @@ require "lockbox/version"
 
 # integrations
 require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
+require "lockbox/shrine_extensions" if defined?(Shrine)
 require "lockbox/railtie" if defined?(Rails)
 
 if defined?(ActiveSupport)

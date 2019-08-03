@@ -25,6 +25,7 @@ ActiveRecord::Schema.define do
   create_table :users do |t|
     t.string :name
     t.string :document
+    t.text :license_data
     t.text :email_ciphertext
     t.text :phone_ciphertext
     t.text :properties

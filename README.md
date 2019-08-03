@@ -176,18 +176,20 @@ end
 
 ### Shrine [master]
 
-Encrypt files before passing them to Shrine.
+Add to your uploader:
 
 ```ruby
-box = Lockbox.new(key: key)
-encrypted_file = box.encrypt_io(file)
-LicenseUploader.upload(encrypted_file, :store)
+class LicenseUploader < Shrine
+  encrypt
+end
 ```
 
-And decrypt them after reading.
+To serve encrypted files, use a controller action.
 
 ```ruby
-contents = box.decrypt(uploaded_file.read)
+def license
+  send_data @user.license.read, type: @user.license.mime_type
+end
 ```
 
 ### Local Files

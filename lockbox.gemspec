@@ -17,6 +17,9 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "carrierwave"
+  spec.add_development_dependency "shrine"
+  spec.add_development_dependency "shrine-memory"
+  spec.add_development_dependency "marcel"
   spec.add_development_dependency "combustion"
   spec.add_development_dependency "rails"
   spec.add_development_dependency "minitest", ">= 5"

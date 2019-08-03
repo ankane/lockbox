@@ -2,6 +2,7 @@ require "bundler/setup"
 require "carrierwave"
 require "combustion"
 require "active_storage/engine" if Rails.version >= "5.2"
+require "shrine"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
@@ -50,11 +51,33 @@ Combustion.initialize! :active_record, :active_job do
   config.time_zone = "Mountain Time (US & Canada)"
 end
 
-if ENV["VERBOSE"]
-  logger = ActiveSupport::Logger.new(STDOUT)
-  ActiveRecord::Base.logger = logger
-  ActiveJob::Base.logger = logger
-  ActiveStorage.logger = logger if defined?(ActiveStorage)
-end
+logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
+
+ActiveRecord::Base.logger = logger
+ActiveJob::Base.logger = logger
+ActiveStorage.logger = logger if defined?(ActiveStorage)
 
 require "carrierwave/orm/activerecord"
+
+# shrine
+
+require "shrine/storage/memory"
+
+Shrine.storages = {
+  cache: Shrine::Storage::Memory.new,
+  store: Shrine::Storage::Memory.new,
+}
+
+Shrine.logger = logger
+
+Shrine.plugin :instrumentation
+Shrine.plugin :activerecord
+Shrine.plugin :determine_mime_type, analyzer: :marcel
+
+class LicenseUploader < Shrine
+  encrypt
+end
+
+class PassportUploader < Shrine
+  encrypt
+end
