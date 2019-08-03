@@ -316,6 +316,22 @@ class LockboxTest < Minitest::Test
     assert_equal "Invalid padding", error.message
   end
 
+  def test_encrypt_io
+    box = Lockbox.new(key: random_key)
+    file = File.open("test/support/image.png", "rb")
+    ciphertext_io = box.encrypt_io(file)
+    assert_equal "image.png", ciphertext_io.original_filename
+    assert_nil ciphertext_io.content_type
+
+    file.rewind
+    ciphertext_io.rewind
+    refute_equal file.read, ciphertext_io.read
+
+    file.rewind
+    ciphertext_io.rewind
+    assert_equal file.read, box.decrypt_io(ciphertext_io).read
+  end
+
   private
 
   def random_key

@@ -174,9 +174,25 @@ def license
 end
 ```
 
+### Shrine [master]
+
+Encrypt files before passing them to Shrine.
+
+```ruby
+box = Lockbox.new(key: key)
+encrypted_file = box.encrypt_io(file)
+LicenseUploader.upload(encrypted_file, :store)
+```
+
+And decrypt them after reading.
+
+```ruby
+contents = box.decrypt(uploaded_file.read)
+```
+
 ### Local Files
 
-Read the file as a binary string
+Open the file as a binary string
 
 ```ruby
 message = File.binread("file.txt")

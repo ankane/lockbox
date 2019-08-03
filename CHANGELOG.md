@@ -1,3 +1,7 @@
+## 0.2.4 [unreleased]
+
+- Added `encrypt_io` and `decrypt_io` methods
+
 ## 0.2.3
 
 - Added time type

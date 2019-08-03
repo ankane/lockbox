@@ -1,15 +1,11 @@
 class Lockbox
   module CarrierWaveExtensions
-    class FileIO < StringIO
-      attr_accessor :original_filename
-    end
-
     def encrypt(**options)
       class_eval do
         before :cache, :encrypt
 
         def encrypt(file)
-          @file = CarrierWave::SanitizedFile.new(StringIO.new(lockbox.encrypt(file.read)))
+          @file = CarrierWave::SanitizedFile.new(lockbox.encrypt_io(file))
         end
 
         def read
@@ -22,7 +18,7 @@ class Lockbox
         end
 
         def rotate_encryption!
-          io = FileIO.new(read)
+          io = Lockbox::IO.new(read)
           io.original_filename = file.filename
           previous_value = enable_processing
           begin

@@ -6,6 +6,7 @@ require "securerandom"
 require "lockbox/box"
 require "lockbox/encryptor"
 require "lockbox/key_generator"
+require "lockbox/io"
 require "lockbox/utils"
 require "lockbox/version"
 
@@ -112,6 +113,18 @@ class Lockbox
     end
   end
 
+  def encrypt_io(io, **options)
+    new_io = Lockbox::IO.new(encrypt(io.read, **options))
+    copy_metadata(io, new_io)
+    new_io
+  end
+
+  def decrypt_io(io, **options)
+    new_io = Lockbox::IO.new(decrypt(io.read, **options))
+    copy_metadata(io, new_io)
+    new_io
+  end
+
   def self.generate_key
     SecureRandom.hex(32)
   end
@@ -198,5 +211,15 @@ class Lockbox
     str = str.read if str.respond_to?(:read)
     raise TypeError, "can't convert #{name} to string" unless str.respond_to?(:to_str)
     str.to_str
+  end
+
+  def copy_metadata(source, target)
+    target.original_filename =
+      if source.respond_to?(:original_filename)
+        source.original_filename
+      elsif source.respond_to?(:path)
+        File.basename(source.path)
+      end
+    target.content_type = source.content_type if source.respond_to?(:content_type)
   end
 end
