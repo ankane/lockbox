@@ -182,13 +182,13 @@ Create a box
 box = Lockbox.new(key: key)
 ```
 
-Encrypt files before passing them to Shrine.
+Encrypt files before passing them to Shrine
 
 ```ruby
 LicenseUploader.upload(box.encrypt_io(file), :store)
 ```
 
-And decrypt them after reading.
+And decrypt them after reading
 
 ```ruby
 box.decrypt(uploaded_file.read)
@@ -211,7 +211,7 @@ end
 
 ### Local Files
 
-Open the file as a binary string
+Read the file as a binary string
 
 ```ruby
 message = File.binread("file.txt")
