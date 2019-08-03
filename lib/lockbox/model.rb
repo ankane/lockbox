@@ -107,7 +107,7 @@ class Lockbox
             def serializable_hash(options = nil)
               options = options.try(:dup) || {}
               options[:except] = Array(options[:except])
-              options[:except] += self.class.lockbox_attributes.values.reject { |v| v[:attached] }.flat_map { |v| [v[:attribute], v[:encrypted_attribute]] }
+              options[:except] += self.class.lockbox_attributes.values.flat_map { |v| [v[:attribute], v[:encrypted_attribute]] }
               super(options)
             end
 
