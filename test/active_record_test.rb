@@ -393,6 +393,14 @@ class ActiveRecordTest < Minitest::Test
     assert_equal [data, new_data], user.changes["data2"]
   end
 
+  def test_type_json_in_place
+    user = User.create!(data2: {a: 1, b: "hi"})
+    user.data2[:c] = "world"
+    user.save!
+    user = User.last
+    assert_equal "world", user.data2["c"]
+  end
+
   def test_type_hash
     info = {a: 1, b: "hi"}
     assert_attribute :info, info, format: info.to_yaml
@@ -414,6 +422,14 @@ class ActiveRecordTest < Minitest::Test
     assert_raises ActiveRecord::SerializationTypeMismatch do
       User.create!(info2: "invalid")
     end
+  end
+
+  def test_type_hash_in_place
+    user = User.create!(info2: {a: 1, b: "hi"})
+    user.info2[:c] = "world"
+    user.save!
+    user = User.last
+    assert_equal "world", user.info2[:c]
   end
 
   def test_serialize_json
