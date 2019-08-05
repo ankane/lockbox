@@ -78,7 +78,7 @@ class Lockbox
 
     @boxes =
       [Box.new(options)] +
-      Array(previous_versions).map { |v| Box.new(v) }
+      Array(previous_versions).map { |v| Box.new({key: options[:key]}.merge(v)) }
   end
 
   def encrypt(message, **options)
