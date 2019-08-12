@@ -55,7 +55,7 @@ class Lockbox
           if i == 0
             relation.where(attribute => nil)
           else
-            relation.or(relation.where(attribute => nil))
+            relation.or(model.unscoped.where(attribute => nil))
           end
       end
     end
