@@ -58,4 +58,11 @@ ActiveRecord::Schema.define do
   create_table :posts do |t|
     t.text :title_ciphertext
   end
+
+  create_table :robots do |t|
+    t.text :name
+    t.text :email
+    t.text :name_ciphertext
+    t.text :email_ciphertext
+  end
 end

@@ -500,6 +500,15 @@ class ActiveRecordTest < Minitest::Test
     end
   end
 
+  def test_migrate
+    Robot.create!(name: "Hi", email: "test@example.org")
+    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil)
+    Lockbox.migrate(Robot)
+    robot = Robot.last
+    assert_equal robot.name, robot.migrated_name
+    assert_equal robot.email, robot.migrated_email
+  end
+
   private
 
   def assert_attribute(attribute, value, format: nil, time_zone: false, **options)
