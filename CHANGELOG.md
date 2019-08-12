@@ -2,6 +2,7 @@
 
 - Added `encrypt_io` and `decrypt_io` methods
 - Made it easier to rotate algorithms with master key
+- Fixed error with migrate and default scope
 
 ## 0.2.3
 
