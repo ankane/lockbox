@@ -6,7 +6,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "rbnacl"
-require "mongoid"
+require "mongoid" if ActiveRecord::VERSION::MAJOR < 6
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
 

@@ -5,4 +5,3 @@ gemspec
 
 gem "rails", "~> 6"
 gem "combustion", git: "https://github.com/pat/combustion.git"
-gem "mongoid", "~> 7"
