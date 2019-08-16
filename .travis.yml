@@ -1,6 +1,8 @@
 dist: xenial
 language: ruby
 rvm: 2.6.3
+services:
+  - mongodb
 gemfile:
   - Gemfile
   - test/gemfiles/rails52.gemfile

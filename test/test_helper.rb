@@ -6,6 +6,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "rbnacl"
+require "mongoid"
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
 
@@ -55,6 +56,8 @@ if ENV["VERBOSE"]
   ActiveRecord::Base.logger = logger
   ActiveJob::Base.logger = logger
   ActiveStorage.logger = logger if defined?(ActiveStorage)
+  Mongoid.logger = logger
+  Mongo::Logger.logger = logger
 end
 
 require "carrierwave/orm/activerecord"

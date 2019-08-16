@@ -46,6 +46,8 @@ Alternatively, you can use a [key management service](#key-management) to manage
 
 ## Database Fields
 
+### Active Record
+
 Create a migration with:
 
 ```ruby
@@ -72,7 +74,7 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
-### Types
+#### Types
 
 Specify the type of a field with:
 
@@ -101,9 +103,29 @@ class User < ApplicationRecord
 end
 ```
 
-### Validations
+#### Validations
 
 Validations work as expected with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).
+
+### Mongoid [master]
+
+Add to your model:
+
+```ruby
+class User
+  field :email_ciphertext, type: String
+
+  encrypts :email
+end
+```
+
+You can use `email` just like any other attribute.
+
+```ruby
+User.create!(email: "hi@example.org")
+```
+
+If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
 ## Files
 

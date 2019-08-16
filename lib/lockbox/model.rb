@@ -127,9 +127,21 @@ class Lockbox
               self.class.lockbox_attributes.each do |_, lockbox_attribute|
                 attribute = lockbox_attribute[:attribute]
 
-                if changes.include?(attribute) && self.class.attribute_types[attribute].is_a?(ActiveRecord::Type::Serialized)
-                  send("#{attribute}=", send(attribute))
+                if changes.include?(attribute)
+                  type = (self.class.try(:attribute_types) || {})[attribute]
+                  if type && type.is_a?(ActiveRecord::Type::Serialized)
+                    send("#{attribute}=", send(attribute))
+                  end
                 end
+              end
+            end
+
+            if defined?(Mongoid::Document) && included_modules.include?(Mongoid::Document)
+              def reload
+                self.class.lockbox_attributes.each do |_, v|
+                  instance_variable_set("@#{v[:attribute]}", nil)
+                end
+                super
               end
             end
           end
@@ -137,7 +149,36 @@ class Lockbox
           serialize name, JSON if options[:type] == :json
           serialize name, Hash if options[:type] == :hash
 
-          attribute name, attribute_type
+          if respond_to?(:attribute)
+            attribute name, attribute_type
+          else
+            m = Module.new do
+              define_method("#{name}=") do |val|
+                prev_val = instance_variable_get("@#{name}")
+
+                unless val == prev_val
+                  # custom attribute_will_change! method
+                  unless changed_attributes.key?(name.to_s)
+                    changed_attributes[name.to_s] = prev_val.__deep_copy__
+                  end
+                end
+
+                instance_variable_set("@#{name}", val)
+              end
+
+              define_method(name) do
+                instance_variable_get("@#{name}")
+              end
+            end
+
+            include m
+
+            alias_method "#{name}_changed?", "#{encrypted_attribute}_changed?"
+
+            define_method "#{name}_was" do
+              attribute_was(name.to_s)
+            end
+          end
 
           define_method("#{name}=") do |message|
             original_message = message
@@ -174,8 +215,8 @@ class Lockbox
                 # do nothing
                 # encrypt will convert to binary
               else
-                type = self.class.attribute_types[name.to_s]
-                if type.is_a?(ActiveRecord::Type::Serialized)
+                type = (self.class.try(:attribute_types) || {})[name.to_s]
+                if type && type.is_a?(ActiveRecord::Type::Serialized)
                   message = type.serialize(message)
                 end
               end
@@ -195,6 +236,7 @@ class Lockbox
               else
                 self.class.send(class_method_name, message, context: self)
               end
+
             send("#{encrypted_attribute}=", ciphertext)
 
             super(original_message)
@@ -210,7 +252,8 @@ class Lockbox
                   ciphertext
                 else
                   ciphertext = Base64.decode64(ciphertext) if encode
-                  Lockbox::Utils.build_box(self, options, self.class.table_name, encrypted_attribute).decrypt(ciphertext)
+                  table = self.class.respond_to?(:table_name) ? self.class.table_name : self.class.collection_name.to_s
+                  Lockbox::Utils.build_box(self, options, table, encrypted_attribute).decrypt(ciphertext)
                 end
 
               unless message.nil?
@@ -233,8 +276,8 @@ class Lockbox
                   # do nothing
                   # decrypt returns binary string
                 else
-                  type = self.class.attribute_types[name.to_s]
-                  if type.is_a?(ActiveRecord::Type::Serialized)
+                  type = (self.class.try(:attribute_types) || {})[name.to_s]
+                  if type && type.is_a?(ActiveRecord::Type::Serialized)
                     message = type.deserialize(message)
                   else
                     # default to string if not serialized
@@ -244,13 +287,15 @@ class Lockbox
               end
 
               # set previous attribute on first decrypt
-              @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
+              @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message) if @attributes[name.to_s]
 
               # cache
               if respond_to?(:_write_attribute, true)
                 _write_attribute(name, message)
-              else
+              elsif respond_to?(:raw_write_attribute)
                 raw_write_attribute(name, message)
+              else
+                instance_variable_set("@#{name}", message)
               end
             end
 
@@ -259,7 +304,8 @@ class Lockbox
 
           # for fixtures
           define_singleton_method class_method_name do |message, **opts|
-            ciphertext = Lockbox::Utils.build_box(opts[:context], options, table_name, encrypted_attribute).encrypt(message)
+            table = respond_to?(:table_name) ? table_name : collection_name.to_s
+            ciphertext = Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
             ciphertext = Base64.strict_encode64(ciphertext) if encode
             ciphertext
           end

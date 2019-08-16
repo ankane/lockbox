@@ -7,6 +7,7 @@ require "lockbox/box"
 require "lockbox/encryptor"
 require "lockbox/key_generator"
 require "lockbox/io"
+require "lockbox/model"
 require "lockbox/utils"
 require "lockbox/version"
 
@@ -16,8 +17,11 @@ require "lockbox/railtie" if defined?(Rails)
 
 if defined?(ActiveSupport)
   ActiveSupport.on_load(:active_record) do
-    require "lockbox/model"
     extend Lockbox::Model
+  end
+
+  ActiveSupport.on_load(:mongoid) do
+    Mongoid::Document::ClassMethods.include(Lockbox::Model)
   end
 end
 
@@ -50,26 +54,38 @@ class Lockbox
       attributes = fields.map { |_, v| v[:encrypted_attribute] }
       attributes += blind_indexes.map { |_, v| v[:bidx_attribute] }
 
-      attributes.each_with_index do |attribute, i|
-        relation =
-          if i == 0
-            relation.where(attribute => nil)
-          else
-            relation.or(model.unscoped.where(attribute => nil))
-          end
+      if defined?(ActiveRecord::Base) && model.is_a?(ActiveRecord::Base)
+        attributes.each_with_index do |attribute, i|
+          relation =
+            if i == 0
+              relation.where(attribute => nil)
+            else
+              relation.or(model.unscoped.where(attribute => nil))
+            end
+        end
       end
     end
 
-    # migrate
-    relation.find_each do |record|
-      fields.each do |k, v|
-        record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
+    if relation.respond_to?(:find_each)
+      relation.find_each do |record|
+        migrate_record(record, fields: fields, blind_indexes: blind_indexes, restart: restart)
       end
-      blind_indexes.each do |k, v|
-        record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+    else
+      relation.all.each do |record|
+        migrate_record(record, fields: fields, blind_indexes: blind_indexes, restart: restart)
       end
-      record.save(validate: false) if record.changed?
     end
+  end
+
+  # private
+  def self.migrate_record(record, fields:, blind_indexes:, restart:)
+    fields.each do |k, v|
+      record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
+    end
+    blind_indexes.each do |k, v|
+      record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+    end
+    record.save(validate: false) if record.changed?
   end
 
   def initialize(**options)
