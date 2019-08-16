@@ -27,5 +27,37 @@ class Lockbox
       end
       key
     end
+
+    def self.encrypted?(record, name)
+      !encrypted_options(record, name).nil?
+    end
+
+    def self.encrypt_attachable(record, name, attachable)
+      options = encrypted_options(record, name)
+      box = build_box(record, options, record.class.table_name, name)
+
+      case attachable
+      when ActiveStorage::Blob
+        raise NotImplementedError, "Not supported"
+      when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
+        attachable = {
+          io: StringIO.new(box.encrypt(attachable.read)),
+          filename: attachable.original_filename,
+          content_type: attachable.content_type
+        }
+      when Hash
+        attachable = {
+          io: StringIO.new(box.encrypt(attachable[:io].read)),
+          filename: attachable[:filename],
+          content_type: attachable[:content_type]
+        }
+      when String
+        raise NotImplementedError, "Not supported"
+      else
+        nil
+      end
+
+      attachable
+    end
   end
 end

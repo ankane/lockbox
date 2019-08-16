@@ -39,8 +39,13 @@ class ActiveStorageTest < Minitest::Test
 
     user2 = User.create!
 
-    assert_raises NotImplementedError do
-      user2.avatar.attach(user.avatar.blob)
+    if ActiveStorage::VERSION::MAJOR >= 6
+      # blobs are just attached, not (re)encrypted
+      assert user2.avatar.attach(user.avatar.blob)
+    else
+      assert_raises NotImplementedError do
+        user2.avatar.attach(user.avatar.blob)
+      end
     end
   end
 
