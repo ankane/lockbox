@@ -1,9 +1,10 @@
-## 0.2.4 [unreleased]
+## 0.2.4
 
 - Added support for Mongoid
 - Added `encrypt_io` and `decrypt_io` methods
 - Made it easier to rotate algorithms with master key
 - Fixed error with migrate and default scope
+- Fixed encryption with Active Storage 6 and `record.create!`
 
 ## 0.2.3
 

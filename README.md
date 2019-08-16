@@ -107,7 +107,7 @@ end
 
 Validations work as expected with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).
 
-### Mongoid [master]
+### Mongoid
 
 Add to your model:
 
@@ -162,20 +162,6 @@ def license
 end
 ```
 
-**Note:** With Rails 6, attachments are not encrypted with:
-
-```ruby
-User.create!(avatar: params[:avatar])
-```
-
-Until this is addressed, use:
-
-```ruby
-user = User.new
-user.attach(params[:avatar])
-user.save!
-```
-
 ### CarrierWave
 
 Add to your uploader:
@@ -196,7 +182,7 @@ def license
 end
 ```
 
-### Shrine [master]
+### Shrine
 
 Create a box
 
