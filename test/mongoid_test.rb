@@ -2,9 +2,6 @@ require_relative "test_helper"
 
 class MongoidTest < Minitest::Test
   def setup
-    # waiting for new Mongoid release
-    skip if ActiveRecord::VERSION::MAJOR == 6
-
     Person.delete_all
   end
 
