@@ -476,7 +476,7 @@ class LicenseUploader < CarrierWave::Uploader::Base
 end
 ```
 
-**Note:** KMS Encrypted’s key rotation does not know to rotate encrypted files, so avoid calling `record.rotate_kms_key!` on models with file uploads for now.
+**Note:** KMS Encrypted’s key rotation does not know how to rotate encrypted files, so avoid calling `record.rotate_kms_key!` on models with file uploads for now.
 
 ## Padding
 
