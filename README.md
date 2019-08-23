@@ -51,7 +51,7 @@ Alternatively, you can use a [key management service](#key-management) to manage
 Create a migration with:
 
 ```ruby
-class AddEmailCiphertextToUsers < ActiveRecord::Migration[5.2]
+class AddEmailCiphertextToUsers < ActiveRecord::Migration[6.0]
   def change
     add_column :users, :email_ciphertext, :text
   end
@@ -538,7 +538,7 @@ end
 Create a migration with:
 
 ```ruby
-class MigrateToLockbox < ActiveRecord::Migration[5.2]
+class MigrateToLockbox < ActiveRecord::Migration[6.0]
   def change
     add_column :users, :name_ciphertext, :text
     add_column :users, :email_ciphertext, :text
@@ -571,7 +571,7 @@ end
 Then remove the previous gem from your Gemfile and drop its columns.
 
 ```ruby
-class RemovePreviousEncryptedColumns < ActiveRecord::Migration[5.2]
+class RemovePreviousEncryptedColumns < ActiveRecord::Migration[6.0]
   def change
     remove_column :users, :encrypted_name, :text
     remove_column :users, :encrypted_name_iv, :text
