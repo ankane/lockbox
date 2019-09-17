@@ -151,6 +151,10 @@ class Lockbox
 
           if respond_to?(:attribute)
             attribute name, attribute_type
+
+            define_method("#{name}?") do
+              send(name).present?
+            end
           else
             m = Module.new do
               define_method("#{name}=") do |val|

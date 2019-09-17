@@ -1,3 +1,7 @@
+## 0.2.5 [unreleased]
+
+- Made `model.attribute?` consistent with unencrypted columns
+
 ## 0.2.4
 
 - Added support for Mongoid

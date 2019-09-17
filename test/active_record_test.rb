@@ -136,6 +136,19 @@ class ActiveRecordTest < Minitest::Test
     assert_equal "", user.email_ciphertext
   end
 
+  def test_attribute_exists
+    user = User.create!(name: "Test", email: "test@example.org")
+    assert user.name?
+    assert user.email?
+    user = User.last
+    assert user.name?
+    assert user.email?
+
+    user2 = User.create!(name: "", email: "")
+    assert !user2.name?
+    assert !user2.email?
+  end
+
   def test_hybrid
     phone = "555-555-5555"
     User.create!(phone: phone)
