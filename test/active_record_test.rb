@@ -136,7 +136,7 @@ class ActiveRecordTest < Minitest::Test
     assert_equal "", user.email_ciphertext
   end
 
-  def test_attribute_exists
+  def test_attribute_present
     user = User.create!(name: "Test", email: "test@example.org")
     assert user.name?
     assert user.email?
