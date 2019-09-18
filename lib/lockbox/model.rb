@@ -153,8 +153,7 @@ class Lockbox
             attribute name, attribute_type
 
             define_method("#{name}?") do
-              # use encrypted attribute so decryption isn't required
-              send(encrypted_attribute).present?
+              send("#{encrypted_attribute}?")
             end
           else
             m = Module.new do
