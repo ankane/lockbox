@@ -50,7 +50,27 @@ class Lockbox
       #   options[:type] = :float
       # end
 
-      raise ArgumentError, "Unknown type: #{options[:type]}" unless [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
+      default_types = %i[
+        string boolean date datetime time integer float binary json hash
+      ].freeze
+      type_required_methods = %i[serialize deserialize].freeze
+
+      custom_type = false
+
+      unless [nil, *default_types].include?(options[:type])
+        type_satisfies_interface = type_required_methods.all? do |method|
+          options[:type].respond_to?(method)
+        end
+        unless type_satisfies_interface
+          raise ArgumentError, "Unknown type: #{options[:type]}"
+        end
+
+        custom_type = options[:type]
+      end
+
+      serialized_type_check = lambda do |type|
+        type.is_a?(ActiveRecord::Type::Serialized) || custom_type
+      end
 
       attribute_type =
         case options[:type]
@@ -128,8 +148,9 @@ class Lockbox
                 attribute = lockbox_attribute[:attribute]
 
                 if changes.include?(attribute)
-                  type = (self.class.try(:attribute_types) || {})[attribute]
-                  if type && type.is_a?(ActiveRecord::Type::Serialized)
+                  type =  (self.class.try(:attribute_types) || {})[attribute] ||
+                          custom_type
+                  if type && serialized_type_check.call(type)
                     send("#{attribute}=", send(attribute))
                   end
                 end
@@ -219,8 +240,9 @@ class Lockbox
                 # do nothing
                 # encrypt will convert to binary
               else
-                type = (self.class.try(:attribute_types) || {})[name.to_s]
-                if type && type.is_a?(ActiveRecord::Type::Serialized)
+                type =  (self.class.try(:attribute_types) || {})[name.to_s] ||
+                        custom_type
+                if type && serialized_type_check.call(type)
                   message = type.serialize(message)
                 end
               end
@@ -280,8 +302,10 @@ class Lockbox
                   # do nothing
                   # decrypt returns binary string
                 else
-                  type = (self.class.try(:attribute_types) || {})[name.to_s]
-                  if type && type.is_a?(ActiveRecord::Type::Serialized)
+                  type =  (self.class.try(:attribute_types) || {})[name.to_s] ||
+                          custom_type
+                  if  type && !type.is_a?(ActiveModel::Type::String) &&
+                      serialized_type_check.call(type)
                     message = type.deserialize(message)
                   else
                     # default to string if not serialized
