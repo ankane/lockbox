@@ -1,6 +1,7 @@
 ## 0.2.5 [unreleased]
 
 - Made `model.attribute?` consistent with unencrypted columns
+- Added `decrypt_str` method
 
 ## 0.2.4
 

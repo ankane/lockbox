@@ -141,6 +141,11 @@ class Lockbox
     new_io
   end
 
+  def decrypt_str(ciphertext, **options)
+    message = decrypt(ciphertext, **options)
+    message.force_encoding(Encoding::UTF_8)
+  end
+
   def self.generate_key
     SecureRandom.hex(32)
   end

@@ -332,6 +332,17 @@ class LockboxTest < Minitest::Test
     assert_equal file.read, box.decrypt_io(ciphertext_io).read
   end
 
+  def test_decrypt_str
+    box = Lockbox.new(key: random_key)
+    message = "it works!" * 10000
+    ciphertext = box.encrypt(message)
+    assert_equal message, box.decrypt_str(ciphertext)
+
+    assert_equal Encoding::UTF_8, message.encoding
+    assert_equal Encoding::BINARY, ciphertext.encoding
+    assert_equal Encoding::UTF_8, box.decrypt_str(ciphertext).encoding
+  end
+
   private
 
   def random_key

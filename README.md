@@ -247,6 +247,12 @@ Decrypt
 box.decrypt(ciphertext)
 ```
 
+Decrypt as UTF-8 instead of binary [master]
+
+```ruby
+box.decrypt_str(ciphertext)
+```
+
 ## Migrating Existing Data
 
 Lockbox makes it easy to encrypt an existing column. Add a new column for the ciphertext, then add to your model:
