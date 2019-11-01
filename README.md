@@ -44,6 +44,24 @@ Lockbox.master_key = Rails.application.credentials.lockbox_master_key
 
 Alternatively, you can use a [key management service](#key-management) to manage your keys.
 
+## Integrations
+
+Database fields
+
+- [Active Record](#active-record)
+- [Mongoid](#mongoid)
+
+Files
+
+- [Active Storage](#active-storage)
+- [CarrierWave](#carrierwave)
+- [Shrine](#shrine)
+- [Local Files](#local-files)
+
+Other
+
+- [Strings](#strings)
+
 ## Database Fields
 
 ### Active Record
