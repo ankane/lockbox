@@ -44,7 +44,7 @@ Lockbox.master_key = Rails.application.credentials.lockbox_master_key
 
 Alternatively, you can use a [key management service](#key-management) to manage your keys.
 
-## Integrations
+## Instructions
 
 Database fields
 
