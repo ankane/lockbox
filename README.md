@@ -265,7 +265,7 @@ Decrypt
 box.decrypt(ciphertext)
 ```
 
-Decrypt as UTF-8 instead of binary [master]
+Decrypt and return UTF-8 instead of binary [master]
 
 ```ruby
 box.decrypt_str(ciphertext)
