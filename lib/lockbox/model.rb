@@ -195,8 +195,8 @@ class Lockbox
               nil
             end
 
+            # set ciphertext
             ciphertext = self.class.send(class_method_name, message, context: self)
-
             send("#{encrypted_attribute}=", ciphertext)
 
             super(original_message)
