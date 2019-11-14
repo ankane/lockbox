@@ -187,45 +187,6 @@ class Lockbox
           define_method("#{name}=") do |message|
             original_message = message
 
-            unless message.nil?
-              case options[:type]
-              when :boolean
-                message = ActiveRecord::Type::Boolean.new.serialize(message)
-                message = nil if message == "" # for Active Record < 5.2
-                message = message ? "t" : "f" unless message.nil?
-              when :date
-                message = ActiveRecord::Type::Date.new.serialize(message)
-                # strftime should be more stable than to_s(:db)
-                message = message.strftime("%Y-%m-%d") unless message.nil?
-              when :datetime
-                message = ActiveRecord::Type::DateTime.new.serialize(message)
-                message = nil unless message.respond_to?(:iso8601) # for Active Record < 5.2
-                message = message.iso8601(9) unless message.nil?
-              when :time
-                message = ActiveRecord::Type::Time.new.serialize(message)
-                message = nil unless message.respond_to?(:strftime)
-                message = message.strftime("%H:%M:%S.%N") unless message.nil?
-                message
-              when :integer
-                message = ActiveRecord::Type::Integer.new(limit: 8).serialize(message)
-                message = 0 if message.nil?
-                # signed 64-bit integer, big endian
-                message = [message].pack("q>")
-              when :float
-                message = ActiveRecord::Type::Float.new.serialize(message)
-                # double precision, big endian
-                message = [message].pack("G") unless message.nil?
-              when :string, :binary
-                # do nothing
-                # encrypt will convert to binary
-              else
-                type = (self.class.try(:attribute_types) || {})[name.to_s]
-                if type && type.is_a?(ActiveRecord::Type::Serialized)
-                  message = type.serialize(message)
-                end
-              end
-            end
-
             # decrypt first for dirty tracking
             # don't raise error if can't decrypt previous
             begin
@@ -234,12 +195,7 @@ class Lockbox
               nil
             end
 
-            ciphertext =
-              if message.nil? || (message == "" && !options[:padding])
-                message
-              else
-                self.class.send(class_method_name, message, context: self)
-              end
+            ciphertext = self.class.send(class_method_name, message, context: self)
 
             send("#{encrypted_attribute}=", ciphertext)
 
@@ -309,9 +265,53 @@ class Lockbox
           # for fixtures
           define_singleton_method class_method_name do |message, **opts|
             table = respond_to?(:table_name) ? table_name : collection_name.to_s
-            ciphertext = Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
-            ciphertext = Base64.strict_encode64(ciphertext) if encode
-            ciphertext
+
+            unless message.nil?
+              case options[:type]
+              when :boolean
+                message = ActiveRecord::Type::Boolean.new.serialize(message)
+                message = nil if message == "" # for Active Record < 5.2
+                message = message ? "t" : "f" unless message.nil?
+              when :date
+                message = ActiveRecord::Type::Date.new.serialize(message)
+                # strftime should be more stable than to_s(:db)
+                message = message.strftime("%Y-%m-%d") unless message.nil?
+              when :datetime
+                message = ActiveRecord::Type::DateTime.new.serialize(message)
+                message = nil unless message.respond_to?(:iso8601) # for Active Record < 5.2
+                message = message.iso8601(9) unless message.nil?
+              when :time
+                message = ActiveRecord::Type::Time.new.serialize(message)
+                message = nil unless message.respond_to?(:strftime)
+                message = message.strftime("%H:%M:%S.%N") unless message.nil?
+                message
+              when :integer
+                message = ActiveRecord::Type::Integer.new(limit: 8).serialize(message)
+                message = 0 if message.nil?
+                # signed 64-bit integer, big endian
+                message = [message].pack("q>")
+              when :float
+                message = ActiveRecord::Type::Float.new.serialize(message)
+                # double precision, big endian
+                message = [message].pack("G") unless message.nil?
+              when :string, :binary
+                # do nothing
+                # encrypt will convert to binary
+              else
+                type = (try(:attribute_types) || {})[name.to_s]
+                if type && type.is_a?(ActiveRecord::Type::Serialized)
+                  message = type.serialize(message)
+                end
+              end
+            end
+
+            if message.nil? || (message == "" && !options[:padding])
+              message
+            else
+              ciphertext = Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
+              ciphertext = Base64.strict_encode64(ciphertext) if encode
+              ciphertext
+            end
           end
         end
       end
