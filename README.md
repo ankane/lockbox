@@ -422,6 +422,15 @@ sudo apt-get install libsodium23
 
 ##### Travis CI
 
+On Bionic, add to `.travis.yml`:
+
+```yml
+addons:
+  apt:
+    packages:
+      - libsodium23
+```
+
 On Xenial, add to `.travis.yml`:
 
 ```yml
