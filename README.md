@@ -408,16 +408,16 @@ Heroku [comes with libsodium](https://devcenter.heroku.com/articles/stack-packag
 
 ##### Ubuntu
 
-For Ubuntu 16.04, use:
-
-```sh
-sudo apt-get install libsodium18
-```
-
 For Ubuntu 18.04, use:
 
 ```sh
 sudo apt-get install libsodium23
+```
+
+For Ubuntu 16.04, use:
+
+```sh
+sudo apt-get install libsodium18
 ```
 
 ##### Travis CI
