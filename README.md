@@ -557,7 +557,7 @@ For XSalsa20, use the appropriate [Libsodium library](https://libsodium.gitbook.
 
 ## Migrating from Another Library
 
-Lockbox makes it easy to migrate from another library. The example below uses `attr_encrypted` but the same approach should work for any library.
+Lockbox makes it easy to migrate from another library without downtime. The example below uses `attr_encrypted` but the same approach should work for any library.
 
 Let’s suppose your model looks like this:
 
