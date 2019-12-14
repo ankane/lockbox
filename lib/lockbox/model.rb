@@ -130,7 +130,7 @@ class Lockbox
 
                 if changes.include?(attribute)
                   type = (self.class.try(:attribute_types) || {})[attribute]
-                  if custom_type || (type && type.is_a?(ActiveRecord::Type::Serialized))
+                  if lockbox_attribute[:type].respond_to?(:serialize) || (type && type.is_a?(ActiveRecord::Type::Serialized))
                     send("#{attribute}=", send(attribute))
                   end
                 end
