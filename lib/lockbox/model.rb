@@ -50,7 +50,8 @@ class Lockbox
       #   options[:type] = :float
       # end
 
-      raise ArgumentError, "Unknown type: #{options[:type]}" unless [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
+      custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
+      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
 
       attribute_type =
         case options[:type]
@@ -129,7 +130,7 @@ class Lockbox
 
                 if changes.include?(attribute)
                   type = (self.class.try(:attribute_types) || {})[attribute]
-                  if type && type.is_a?(ActiveRecord::Type::Serialized)
+                  if custom_type || (type && type.is_a?(ActiveRecord::Type::Serialized))
                     send("#{attribute}=", send(attribute))
                   end
                 end
@@ -237,7 +238,9 @@ class Lockbox
                   # decrypt returns binary string
                 else
                   type = (self.class.try(:attribute_types) || {})[name.to_s]
-                  if type && type.is_a?(ActiveRecord::Type::Serialized)
+                  if custom_type
+                    message = options[:type].deserialize(message)
+                  elsif type && type.is_a?(ActiveRecord::Type::Serialized)
                     message = type.deserialize(message)
                   else
                     # default to string if not serialized
@@ -299,7 +302,9 @@ class Lockbox
                 # encrypt will convert to binary
               else
                 type = (try(:attribute_types) || {})[name.to_s]
-                if type && type.is_a?(ActiveRecord::Type::Serialized)
+                if custom_type
+                  message = options[:type].serialize(message)
+                elsif type && type.is_a?(ActiveRecord::Type::Serialized)
                   message = type.serialize(message)
                 end
               end
