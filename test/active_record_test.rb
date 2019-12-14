@@ -47,9 +47,17 @@ class ActiveRecordTest < Minitest::Test
 
     assert_equal original_name, user.name_was
     if ActiveRecord::VERSION::STRING >= "5.2"
+      # TODO change in next major version
       assert_nil user.email_was
     else
       assert_equal original_email, user.email_was
+    end
+
+    # in database
+    if ActiveRecord::VERSION::STRING >= "5.1"
+      assert_equal original_name, user.name_in_database
+      # TODO change in next major version
+      assert_nil user.email_in_database
     end
 
     # update
@@ -64,6 +72,13 @@ class ActiveRecordTest < Minitest::Test
     assert_equal original_name, user.name_was
     assert_equal original_email, user.email_was
 
+    # ensure in database
+    if ActiveRecord::VERSION::STRING >= "5.1"
+      assert_equal original_name, user.name_in_database
+      assert_equal original_email, user.email_in_database
+    end
+
+    # ensure changes
     assert_equal [original_name, new_name], user.changes["name"]
     assert_equal [original_email, new_email], user.changes["email"]
 
