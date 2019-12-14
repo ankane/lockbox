@@ -44,6 +44,7 @@ class ActiveRecordTest < Minitest::Test
 
     assert !user.name_changed?
     assert !user.email_changed?
+    assert !user.changed?
 
     assert_equal original_name, user.name_was
     assert_equal original_email, user.email_was
@@ -54,6 +55,10 @@ class ActiveRecordTest < Minitest::Test
       assert_equal original_email, user.email_in_database
     end
 
+    assert !user.name_changed?
+    assert !user.email_changed?
+    assert !user.changed?
+
     # update
     user.name = new_name
     user.email = new_email
@@ -61,6 +66,7 @@ class ActiveRecordTest < Minitest::Test
     # ensure changed
     assert user.name_changed?
     assert user.email_changed?
+    assert user.changed?
 
     # ensure was
     assert_equal original_name, user.name_was
