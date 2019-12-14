@@ -95,7 +95,7 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_dirty_before_last_save
-    skip if Rails.version < "5.1"
+    skip if ActiveRecord::VERSION::STRING < "5.1"
 
     original_name = "Test"
     original_email = "test@example.org"
