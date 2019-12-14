@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   class Utils
     def self.build_box(context, options, table, attribute)
       options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type, :encode)

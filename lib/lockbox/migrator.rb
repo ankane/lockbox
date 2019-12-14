@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   class Migrator
     def initialize(model)
       @model = model

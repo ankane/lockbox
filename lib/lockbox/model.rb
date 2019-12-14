@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   module Model
     def attached_encrypted(attribute, **options)
       warn "[lockbox] DEPRECATION WARNING: Use encrypts_attached instead"

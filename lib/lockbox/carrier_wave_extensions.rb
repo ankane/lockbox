@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   module CarrierWaveExtensions
     def encrypt(**options)
       class_eval do

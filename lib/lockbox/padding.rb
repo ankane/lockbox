@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   module Padding
     PAD_FIRST_BYTE = "\x80".b
     PAD_ZERO_BYTE = "\x00".b

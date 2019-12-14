@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   class KeyGenerator
     def initialize(master_key)
       @master_key = master_key

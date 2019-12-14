@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   class Railtie < Rails::Railtie
     initializer "lockbox" do |app|
       require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
