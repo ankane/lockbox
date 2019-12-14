@@ -1,3 +1,4 @@
+# legacy for attr_encrypted
 class Lockbox
   class Encryptor
     def self.encrypt(options)
