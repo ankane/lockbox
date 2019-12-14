@@ -1,3 +1,7 @@
+## 0.3.0 (unreleased)
+
+- Made `was` and `in_database` methods consistent with unencrypted fields before an update
+
 ## 0.2.5 (2019-12-14)
 
 - Made `model.attribute?` consistent with unencrypted columns

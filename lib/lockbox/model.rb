@@ -158,6 +158,16 @@ class Lockbox
             define_method("#{name}?") do
               send("#{encrypted_attribute}?")
             end
+
+            define_method("#{name}_was") do
+              send(name) # writes attribute when not already set
+              super()
+            end
+
+            define_method("#{name}_in_database") do
+              send(name) # writes attribute when not already set
+              super()
+            end
           else
             m = Module.new do
               define_method("#{name}=") do |val|
