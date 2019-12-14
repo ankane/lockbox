@@ -496,6 +496,12 @@ class ActiveRecordTest < Minitest::Test
     end
   end
 
+  def test_store
+    credentials = {a: 1, b: "hi"}.as_json
+    assert_attribute :credentials, credentials, format: credentials.to_json
+    assert_attribute :username, "hello", check_nil: false
+  end
+
   def test_padding
     user = User.create!(city: "New York")
     assert_equal 12 + 16 + 16, Base64.decode64(user.city_ciphertext).bytesize
@@ -524,7 +530,7 @@ class ActiveRecordTest < Minitest::Test
 
   private
 
-  def assert_attribute(attribute, value, format: nil, time_zone: false, **options)
+  def assert_attribute(attribute, value, format: nil, time_zone: false, check_nil: true, **options)
     attribute2 = "#{attribute}2".to_sym
     encrypted_attribute = "#{attribute2}_ciphertext"
     expected = options.key?(:expected) ? options[:expected] : value
@@ -569,8 +575,10 @@ class ActiveRecordTest < Minitest::Test
       assert_equal format.force_encoding(Encoding::BINARY), box.decrypt(Base64.decode64(user.send(encrypted_attribute)))
     end
 
-    user.send("#{attribute2}=", nil)
-    assert_nil user.send(encrypted_attribute)
+    if check_nil
+      user.send("#{attribute2}=", nil)
+      assert_nil user.send(encrypted_attribute)
+    end
   end
 
   def assert_equal(exp, act)

@@ -26,6 +26,10 @@ class User < ActiveRecord::Base
 
   encrypts :properties2, :settings2
 
+  store :credentials, accessors: [:username], coder: JSON
+  store :credentials2, accessors: [:username2], coder: JSON
+  encrypts :credentials2
+
   encrypts :country2, type: :string
   encrypts :active2, type: :boolean
   encrypts :born_on2, type: :date

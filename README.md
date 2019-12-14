@@ -118,6 +118,9 @@ Lockbox automatically works with serialized fields for maximum compatibility wit
 class User < ApplicationRecord
   serialize :properties, JSON
   encrypts :properties
+
+  store :settings, accessors: [:color, :homepage]
+  encrypts :settings
 end
 ```
 
