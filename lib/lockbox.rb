@@ -48,6 +48,40 @@ class Lockbox
     Migrator.new(model).migrate(restart: restart)
   end
 
+  def self.generate_key
+    SecureRandom.hex(32)
+  end
+
+  def self.generate_key_pair
+    require "rbnacl"
+    # encryption and decryption servers exchange public keys
+    # this produces smaller ciphertext than sealed box
+    alice = RbNaCl::PrivateKey.generate
+    bob = RbNaCl::PrivateKey.generate
+    # alice is sending message to bob
+    # use bob first in both cases to prevent keys being swappable
+    {
+      encryption_key: to_hex(bob.public_key.to_bytes + alice.to_bytes),
+      decryption_key: to_hex(bob.to_bytes + alice.public_key.to_bytes)
+    }
+  end
+
+  def self.attribute_key(table:, attribute:, master_key: nil, encode: true)
+    master_key ||= Lockbox.master_key
+    raise ArgumentError, "Missing master key" unless master_key
+
+    key = Lockbox::KeyGenerator.new(master_key).attribute_key(table: table, attribute: attribute)
+    key = to_hex(key) if encode
+    key
+  end
+
+  def self.to_hex(str)
+    str.unpack("H*").first
+  end
+end
+
+# encryptor
+class Lockbox
   def initialize(**options)
     options = self.class.default_options.merge(options)
     previous_versions = options.delete(:previous_versions)
@@ -104,37 +138,6 @@ class Lockbox
   def decrypt_str(ciphertext, **options)
     message = decrypt(ciphertext, **options)
     message.force_encoding(Encoding::UTF_8)
-  end
-
-  def self.generate_key
-    SecureRandom.hex(32)
-  end
-
-  def self.generate_key_pair
-    require "rbnacl"
-    # encryption and decryption servers exchange public keys
-    # this produces smaller ciphertext than sealed box
-    alice = RbNaCl::PrivateKey.generate
-    bob = RbNaCl::PrivateKey.generate
-    # alice is sending message to bob
-    # use bob first in both cases to prevent keys being swappable
-    {
-      encryption_key: to_hex(bob.public_key.to_bytes + alice.to_bytes),
-      decryption_key: to_hex(bob.to_bytes + alice.public_key.to_bytes)
-    }
-  end
-
-  def self.attribute_key(table:, attribute:, master_key: nil, encode: true)
-    master_key ||= Lockbox.master_key
-    raise ArgumentError, "Missing master key" unless master_key
-
-    key = Lockbox::KeyGenerator.new(master_key).attribute_key(table: table, attribute: attribute)
-    key = to_hex(key) if encode
-    key
-  end
-
-  def self.to_hex(str)
-    str.unpack("H*").first
   end
 
   private
