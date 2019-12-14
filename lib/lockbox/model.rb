@@ -104,10 +104,13 @@ class Lockbox
           @lockbox_attributes[original_name] = options.merge(encode: encode)
 
           if @lockbox_attributes.size == 1
+            # use same approach as activerecord serialization
             def serializable_hash(options = nil)
               options = options.try(:dup) || {}
+
               options[:except] = Array(options[:except])
               options[:except] += self.class.lockbox_attributes.values.flat_map { |v| [v[:attribute], v[:encrypted_attribute]] }
+
               super(options)
             end
 
