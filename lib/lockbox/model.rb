@@ -164,9 +164,11 @@ class Lockbox
               super()
             end
 
-            define_method("#{name}_in_database") do
-              send(name) # writes attribute when not already set
-              super()
+            if ActiveRecord::VERSION::STRING >= "5.1"
+              define_method("#{name}_in_database") do
+                send(name) # writes attribute when not already set
+                super()
+              end
             end
           else
             m = Module.new do
