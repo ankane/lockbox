@@ -87,7 +87,7 @@ module Lockbox
 
           @lockbox_attributes ||= {}
 
-          unless respond_to?(:lockbox_attributes)
+          if @lockbox_attributes.size == 0
             def self.lockbox_attributes
               parent_attributes =
                 if superclass.respond_to?(:lockbox_attributes)
