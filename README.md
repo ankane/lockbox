@@ -121,6 +121,10 @@ class User < ApplicationRecord
 
   store :settings, accessors: [:color, :homepage]
   encrypts :settings
+
+  # [master]
+  attribute :configuration, CustomType.new
+  encrypts :configuration
 end
 ```
 
