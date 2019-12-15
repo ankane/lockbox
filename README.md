@@ -124,6 +124,18 @@ class User < ApplicationRecord
 end
 ```
 
+For [StoreModel](https://github.com/DmitryTsepelev/store_model), use: [master]
+
+```ruby
+class User < ApplicationRecord
+  encrypts :configuration, type: Configuration.to_type
+
+  after_initialize do
+    self.configuration ||= {}
+  end
+end
+```
+
 #### Validations
 
 Validations work as expected with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).

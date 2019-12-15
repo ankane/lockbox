@@ -1,4 +1,15 @@
 class User < ActiveRecord::Base
+  class Configuration < ActiveModel::Type::String
+    def serialize(value)
+      "#{value}!!"
+    end
+
+    def deserialize(value)
+      return if value.nil?
+      value[0..-3].force_encoding(Encoding::UTF_8)
+    end
+  end
+
   if respond_to?(:has_one_attached)
     has_one_attached :avatar
     encrypts_attached :avatar
@@ -29,6 +40,9 @@ class User < ActiveRecord::Base
   store :credentials, accessors: [:username], coder: JSON
   store :credentials2, accessors: [:username2], coder: JSON
   encrypts :credentials2
+
+  attribute :configuration, Configuration.new
+  encrypts :configuration2, type: Configuration.new
 
   encrypts :country2, type: :string
   encrypts :active2, type: :boolean

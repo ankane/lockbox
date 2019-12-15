@@ -53,6 +53,8 @@ ActiveRecord::Schema.define do
     t.text :info2_ciphertext
     t.text :credentials
     t.text :credentials2_ciphertext
+    t.text :configuration
+    t.text :configuration2_ciphertext
     t.text :city_ciphertext
     t.binary :ssn_ciphertext
   end
