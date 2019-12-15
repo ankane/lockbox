@@ -1,6 +1,7 @@
 ## 0.3.0 (unreleased)
 
 - Added support for custom types
+- Added support for virtual attributes
 - Made `was` and `in_database` methods consistent with unencrypted fields before an update
 - Changed `Lockbox` to module
 
