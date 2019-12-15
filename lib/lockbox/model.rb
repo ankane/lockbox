@@ -12,7 +12,7 @@ module Lockbox
         class_eval do
           @lockbox_attachments ||= {}
 
-          unless respond_to?(:lockbox_attachments)
+          if @lockbox_attachments.empty?
             def self.lockbox_attachments
               parent_attachments =
                 if superclass.respond_to?(:lockbox_attachments)
@@ -87,7 +87,7 @@ module Lockbox
 
           @lockbox_attributes ||= {}
 
-          if @lockbox_attributes.size == 0
+          if @lockbox_attributes.empty?
             def self.lockbox_attributes
               parent_attributes =
                 if superclass.respond_to?(:lockbox_attributes)
