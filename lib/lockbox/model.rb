@@ -53,16 +53,6 @@ module Lockbox
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
       raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
 
-      attribute_type =
-        case options[:type]
-        when nil, :json, :hash
-          :string
-        when :integer
-          ActiveModel::Type::Integer.new(limit: 8)
-        else
-          options[:type]
-        end
-
       attributes.each do |name|
         # add default options
         encrypted_attribute = "#{name}_ciphertext"
@@ -124,28 +114,25 @@ module Lockbox
               "#<#{self.class} #{inspection.join(", ")}>"
             end
 
-            # needed for in-place modifications
-            # assigned attributes are encrypted on assignment
-            # and then again here
-            before_save do
-              self.class.lockbox_attributes.each do |_, lockbox_attribute|
-                attribute = lockbox_attribute[:attribute]
-
-                if changes.include?(attribute)
-                  type = (self.class.try(:attribute_types) || {})[attribute]
-                  if lockbox_attribute[:type].respond_to?(:serialize) || (type && type.is_a?(ActiveRecord::Type::Serialized))
-                    send("#{attribute}=", send(attribute))
-                  end
-                end
-              end
-            end
-
             if defined?(Mongoid::Document) && included_modules.include?(Mongoid::Document)
               def reload
                 self.class.lockbox_attributes.each do |_, v|
                   instance_variable_set("@#{v[:attribute]}", nil)
                 end
                 super
+              end
+            else
+              # needed for in-place modifications
+              # assigned attributes are encrypted on assignment
+              # and then again here
+              before_save do
+                self.class.lockbox_attributes.each do |_, lockbox_attribute|
+                  attribute = lockbox_attribute[:attribute]
+
+                  if attribute_changed_in_place?(attribute)
+                    send("#{attribute}=", send(attribute))
+                  end
+                end
               end
             end
           end
@@ -154,12 +141,23 @@ module Lockbox
           serialize name, Hash if options[:type] == :hash
 
           if respond_to?(:attribute)
+            # preference:
+            # 1. type option
+            # 2. existing virtual attribute
+            # 3. default to string (which can later be overridden)
             if options[:type]
+              attribute_type =
+                case options[:type]
+                when :json, :hash
+                  :string
+                when :integer
+                  ActiveModel::Type::Integer.new(limit: 8)
+                else
+                  options[:type]
+                end
+
               attribute name, attribute_type
-            else
-              # ideally, we only do this if attribute does not exist
-              # however, we need a way to check if virtual attribute exists
-              # without hitting DB
+            elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
               attribute name, :string
             end
 
@@ -260,14 +258,8 @@ module Lockbox
                   # decrypt returns binary string
                 else
                   type = (self.class.try(:attribute_types) || {})[name.to_s]
-                  if custom_type
-                    message = options[:type].deserialize(message)
-                  elsif type && type.is_a?(ActiveRecord::Type::Serialized)
-                    message = type.deserialize(message)
-                  else
-                    # default to string if not serialized
-                    message.force_encoding(Encoding::UTF_8)
-                  end
+                  message = type.deserialize(message) if type
+                  message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
                 end
               end
 
@@ -324,11 +316,7 @@ module Lockbox
                 # encrypt will convert to binary
               else
                 type = (try(:attribute_types) || {})[name.to_s]
-                if custom_type
-                  message = options[:type].serialize(message)
-                elsif type && type.is_a?(ActiveRecord::Type::Serialized)
-                  message = type.serialize(message)
-                end
+                message = type.serialize(message) if type
               end
             end
 

@@ -44,6 +44,10 @@ class User < ActiveRecord::Base
   attribute :configuration, Configuration.new
   encrypts :configuration2, type: Configuration.new
 
+  attribute :config, Configuration.new
+  attribute :config2, Configuration.new
+  encrypts :config2
+
   encrypts :country2, type: :string
   encrypts :active2, type: :boolean
   encrypts :born_on2, type: :date

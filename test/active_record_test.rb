@@ -527,6 +527,10 @@ class ActiveRecordTest < Minitest::Test
     assert_attribute :configuration, "USA", format: "USA!!"
   end
 
+  def test_type_custom_attribute
+    assert_attribute :config, "USA", format: "USA!!"
+  end
+
   def test_padding
     user = User.create!(city: "New York")
     assert_equal 12 + 16 + 16, Base64.decode64(user.city_ciphertext).bytesize
