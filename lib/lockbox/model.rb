@@ -154,7 +154,14 @@ module Lockbox
           serialize name, Hash if options[:type] == :hash
 
           if respond_to?(:attribute)
-            attribute name, attribute_type
+            if options[:type]
+              attribute name, attribute_type
+            else
+              # ideally, we only do this if attribute does not exist
+              # however, we need a way to check if virtual attribute exists
+              # without hitting DB
+              attribute name, :string
+            end
 
             define_method("#{name}?") do
               send("#{encrypted_attribute}?")
