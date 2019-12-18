@@ -21,6 +21,16 @@ class MongoidTest < Minitest::Test
     assert_equal email, user.email
   end
 
+  def test_decrypt_after_destroy
+    email = "test@example.org"
+    User.create!(email: email)
+
+    user = User.last
+    user.destroy!
+
+    user.email
+  end
+
   def test_utf8
     email = "Łukasz"
     Person.create!(email: email)
