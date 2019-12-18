@@ -267,7 +267,7 @@ module Lockbox
               @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message) if @attributes[name.to_s]
 
               # cache
-              if respond_to?(:_write_attribute, true)
+              if respond_to?(:_write_attribute, true) && !@attributes.frozen?
                 _write_attribute(name, message)
               elsif respond_to?(:raw_write_attribute)
                 raw_write_attribute(name, message)
