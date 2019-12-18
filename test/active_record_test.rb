@@ -8,7 +8,7 @@ class ActiveRecordTest < Minitest::Test
     assert_equal email, user.email
   end
 
-  def test_encrypt_after_destroy
+  def test_decrypt_after_destroy
     email = "test@example.org"
     User.create!(email: email)
 
