@@ -3,6 +3,7 @@
 - Added support for custom types
 - Added support for virtual attributes
 - Made `was` and `in_database` methods consistent with unencrypted fields before an update
+- Changed `restore` methods to restore ciphertext
 - Changed `Lockbox` to module
 
 ## 0.2.5 (2019-12-14)

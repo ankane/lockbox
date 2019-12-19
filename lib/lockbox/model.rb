@@ -170,6 +170,12 @@ module Lockbox
               super()
             end
 
+            # restore ciphertext as well
+            define_method("restore_#{name}!") do
+              super()
+              send("restore_#{encrypted_attribute}!")
+            end
+
             if ActiveRecord::VERSION::STRING >= "5.1"
               define_method("#{name}_in_database") do
                 send(name) # writes attribute when not already set
