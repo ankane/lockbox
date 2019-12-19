@@ -18,6 +18,19 @@ class ActiveRecordTest < Minitest::Test
     user.email
   end
 
+  def test_restore
+    original_email = "test@example.org"
+    User.create!(email: original_email)
+
+    user = User.last
+    user.email = "new@example.org"
+    user.restore_email!
+    user.save!
+
+    user = User.last
+    assert_equal user.email, original_email
+  end
+
   def test_utf8
     email = "Łukasz"
     User.create!(email: email)
