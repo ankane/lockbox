@@ -115,11 +115,14 @@ module Lockbox
             end
 
             if defined?(Mongoid::Document) && included_modules.include?(Mongoid::Document)
-              def reload
-                self.class.lockbox_attributes.each do |_, v|
-                  instance_variable_set("@#{v[:attribute]}", nil)
+              # prevent attributes from being saved
+              def as_attributes
+                attributes = super
+                self.class.lockbox_attributes.each do |_, lockbox_attribute|
+                  attribute = lockbox_attribute[:attribute]
+                  attributes.delete(attribute)
                 end
-                super
+                attributes
               end
             else
               # needed for in-place modifications
@@ -183,26 +186,7 @@ module Lockbox
               end
             end
           else
-            m = Module.new do
-              define_method("#{name}=") do |val|
-                prev_val = instance_variable_get("@#{name}")
-
-                unless val == prev_val
-                  # custom attribute_will_change! method
-                  unless changed_attributes.key?(name.to_s)
-                    changed_attributes[name.to_s] = prev_val.__deep_copy__
-                  end
-                end
-
-                instance_variable_set("@#{name}", val)
-              end
-
-              define_method(name) do
-                instance_variable_get("@#{name}")
-              end
-            end
-
-            include m
+            field name, type: String
 
             alias_method "#{name}_changed?", "#{encrypted_attribute}_changed?"
 
@@ -283,8 +267,8 @@ module Lockbox
                 _write_attribute(name, message) if !@attributes.frozen?
               elsif respond_to?(:raw_write_attribute)
                 raw_write_attribute(name, message) if !@attributes.frozen?
-              else
-                instance_variable_set("@#{name}", message)
+              else # Mongoid
+                raw_attributes[name.to_s] = message
               end
             end
 
