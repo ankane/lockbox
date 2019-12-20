@@ -74,6 +74,7 @@ class ActiveRecordTest < Minitest::Test
     user = User.last
     original_email_ciphertext = user.email_ciphertext
 
+    user.email
     assert !user.name_changed?
     assert !user.email_changed?
     assert !user.changed?
