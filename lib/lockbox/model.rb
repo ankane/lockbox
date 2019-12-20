@@ -272,8 +272,6 @@ module Lockbox
               # set previous attribute on first decrypt
               if @attributes[name.to_s]
                 @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
-              elsif respond_to?(:changed_attributes)
-                changed_attributes[name.to_s] = message
               end
 
               # cache
