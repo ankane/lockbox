@@ -33,6 +33,13 @@ class ActiveRecordTest < Minitest::Test
     assert_equal original_ciphertext, user.email_ciphertext
   end
 
+  def test_was_bad_ciphertext
+    user = User.create!(email_ciphertext: "bad")
+    assert_raises Lockbox::DecryptionError do
+      user.email_was
+    end
+  end
+
   def test_utf8
     email = "Łukasz"
     User.create!(email: email)
