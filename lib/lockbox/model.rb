@@ -207,7 +207,11 @@ module Lockbox
             alias_method "#{name}_changed?", "#{encrypted_attribute}_changed?"
 
             define_method "#{name}_was" do
-              attribute_was(name.to_s)
+              if send("#{name}_changed?")
+                attribute_was(name.to_s)
+              else
+                send(name)
+              end
             end
           end
 

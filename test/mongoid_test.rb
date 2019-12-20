@@ -70,7 +70,7 @@ class MongoidTest < Minitest::Test
     assert !user.changed?
 
     assert_equal original_name, user.name_was
-    # assert_equal original_email, user.email_was
+    assert_equal original_email, user.email_was
 
     assert !user.name_changed?
     assert !user.email_changed?
@@ -90,8 +90,8 @@ class MongoidTest < Minitest::Test
     assert_equal original_email, user.email_was
 
     # ensure changes
-    assert user.changes["name"]
-    assert user.changes["email"]
+    assert_equal [original_name, new_name], user.changes["name"]
+    # assert_equal [original_email, new_email], user.changes["email"]
 
     # ensure final value
     assert_equal new_name, user.name
