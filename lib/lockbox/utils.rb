@@ -21,10 +21,14 @@ module Lockbox
       record.class.respond_to?(:lockbox_attachments) ? record.class.lockbox_attachments[name.to_sym] : nil
     end
 
-    def self.decode_key(key)
+    def self.decode_key(key, length: 32)
       if key.encoding != Encoding::BINARY && key =~ /\A[0-9a-f]{64,128}\z/i
         key = [key].pack("H*")
       end
+
+      raise Lockbox::Error, "Key must use binary encoding" if key.encoding != Encoding::BINARY
+      raise Lockbox::Error, "Key must be 32 bytes" if key.bytesize != length
+
       key
     end
 
