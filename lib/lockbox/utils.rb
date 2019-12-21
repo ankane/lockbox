@@ -41,8 +41,6 @@ module Lockbox
       box = build_box(record, options, record.class.table_name, name)
 
       case attachable
-      when ActiveStorage::Blob
-        raise NotImplementedError, "Not supported"
       when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
         attachable = {
           io: box.encrypt_io(attachable),
@@ -55,10 +53,8 @@ module Lockbox
           filename: attachable[:filename],
           content_type: attachable[:content_type]
         }
-      when String
-        raise NotImplementedError, "Not supported"
       else
-        nil
+        raise NotImplementedError, "Not supported"
       end
 
       attachable
