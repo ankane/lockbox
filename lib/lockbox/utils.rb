@@ -45,13 +45,13 @@ module Lockbox
         raise NotImplementedError, "Not supported"
       when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
         attachable = {
-          io: StringIO.new(box.encrypt(attachable.read)),
+          io: box.encrypt_io(attachable),
           filename: attachable.original_filename,
           content_type: attachable.content_type
         }
       when Hash
         attachable = {
-          io: StringIO.new(box.encrypt(attachable[:io].read)),
+          io: box.encrypt_io(attachable[:io]),
           filename: attachable[:filename],
           content_type: attachable[:content_type]
         }
