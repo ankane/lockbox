@@ -118,13 +118,13 @@ Lockbox automatically works with serialized fields for maximum compatibility wit
 class User < ApplicationRecord
   serialize :properties, JSON
   store :settings, accessors: [:color, :homepage]
-  attribute :configuration, CustomType.new # [master]
+  attribute :configuration, CustomType.new
 
   encrypts :properties, :settings, :configuration
 end
 ```
 
-For [StoreModel](https://github.com/DmitryTsepelev/store_model), use: [master]
+For [StoreModel](https://github.com/DmitryTsepelev/store_model), use:
 
 ```ruby
 class User < ApplicationRecord

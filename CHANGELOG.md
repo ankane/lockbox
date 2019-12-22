@@ -1,12 +1,12 @@
-## 0.3.0 (unreleased)
+## 0.3.0 (2019-12-22)
 
 - Added support for custom types
 - Added support for virtual attributes
-- Improved Mongoid consistency with unencrypted fields
-- Made `was` and `in_database` methods consistent with unencrypted fields before an update
-- Made `restore` methods to restore ciphertext
-- Changed `Lockbox` to module
+- Made many Mongoid methods consistent with unencrypted columns
+- Made `was` and `in_database` methods consistent with unencrypted columns before an update
+- Made `restore` methods restore ciphertext
 - Fixed virtual attribute being saved with `nil` for Mongoid
+- Changed `Lockbox` to module
 
 ## 0.2.5 (2019-12-14)
 
