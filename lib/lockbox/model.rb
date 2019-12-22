@@ -204,12 +204,8 @@ module Lockbox
             alias_method "#{name}_changed?", "#{encrypted_attribute}_changed?"
 
             define_method "#{name}_was" do
-              if send("#{name}_changed?")
-                ciphertext = send("#{encrypted_attribute}_was")
-                self.class.send(decrypt_method_name, ciphertext, context: self)
-              else
-                send(name)
-              end
+              ciphertext = send("#{encrypted_attribute}_was")
+              self.class.send(decrypt_method_name, ciphertext, context: self)
             end
           end
 
