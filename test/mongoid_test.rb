@@ -117,8 +117,8 @@ class MongoidTest < Minitest::Test
     user.name = new_name
     user.email = new_email
 
-    user.reset_name!
-    user.reset_email!
+    assert_equal original_name, user.reset_name!
+    assert_equal original_email, user.reset_email!
 
     assert_equal original_name, user.name
     assert_equal original_email, user.email
@@ -134,8 +134,8 @@ class MongoidTest < Minitest::Test
     user.name = new_name
     user.email = new_email
 
-    user.reset_name_to_default!
-    user.reset_email_to_default!
+    assert_nil user.reset_name_to_default!
+    assert_nil user.reset_email_to_default!
 
     assert_nil user.name
     assert_nil user.email
