@@ -74,12 +74,6 @@ module Lockbox
         decrypt_method_name = "decrypt_#{encrypted_attribute}"
 
         class_eval do
-          if options[:migrating]
-            before_validation do
-              send("#{name}=", send(original_name)) if send("#{original_name}_changed?")
-            end
-          end
-
           @lockbox_attributes ||= {}
 
           if @lockbox_attributes.empty?
@@ -93,12 +87,7 @@ module Lockbox
 
               parent_attributes.merge(@lockbox_attributes || {})
             end
-          end
 
-          raise "Duplicate encrypted attribute: #{original_name}" if lockbox_attributes[original_name]
-          @lockbox_attributes[original_name] = options.merge(encode: encode)
-
-          if @lockbox_attributes.size == 1
             # use same approach as activerecord serialization
             def serializable_hash(options = nil)
               options = options.try(:dup) || {}
@@ -141,8 +130,8 @@ module Lockbox
             end
           end
 
-          serialize name, JSON if options[:type] == :json
-          serialize name, Hash if options[:type] == :hash
+          raise "Duplicate encrypted attribute: #{original_name}" if lockbox_attributes[original_name]
+          @lockbox_attributes[original_name] = options.merge(encode: encode)
 
           if activerecord
             # preference:
@@ -161,6 +150,9 @@ module Lockbox
                 end
 
               attribute name, attribute_type
+
+              serialize name, JSON if options[:type] == :json
+              serialize name, Hash if options[:type] == :hash
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
               attribute name, :string
             end
@@ -342,6 +334,12 @@ module Lockbox
             end
 
             message
+          end
+
+          if options[:migrating]
+            before_validation do
+              send("#{name}=", send(original_name)) if send("#{original_name}_changed?")
+            end
           end
         end
       end
