@@ -589,6 +589,18 @@ class ActiveRecordTest < Minitest::Test
     assert_equal robot.email, robot.migrated_email
   end
 
+  def test_bad_master_key
+    previous_value = Lockbox.master_key
+    begin
+      Lockbox.master_key = "bad"
+      assert_raises(Lockbox::Error) do
+        User.create!(email: "test@example.org")
+      end
+    ensure
+      Lockbox.master_key = previous_value
+    end
+  end
+
   private
 
   def assert_attribute(attribute, value, format: nil, time_zone: false, check_nil: true, **options)
