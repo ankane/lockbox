@@ -53,6 +53,8 @@ module Lockbox
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
       raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
 
+      mongoid = defined?(Mongoid::Document) && included_modules.include?(Mongoid::Document)
+
       attributes.each do |name|
         # add default options
         encrypted_attribute = "#{name}_ciphertext"
@@ -115,7 +117,7 @@ module Lockbox
               "#<#{self.class} #{inspection.join(", ")}>"
             end
 
-            if defined?(Mongoid::Document) && included_modules.include?(Mongoid::Document)
+            if mongoid
               def reload
                 self.class.lockbox_attributes.each do |_, v|
                   instance_variable_set("@#{v[:attribute]}", nil)
@@ -141,7 +143,7 @@ module Lockbox
           serialize name, JSON if options[:type] == :json
           serialize name, Hash if options[:type] == :hash
 
-          if respond_to?(:attribute)
+          if !mongoid
             # preference:
             # 1. type option
             # 2. existing virtual attribute
@@ -184,6 +186,9 @@ module Lockbox
               end
             end
           else
+            # keep this module dead simple
+            # Mongoid uses changed_attributes to calculate keys to update
+            # so we shouldn't mess with it
             m = Module.new do
               define_method("#{name}=") do |val|
                 instance_variable_set("@#{name}", val)
@@ -233,18 +238,20 @@ module Lockbox
               ciphertext = send(encrypted_attribute)
               message = self.class.send(decrypt_method_name, ciphertext, context: self)
 
-              # set previous attribute on first decrypt
-              if @attributes[name.to_s]
-                @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
-              end
-
-              # cache
-              if respond_to?(:_write_attribute, true)
-                _write_attribute(name, message) if !@attributes.frozen?
-              elsif respond_to?(:raw_write_attribute)
-                raw_write_attribute(name, message) if !@attributes.frozen?
-              else
+              if mongoid
                 instance_variable_set("@#{name}", message)
+              else
+                # set previous attribute on first decrypt
+                if @attributes[name.to_s]
+                  @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
+                end
+
+                # cache
+                if respond_to?(:_write_attribute, true)
+                  _write_attribute(name, message) if !@attributes.frozen?
+                else
+                  raw_write_attribute(name, message) if !@attributes.frozen?
+                end
               end
             end
 
