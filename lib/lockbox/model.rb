@@ -67,7 +67,7 @@ module Lockbox
 
         options[:attribute] = name.to_s
         options[:encrypted_attribute] = encrypted_attribute
-        class_method_name = "generate_#{encrypted_attribute}"
+        encrypt_method_name = "generate_#{encrypted_attribute}"
         decrypt_method_name = "decrypt_#{encrypted_attribute}"
 
         class_eval do
@@ -220,7 +220,7 @@ module Lockbox
             end
 
             # set ciphertext
-            ciphertext = self.class.send(class_method_name, message, context: self)
+            ciphertext = self.class.send(encrypt_method_name, message, context: self)
             send("#{encrypted_attribute}=", ciphertext)
 
             super(original_message)
@@ -252,7 +252,7 @@ module Lockbox
           end
 
           # for fixtures
-          define_singleton_method class_method_name do |message, **opts|
+          define_singleton_method encrypt_method_name do |message, **opts|
             table = respond_to?(:table_name) ? table_name : collection_name.to_s
 
             unless message.nil?
