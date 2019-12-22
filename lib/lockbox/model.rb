@@ -208,6 +208,11 @@ module Lockbox
               instance_variable_set("@#{name}", nil)
               send("reset_#{encrypted_attribute}!")
             end
+
+            define_method "reset_#{name}_to_default!" do
+              instance_variable_set("@#{name}", nil)
+              send("reset_#{encrypted_attribute}_to_default!")
+            end
           end
 
           define_method("#{name}?") do
