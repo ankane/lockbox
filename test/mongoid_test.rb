@@ -66,6 +66,9 @@ class MongoidTest < Minitest::Test
     assert !user.email_changed?
     assert !user.changed?
 
+    assert_nil user.name_change
+    assert_nil user.email_change
+
     assert_equal original_name, user.name_was
     assert_equal original_email, user.email_was
 
