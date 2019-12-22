@@ -1,36 +1,5 @@
 module Lockbox
   module Model
-    def attached_encrypted(attribute, **options)
-      warn "[lockbox] DEPRECATION WARNING: Use encrypts_attached instead"
-      encrypts_attached(attribute, **options)
-    end
-
-    def encrypts_attached(*attributes, **options)
-      attributes.each do |name|
-        name = name.to_sym
-
-        class_eval do
-          @lockbox_attachments ||= {}
-
-          if @lockbox_attachments.empty?
-            def self.lockbox_attachments
-              parent_attachments =
-                if superclass.respond_to?(:lockbox_attachments)
-                  superclass.lockbox_attachments
-                else
-                  {}
-                end
-
-              parent_attachments.merge(@lockbox_attachments || {})
-            end
-          end
-
-          raise "Duplicate encrypted attachment: #{name}" if lockbox_attachments[name]
-          @lockbox_attachments[name] = options
-        end
-      end
-    end
-
     def encrypts(*attributes, **options)
       # support objects
       # case options[:type]
@@ -271,6 +240,7 @@ module Lockbox
             table = activerecord ? table_name : collection_name.to_s
 
             unless message.nil?
+              # TODO use attribute type class in 0.4.0
               case options[:type]
               when :boolean
                 message = ActiveRecord::Type::Boolean.new.serialize(message)
@@ -327,6 +297,7 @@ module Lockbox
               end
 
             unless message.nil?
+              # TODO use attribute type class in 0.4.0
               case options[:type]
               when :boolean
                 message = message == "t"
@@ -359,6 +330,39 @@ module Lockbox
             before_validation do
               send("#{name}=", send(original_name)) if send("#{original_name}_changed?")
             end
+          end
+        end
+      end
+    end
+
+    module Attached
+      def attached_encrypted(attribute, **options)
+        warn "[lockbox] DEPRECATION WARNING: Use encrypts_attached instead"
+        encrypts_attached(attribute, **options)
+      end
+
+      def encrypts_attached(*attributes, **options)
+        attributes.each do |name|
+          name = name.to_sym
+
+          class_eval do
+            @lockbox_attachments ||= {}
+
+            if @lockbox_attachments.empty?
+              def self.lockbox_attachments
+                parent_attachments =
+                  if superclass.respond_to?(:lockbox_attachments)
+                    superclass.lockbox_attachments
+                  else
+                    {}
+                  end
+
+                parent_attachments.merge(@lockbox_attachments || {})
+              end
+            end
+
+            raise "Duplicate encrypted attachment: #{name}" if lockbox_attachments[name]
+            @lockbox_attachments[name] = options
           end
         end
       end
