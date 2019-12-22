@@ -159,10 +159,6 @@ module Lockbox
               attribute name, :string
             end
 
-            define_method("#{name}?") do
-              send("#{encrypted_attribute}?")
-            end
-
             define_method("#{name}_was") do
               send(name) # writes attribute when not already set
               super()
@@ -202,6 +198,10 @@ module Lockbox
               ciphertext = send("#{encrypted_attribute}_was")
               self.class.send(decrypt_method_name, ciphertext, context: self)
             end
+          end
+
+          define_method("#{name}?") do
+            send("#{encrypted_attribute}?")
           end
 
           define_method("#{name}=") do |message|
