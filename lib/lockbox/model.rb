@@ -53,7 +53,7 @@ module Lockbox
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
       raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
 
-      mongoid = defined?(Mongoid::Document) && included_modules.include?(Mongoid::Document)
+      activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
 
       attributes.each do |name|
         # add default options
@@ -117,14 +117,7 @@ module Lockbox
               "#<#{self.class} #{inspection.join(", ")}>"
             end
 
-            if mongoid
-              def reload
-                self.class.lockbox_attributes.each do |_, v|
-                  instance_variable_set("@#{v[:attribute]}", nil)
-                end
-                super
-              end
-            else
+            if activerecord
               # needed for in-place modifications
               # assigned attributes are encrypted on assignment
               # and then again here
@@ -137,13 +130,20 @@ module Lockbox
                   end
                 end
               end
+            else
+              def reload
+                self.class.lockbox_attributes.each do |_, v|
+                  instance_variable_set("@#{v[:attribute]}", nil)
+                end
+                super
+              end
             end
           end
 
           serialize name, JSON if options[:type] == :json
           serialize name, Hash if options[:type] == :hash
 
-          if !mongoid
+          if activerecord
             # preference:
             # 1. type option
             # 2. existing virtual attribute
@@ -234,9 +234,7 @@ module Lockbox
               ciphertext = send(encrypted_attribute)
               message = self.class.send(decrypt_method_name, ciphertext, context: self)
 
-              if mongoid
-                instance_variable_set("@#{name}", message)
-              else
+              if activerecord
                 # set previous attribute on first decrypt
                 if @attributes[name.to_s]
                   @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
@@ -248,6 +246,8 @@ module Lockbox
                 else
                   raw_write_attribute(name, message) if !@attributes.frozen?
                 end
+              else
+                instance_variable_set("@#{name}", message)
               end
             end
 
