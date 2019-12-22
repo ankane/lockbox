@@ -336,11 +336,6 @@ module Lockbox
     end
 
     module Attached
-      def attached_encrypted(attribute, **options)
-        warn "[lockbox] DEPRECATION WARNING: Use encrypts_attached instead"
-        encrypts_attached(attribute, **options)
-      end
-
       def encrypts_attached(*attributes, **options)
         attributes.each do |name|
           name = name.to_sym
@@ -365,6 +360,12 @@ module Lockbox
             @lockbox_attachments[name] = options
           end
         end
+      end
+
+      # TODO remove in future version
+      def attached_encrypted(attribute, **options)
+        warn "[lockbox] DEPRECATION WARNING: Use encrypts_attached instead"
+        encrypts_attached(attribute, **options)
       end
     end
   end
