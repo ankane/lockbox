@@ -319,6 +319,8 @@ Finally, drop the unencrypted column.
 
 To make key rotation easy, you can pass previous versions of keys that can decrypt.
 
+### Active Record
+
 For Active Record, use:
 
 ```ruby
@@ -332,6 +334,24 @@ To rotate, use:
 ```ruby
 user.update!(email: user.email)
 ```
+
+### Mongoid
+
+For Mongoid, use:
+
+```ruby
+class User
+  encrypts :email, previous_versions: [{key: previous_key}]
+end
+```
+
+To rotate, use:
+
+```ruby
+user.update!(email: user.email)
+```
+
+### Active Storage
 
 For Active Storage use:
 
@@ -347,6 +367,8 @@ To rotate existing files, use:
 user.license.rotate_encryption!
 ```
 
+### CarrierWave
+
 For CarrierWave, use:
 
 ```ruby
@@ -360,6 +382,8 @@ To rotate existing files, use:
 ```ruby
 user.license.rotate_encryption!
 ```
+
+### Strings
 
 For strings, use:
 
