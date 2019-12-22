@@ -31,7 +31,7 @@ module Lockbox
       end
     end
 
-    def encrypts(*attributes, encode: true, **options)
+    def encrypts(*attributes, **options)
       # support objects
       # case options[:type]
       # when Date
@@ -70,6 +70,8 @@ module Lockbox
 
         options[:attribute] = name.to_s
         options[:encrypted_attribute] = encrypted_attribute
+        options[:encode] = true unless options.key?(:encode)
+
         encrypt_method_name = "generate_#{encrypted_attribute}"
         decrypt_method_name = "decrypt_#{encrypted_attribute}"
 
@@ -131,7 +133,7 @@ module Lockbox
           end
 
           raise "Duplicate encrypted attribute: #{original_name}" if lockbox_attributes[original_name]
-          @lockbox_attributes[original_name] = options.merge(encode: encode)
+          @lockbox_attributes[original_name] = options
 
           if activerecord
             # preference:
@@ -292,7 +294,7 @@ module Lockbox
               message
             else
               ciphertext = Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
-              ciphertext = Base64.strict_encode64(ciphertext) if encode
+              ciphertext = Base64.strict_encode64(ciphertext) if options[:encode]
               ciphertext
             end
           end
@@ -302,7 +304,7 @@ module Lockbox
               if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                 ciphertext
               else
-                ciphertext = Base64.decode64(ciphertext) if encode
+                ciphertext = Base64.decode64(ciphertext) if options[:encode]
                 table = activerecord ? table_name : collection_name.to_s
                 Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).decrypt(ciphertext)
               end
