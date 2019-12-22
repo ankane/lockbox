@@ -203,6 +203,11 @@ module Lockbox
               ciphertexts = send("#{encrypted_attribute}_change")
               ciphertexts.map { |v| self.class.send(decrypt_method_name, v, context: self) } if ciphertexts
             end
+
+            define_method "reset_#{name}!" do
+              instance_variable_set("@#{name}", nil)
+              send("reset_#{encrypted_attribute}!")
+            end
           end
 
           define_method("#{name}?") do

@@ -107,6 +107,23 @@ class MongoidTest < Minitest::Test
     assert user.email_changed?
   end
 
+  def test_reset
+    original_name = "Test"
+    original_email = "test@example.org"
+    new_name = "New"
+    new_email = "new@example.org"
+
+    user = Person.create!(name: original_name, email: original_email)
+    user.name = new_name
+    user.email = new_email
+
+    user.reset_name!
+    user.reset_email!
+
+    assert_equal original_name, user.name
+    assert_equal original_email, user.email
+  end
+
   def test_plaintext_not_saved
     user = Person.create!(email: "test@example.org")
 
