@@ -198,6 +198,11 @@ module Lockbox
               ciphertext = send("#{encrypted_attribute}_was")
               self.class.send(decrypt_method_name, ciphertext, context: self)
             end
+
+            define_method "#{name}_change" do
+              ciphertexts = send("#{encrypted_attribute}_change")
+              ciphertexts.map { |v| self.class.send(decrypt_method_name, v, context: self) } if ciphertexts
+            end
           end
 
           define_method("#{name}?") do
