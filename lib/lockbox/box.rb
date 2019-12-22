@@ -44,6 +44,7 @@ module Lockbox
         nonce = generate_nonce(@encryption_box)
         ciphertext = @encryption_box.encrypt(nonce, message)
       when "xsalsa20"
+        raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
         nonce = generate_nonce(@box)
         ciphertext = @box.encrypt(nonce, message)
       else
@@ -62,6 +63,7 @@ module Lockbox
           nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
           @decryption_box.decrypt(nonce, ciphertext)
         when "xsalsa20"
+          raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
           nonce, ciphertext = extract_nonce(@box, ciphertext)
           @box.decrypt(nonce, ciphertext)
         else
