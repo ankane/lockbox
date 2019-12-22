@@ -5,6 +5,7 @@
 - Made `was` and `in_database` methods consistent with unencrypted fields before an update
 - Changed `restore` methods to restore ciphertext
 - Changed `Lockbox` to module
+- Fixed virtual attribute being saved with `nil` for Mongoid
 
 ## 0.2.5 (2019-12-14)
 

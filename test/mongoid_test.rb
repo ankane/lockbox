@@ -8,10 +8,7 @@ class MongoidTest < Minitest::Test
   def teardown
     # very important!!
     # ensure no plaintext attributes exist
-    Guard.all.each do |person|
-      bad_keys = person.attributes.keys & %w(email phone ssn)
-      assert_equal [], bad_keys, "Plaintext attribute exists"
-    end
+    assert_no_plaintext_attributes
   end
 
   def test_symmetric
@@ -103,6 +100,25 @@ class MongoidTest < Minitest::Test
     user = Person.create!(email_ciphertext: "bad")
     user.email = "test@example.org"
     assert user.email_changed?
+  end
+
+  def test_plaintext_not_saved
+    user = Person.create!(email: "test@example.org")
+
+    assert_no_plaintext_attributes
+
+    user = Person.last
+    user.email = "new@example.org"
+    user.save!
+
+    assert_no_plaintext_attributes
+
+    user = Person.last
+    user.email
+    user.email = "new2@example.org"
+    user.save!
+
+    assert_no_plaintext_attributes
   end
 
   def test_inspect
@@ -201,5 +217,14 @@ class MongoidTest < Minitest::Test
     dog = Dog.last
     assert_equal dog.name, dog.migrated_name
     assert_equal dog.email, dog.migrated_email
+  end
+
+  private
+
+  def assert_no_plaintext_attributes
+    Guard.all.each do |person|
+      bad_keys = person.attributes.keys & %w(email phone ssn)
+      assert_equal [], bad_keys, "Plaintext attribute exists"
+    end
   end
 end

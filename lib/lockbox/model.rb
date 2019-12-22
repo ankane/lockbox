@@ -68,6 +68,7 @@ module Lockbox
         options[:attribute] = name.to_s
         options[:encrypted_attribute] = encrypted_attribute
         class_method_name = "generate_#{encrypted_attribute}"
+        decrypt_method_name = "decrypt_#{encrypted_attribute}"
 
         class_eval do
           if options[:migrating]
@@ -185,15 +186,6 @@ module Lockbox
           else
             m = Module.new do
               define_method("#{name}=") do |val|
-                prev_val = instance_variable_get("@#{name}")
-
-                unless val == prev_val
-                  # custom attribute_will_change! method
-                  unless changed_attributes.key?(name.to_s)
-                    changed_attributes[name.to_s] = prev_val.__deep_copy__
-                  end
-                end
-
                 instance_variable_set("@#{name}", val)
               end
 
@@ -208,7 +200,8 @@ module Lockbox
 
             define_method "#{name}_was" do
               if send("#{name}_changed?")
-                attribute_was(name.to_s)
+                ciphertext = send("#{encrypted_attribute}_was")
+                self.class.send(decrypt_method_name, ciphertext, context: self)
               else
                 send(name)
               end
@@ -238,40 +231,7 @@ module Lockbox
 
             unless message
               ciphertext = send(encrypted_attribute)
-              message =
-                if ciphertext.nil? || (ciphertext == "" && !options[:padding])
-                  ciphertext
-                else
-                  ciphertext = Base64.decode64(ciphertext) if encode
-                  table = self.class.respond_to?(:table_name) ? self.class.table_name : self.class.collection_name.to_s
-                  Lockbox::Utils.build_box(self, options, table, encrypted_attribute).decrypt(ciphertext)
-                end
-
-              unless message.nil?
-                case options[:type]
-                when :boolean
-                  message = message == "t"
-                when :date
-                  message = ActiveRecord::Type::Date.new.deserialize(message)
-                when :datetime
-                  message = ActiveRecord::Type::DateTime.new.deserialize(message)
-                when :time
-                  message = ActiveRecord::Type::Time.new.deserialize(message)
-                when :integer
-                  message = ActiveRecord::Type::Integer.new(limit: 8).deserialize(message.unpack("q>").first)
-                when :float
-                  message = ActiveRecord::Type::Float.new.deserialize(message.unpack("G").first)
-                when :string
-                  message.force_encoding(Encoding::UTF_8)
-                when :binary
-                  # do nothing
-                  # decrypt returns binary string
-                else
-                  type = (self.class.try(:attribute_types) || {})[name.to_s]
-                  message = type.deserialize(message) if type
-                  message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
-                end
-              end
+              message = self.class.send(decrypt_method_name, ciphertext, context: self)
 
               # set previous attribute on first decrypt
               if @attributes[name.to_s]
@@ -339,6 +299,45 @@ module Lockbox
               ciphertext = Base64.strict_encode64(ciphertext) if encode
               ciphertext
             end
+          end
+
+          define_singleton_method decrypt_method_name do |ciphertext, **opts|
+            message =
+              if ciphertext.nil? || (ciphertext == "" && !options[:padding])
+                ciphertext
+              else
+                ciphertext = Base64.decode64(ciphertext) if encode
+                table = respond_to?(:table_name) ? table_name : collection_name.to_s
+                Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).decrypt(ciphertext)
+              end
+
+            unless message.nil?
+              case options[:type]
+              when :boolean
+                message = message == "t"
+              when :date
+                message = ActiveRecord::Type::Date.new.deserialize(message)
+              when :datetime
+                message = ActiveRecord::Type::DateTime.new.deserialize(message)
+              when :time
+                message = ActiveRecord::Type::Time.new.deserialize(message)
+              when :integer
+                message = ActiveRecord::Type::Integer.new(limit: 8).deserialize(message.unpack("q>").first)
+              when :float
+                message = ActiveRecord::Type::Float.new.deserialize(message.unpack("G").first)
+              when :string
+                message.force_encoding(Encoding::UTF_8)
+              when :binary
+                # do nothing
+                # decrypt returns binary string
+              else
+                type = (try(:attribute_types) || {})[name.to_s]
+                message = type.deserialize(message) if type
+                message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
+              end
+            end
+
+            message
           end
         end
       end
