@@ -4,8 +4,8 @@ module Lockbox
       raise ArgumentError, "Cannot pass both key and public/private key" if key && (encryption_key || decryption_key)
 
       key = Lockbox::Utils.decode_key(key) if key
-      encryption_key = Lockbox::Utils.decode_key(encryption_key, length: 64) if encryption_key
-      decryption_key = Lockbox::Utils.decode_key(decryption_key, length: 64) if decryption_key
+      encryption_key = Lockbox::Utils.decode_key(encryption_key, size: 64) if encryption_key
+      decryption_key = Lockbox::Utils.decode_key(decryption_key, size: 64) if decryption_key
 
       algorithm ||= "aes-gcm"
 
