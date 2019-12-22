@@ -23,9 +23,9 @@ class MongoidTest < Minitest::Test
 
   def test_decrypt_after_destroy
     email = "test@example.org"
-    User.create!(email: email)
+    Person.create!(email: email)
 
-    user = User.last
+    user = Person.last
     user.destroy!
 
     user.email
