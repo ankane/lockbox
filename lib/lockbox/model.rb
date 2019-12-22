@@ -54,6 +54,7 @@ module Lockbox
       raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
 
       activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
+      raise ArgumentError, "Type not supported yet with Mongoid" if options[:type] && !activerecord
 
       attributes.each do |name|
         # add default options
