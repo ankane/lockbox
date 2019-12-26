@@ -14,7 +14,7 @@ module Lockbox
         options[:key] = Lockbox.attribute_key(table: table, attribute: attribute, master_key: options.delete(:master_key))
       end
 
-      Lockbox.new(options)
+      Lockbox.new(**options)
     end
 
     def self.encrypted_options(record, name)

@@ -5,8 +5,8 @@ module Lockbox
       previous_versions = options.delete(:previous_versions)
 
       @boxes =
-        [Box.new(options)] +
-        Array(previous_versions).map { |v| Box.new({key: options[:key]}.merge(v)) }
+        [Box.new(**options)] +
+        Array(previous_versions).map { |v| Box.new(key: options[:key], **v) }
     end
 
     def encrypt(message, **options)
