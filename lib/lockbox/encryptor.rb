@@ -74,6 +74,7 @@ module Lockbox
           File.basename(source.path)
         end
       target.content_type = source.content_type if source.respond_to?(:content_type)
+      target.set_encoding(source.external_encoding) if source.respond_to?(:external_encoding)
     end
 
     # legacy for attr_encrypted
