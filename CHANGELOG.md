@@ -1,4 +1,4 @@
-## 0.3.1 (unreleased)
+## 0.3.1 (2019-12-26)
 
 - Fixed encoding for `encrypt_io` and `decrypt_io` in Ruby 2.7
 - Fixed deprecation warnings in Ruby 2.7
