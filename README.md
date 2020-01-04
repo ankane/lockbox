@@ -191,7 +191,8 @@ To serve encrypted files, use a controller action.
 
 ```ruby
 def license
-  send_data @user.license.download, type: @user.license.content_type
+  user = User.find(params[:id])
+  send_data user.license.download, type: user.license.content_type
 end
 ```
 
@@ -229,7 +230,8 @@ To serve encrypted files, use a controller action.
 
 ```ruby
 def license
-  send_data @user.license.read, type: @user.license.content_type
+  user = User.find(params[:id])
+  send_data user.license.read, type: user.license.content_type
 end
 ```
 
@@ -257,14 +259,15 @@ For models, encrypt with:
 
 ```ruby
 license = params.require(:user).fetch(:license)
-@user.license = box.encrypt_io(license)
+user.license = box.encrypt_io(license)
 ```
 
 To serve encrypted files, use a controller action.
 
 ```ruby
 def license
-  send_data box.decrypt(@user.license.read), type: @user.license.mime_type
+  user = User.find(params[:id])
+  send_data box.decrypt(user.license.read), type: user.license.mime_type
 end
 ```
 
