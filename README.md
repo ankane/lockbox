@@ -207,6 +207,24 @@ end
 
 Encryption is applied to all versions after processing.
 
+You can mount the uploader [as normal](https://github.com/carrierwaveuploader/carrierwave#activerecord). With Active Record, this involves creating a migration:
+
+```ruby
+class AddLicenseToUsers < ActiveRecord::Migration[6.0]
+  def change
+    add_column :users, :license, :string
+  end
+end
+```
+
+And updating the model:
+
+```ruby
+class User < ApplicationRecord
+  mount_uploader :license, LicenseUploader
+end
+```
+
 To serve encrypted files, use a controller action.
 
 ```ruby
