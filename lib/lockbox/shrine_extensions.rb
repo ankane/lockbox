@@ -21,7 +21,7 @@ module Lockbox
             box = Utils.build_box(self, options, table, attribute)
 
             # io.rewind # maybe
-            io = StringIO.new(box.encrypt(io.read))
+            io = box.encrypt_io(io)
 
             super(io, context)
           end
@@ -47,7 +47,7 @@ module Lockbox
 
           options = shrine_class.lockbox_options
           box = Utils.build_box(uploader, options, table, attribute)
-          io = StringIO.new(box.decrypt(io.read))
+          io = box.decrypt_io(io)
         end
         io
       end
