@@ -1,11 +1,11 @@
-class Lockbox
+module Lockbox
   class Box
     def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false)
       raise ArgumentError, "Cannot pass both key and public/private key" if key && (encryption_key || decryption_key)
 
       key = Lockbox::Utils.decode_key(key) if key
-      encryption_key = Lockbox::Utils.decode_key(encryption_key) if encryption_key
-      decryption_key = Lockbox::Utils.decode_key(decryption_key) if decryption_key
+      encryption_key = Lockbox::Utils.decode_key(encryption_key, size: 64) if encryption_key
+      decryption_key = Lockbox::Utils.decode_key(decryption_key, size: 64) if decryption_key
 
       algorithm ||= "aes-gcm"
 
@@ -44,6 +44,7 @@ class Lockbox
         nonce = generate_nonce(@encryption_box)
         ciphertext = @encryption_box.encrypt(nonce, message)
       when "xsalsa20"
+        raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
         nonce = generate_nonce(@box)
         ciphertext = @box.encrypt(nonce, message)
       else
@@ -62,6 +63,7 @@ class Lockbox
           nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
           @decryption_box.decrypt(nonce, ciphertext)
         when "xsalsa20"
+          raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
           nonce, ciphertext = extract_nonce(@box, ciphertext)
           @box.decrypt(nonce, ciphertext)
         else

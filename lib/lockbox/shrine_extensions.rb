@@ -1,4 +1,4 @@
-class Lockbox
+module Lockbox
   module ShrinePlugin
     module ClassMethods
       def encrypt(**options)

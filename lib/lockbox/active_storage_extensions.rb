@@ -2,7 +2,7 @@
 # however, there isn't really a great place to define encryption settings there
 # instead, we encrypt and decrypt at the attachment level,
 # and we define encryption settings at the model level
-class Lockbox
+module Lockbox
   module ActiveStorageExtensions
     module Attached
       protected
@@ -10,35 +10,11 @@ class Lockbox
       def encrypted?
         # could use record_type directly
         # but record should already be loaded most of the time
-        !Utils.encrypted_options(record, name).nil?
+        Utils.encrypted?(record, name)
       end
 
       def encrypt_attachable(attachable)
-        options = Utils.encrypted_options(record, name)
-        box = Utils.build_box(record, options, record.class.table_name, name)
-
-        case attachable
-        when ActiveStorage::Blob
-          raise NotImplementedError, "Not supported"
-        when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
-          attachable = {
-            io: StringIO.new(box.encrypt(attachable.read)),
-            filename: attachable.original_filename,
-            content_type: attachable.content_type
-          }
-        when Hash
-          attachable = {
-            io: StringIO.new(box.encrypt(attachable[:io].read)),
-            filename: attachable[:filename],
-            content_type: attachable[:content_type]
-          }
-        when String
-          raise NotImplementedError, "Not supported"
-        else
-          nil
-        end
-
-        attachable
+        Utils.encrypt_attachable(record, name, attachable)
       end
 
       def rebuild_attachable(attachment)
@@ -51,9 +27,11 @@ class Lockbox
     end
 
     module AttachedOne
-      def attach(attachable)
-        attachable = encrypt_attachable(attachable) if encrypted?
-        super(attachable)
+      if ActiveStorage::VERSION::MAJOR < 6
+        def attach(attachable)
+          attachable = encrypt_attachable(attachable) if encrypted?
+          super(attachable)
+        end
       end
 
       def rotate_encryption!
@@ -66,15 +44,17 @@ class Lockbox
     end
 
     module AttachedMany
-      def attach(*attachables)
-        if encrypted?
-          attachables =
-            attachables.flatten.collect do |attachable|
-              encrypt_attachable(attachable)
-            end
-        end
+      if ActiveStorage::VERSION::MAJOR < 6
+        def attach(*attachables)
+          if encrypted?
+            attachables =
+              attachables.flatten.collect do |attachable|
+                encrypt_attachable(attachable)
+              end
+          end
 
-        super(attachables)
+          super(attachables)
+        end
       end
 
       def rotate_encryption!
@@ -96,6 +76,14 @@ class Lockbox
         attachments.reload
 
         true
+      end
+    end
+
+    module CreateOne
+      def initialize(name, record, attachable)
+        # this won't encrypt existing blobs
+        attachable = Lockbox::Utils.encrypt_attachable(record, name, attachable) if Lockbox::Utils.encrypted?(record, name) && !attachable.is_a?(ActiveStorage::Blob)
+        super(name, record, attachable)
       end
     end
 

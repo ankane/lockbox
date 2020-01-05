@@ -1,3 +1,3 @@
-class Lockbox
-  VERSION = "0.2.3"
+module Lockbox
+  VERSION = "0.3.1"
 end

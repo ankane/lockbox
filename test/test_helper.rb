@@ -7,6 +7,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "rbnacl"
+require "mongoid"
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
 
@@ -51,11 +52,14 @@ Combustion.initialize! :active_record, :active_job do
   config.time_zone = "Mountain Time (US & Canada)"
 end
 
-logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
-
-ActiveRecord::Base.logger = logger
-ActiveJob::Base.logger = logger
-ActiveStorage.logger = logger if defined?(ActiveStorage)
+if ENV["VERBOSE"]
+  logger = ActiveSupport::Logger.new(STDOUT)
+  ActiveRecord::Base.logger = logger
+  ActiveJob::Base.logger = logger
+  ActiveStorage.logger = logger if defined?(ActiveStorage)
+  Mongoid.logger = logger
+  Mongo::Logger.logger = logger
+end
 
 require "carrierwave/orm/activerecord"
 

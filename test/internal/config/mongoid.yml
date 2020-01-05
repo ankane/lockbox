@@ -1,0 +1,10 @@
+test:
+  clients:
+    default:
+      database: mongoid
+      hosts:
+        - localhost:27017
+      options:
+        connect_timeout: 1
+        socket_timeout: 1
+        server_selection_timeout: 1

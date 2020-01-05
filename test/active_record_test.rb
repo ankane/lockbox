@@ -8,6 +8,38 @@ class ActiveRecordTest < Minitest::Test
     assert_equal email, user.email
   end
 
+  def test_decrypt_after_destroy
+    email = "test@example.org"
+    User.create!(email: email)
+
+    user = User.last
+    user.destroy!
+
+    user.email
+  end
+
+  def test_restore
+    original_email = "test@example.org"
+    user = User.create!(email: original_email)
+    original_ciphertext = user.email_ciphertext
+
+    user = User.last
+    user.email = "new@example.org"
+    user.restore_email!
+    user.save!
+
+    user = User.last
+    assert_equal original_email, user.email
+    assert_equal original_ciphertext, user.email_ciphertext
+  end
+
+  def test_was_bad_ciphertext
+    user = User.create!(email_ciphertext: "bad")
+    assert_raises Lockbox::DecryptionError do
+      user.email_was
+    end
+  end
+
   def test_utf8
     email = "Łukasz"
     User.create!(email: email)
@@ -44,13 +76,26 @@ class ActiveRecordTest < Minitest::Test
 
     assert !user.name_changed?
     assert !user.email_changed?
+    assert !user.changed?
+
+    assert_nil user.name_change
+    assert_nil user.email_change
 
     assert_equal original_name, user.name_was
-    if ActiveRecord::VERSION::STRING >= "5.2"
-      assert_nil user.email_was
+    assert_equal original_email, user.email_was
+
+    # in database
+    if ActiveRecord::VERSION::STRING >= "5.1"
+      assert_equal original_name, user.name_in_database
+      assert_equal original_email, user.email_in_database
     else
-      assert_equal original_email, user.email_was
+      assert !user.respond_to?(:name_in_database)
+      assert !user.respond_to?(:email_in_database)
     end
+
+    assert !user.name_changed?
+    assert !user.email_changed?
+    assert !user.changed?
 
     # update
     user.name = new_name
@@ -59,11 +104,24 @@ class ActiveRecordTest < Minitest::Test
     # ensure changed
     assert user.name_changed?
     assert user.email_changed?
+    assert user.changed?
 
     # ensure was
     assert_equal original_name, user.name_was
     assert_equal original_email, user.email_was
 
+    # ensure in database
+    if ActiveRecord::VERSION::STRING >= "5.1"
+      assert_equal original_name, user.name_in_database
+      assert_equal original_email, user.email_in_database
+    else
+      assert !user.respond_to?(:name_in_database)
+      assert !user.respond_to?(:email_in_database)
+    end
+
+    # ensure changes
+    assert_equal [original_name, new_name], user.name_change
+    assert_equal [original_email, new_email], user.email_change
     assert_equal [original_name, new_name], user.changes["name"]
     assert_equal [original_email, new_email], user.changes["email"]
 
@@ -74,7 +132,7 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_dirty_before_last_save
-    skip if Rails.version < "5.1"
+    skip if ActiveRecord::VERSION::STRING < "5.1"
 
     original_name = "Test"
     original_email = "test@example.org"
@@ -134,6 +192,19 @@ class ActiveRecordTest < Minitest::Test
     user = User.create!(email: "test@example.org")
     user.email = ""
     assert_equal "", user.email_ciphertext
+  end
+
+  def test_attribute_present
+    user = User.create!(name: "Test", email: "test@example.org")
+    assert user.name?
+    assert user.email?
+    user = User.last
+    assert user.name?
+    assert user.email?
+
+    user2 = User.create!(name: "", email: "")
+    assert !user2.name?
+    assert !user2.email?
   end
 
   def test_hybrid
@@ -483,6 +554,20 @@ class ActiveRecordTest < Minitest::Test
     end
   end
 
+  def test_store
+    credentials = {a: 1, b: "hi"}.as_json
+    assert_attribute :credentials, credentials, format: credentials.to_json
+    assert_attribute :username, "hello", check_nil: false
+  end
+
+  def test_type_custom
+    assert_attribute :configuration, "USA", format: "USA!!"
+  end
+
+  def test_type_custom_attribute
+    assert_attribute :config, "USA", format: "USA!!"
+  end
+
   def test_padding
     user = User.create!(city: "New York")
     assert_equal 12 + 16 + 16, Base64.decode64(user.city_ciphertext).bytesize
@@ -500,9 +585,30 @@ class ActiveRecordTest < Minitest::Test
     end
   end
 
+  def test_migrate
+    Robot.create!(name: "Hi", email: "test@example.org")
+    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil)
+    Lockbox.migrate(Robot)
+    robot = Robot.last
+    assert_equal robot.name, robot.migrated_name
+    assert_equal robot.email, robot.migrated_email
+  end
+
+  def test_bad_master_key
+    previous_value = Lockbox.master_key
+    begin
+      Lockbox.master_key = "bad"
+      assert_raises(Lockbox::Error) do
+        User.create!(email: "test@example.org")
+      end
+    ensure
+      Lockbox.master_key = previous_value
+    end
+  end
+
   private
 
-  def assert_attribute(attribute, value, format: nil, time_zone: false, **options)
+  def assert_attribute(attribute, value, format: nil, time_zone: false, check_nil: true, **options)
     attribute2 = "#{attribute}2".to_sym
     encrypted_attribute = "#{attribute2}_ciphertext"
     expected = options.key?(:expected) ? options[:expected] : value
@@ -547,8 +653,10 @@ class ActiveRecordTest < Minitest::Test
       assert_equal format.force_encoding(Encoding::BINARY), box.decrypt(Base64.decode64(user.send(encrypted_attribute)))
     end
 
-    user.send("#{attribute2}=", nil)
-    assert_nil user.send(encrypted_attribute)
+    if check_nil
+      user.send("#{attribute2}=", nil)
+      assert_nil user.send(encrypted_attribute)
+    end
   end
 
   def assert_equal(exp, act)

@@ -52,11 +52,24 @@ ActiveRecord::Schema.define do
     t.text :data2_ciphertext
     t.text :info
     t.text :info2_ciphertext
+    t.text :credentials
+    t.text :credentials2_ciphertext
+    t.text :configuration
+    t.text :configuration2_ciphertext
+    t.text :config
+    t.text :config2_ciphertext
     t.text :city_ciphertext
     t.binary :ssn_ciphertext
   end
 
   create_table :posts do |t|
     t.text :title_ciphertext
+  end
+
+  create_table :robots do |t|
+    t.text :name
+    t.text :email
+    t.text :name_ciphertext
+    t.text :email_ciphertext
   end
 end
