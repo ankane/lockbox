@@ -94,7 +94,7 @@ If you need to query encrypted fields, check out [Blind Index](https://github.co
 
 #### Types
 
-Specify the type of a field with:
+Fields are strings by default. Specify the type of a field with:
 
 ```ruby
 class User < ApplicationRecord
