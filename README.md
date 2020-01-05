@@ -606,7 +606,9 @@ end
 
 **Note:** KMS Encrypted’s key rotation does not know to rotate encrypted files, so avoid calling `record.rotate_kms_key!` on models with file uploads for now.
 
-## Padding
+## Data Leakage
+
+While encryption hides the content of a message, an attacker can still get the length of the message (since the length of the ciphertext is the length of the message plus a constant number of bytes).
 
 Add padding to conceal the exact length of messages.
 
