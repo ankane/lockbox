@@ -6,6 +6,7 @@ class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version
       t.text :info
       t.string :ip
       t.string :request_id
+      t.datetime :created_at
     end
   end
 end
