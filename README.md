@@ -610,10 +610,22 @@ end
 
 While encryption hides the content of a message, an attacker can still get the length of the message (since the length of the ciphertext is the length of the message plus a constant number of bytes).
 
+Let’s say you want to encrypt the status of a candidate’s background check. Valid statuses are `clear`, `consider`, and `fail`. Even with the data encrypted, it’s trivial to know the status.
+
+```ruby
+box = Lockbox.new(key: key)
+box.encrypt("clear").bytesize     # 33
+box.encrypt("consider").bytesize  # 36
+box.encrypt("fail").bytesize      # 32
+```
+
 Add padding to conceal the exact length of messages.
 
 ```ruby
-Lockbox.new(padding: true)
+box = Lockbox.new(key: key, padding: true)
+box.encrypt("clear").bytesize     # 44
+box.encrypt("consider").bytesize  # 44
+box.encrypt("fail").bytesize      # 44
 ```
 
 The block size for padding is 16 bytes by default. Change this with:
