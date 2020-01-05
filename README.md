@@ -666,14 +666,6 @@ or set it globally:
 Lockbox.default_options = {encode: false}
 ```
 
-## Reference
-
-Set default options in an initializer with:
-
-```ruby
-Lockbox.default_options = {algorithm: "xsalsa20"}
-```
-
 ## Compatibility
 
 It’s easy to read encrypted data in another language if needed.
