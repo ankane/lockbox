@@ -614,18 +614,18 @@ Let’s say you want to encrypt the status of a candidate’s background check. 
 
 ```ruby
 box = Lockbox.new(key: key)
+box.encrypt("fail").bytesize      # 32
 box.encrypt("clear").bytesize     # 33
 box.encrypt("consider").bytesize  # 36
-box.encrypt("fail").bytesize      # 32
 ```
 
 Add padding to conceal the exact length of messages.
 
 ```ruby
 box = Lockbox.new(key: key, padding: true)
+box.encrypt("fail").bytesize      # 44
 box.encrypt("clear").bytesize     # 44
 box.encrypt("consider").bytesize  # 44
-box.encrypt("fail").bytesize      # 44
 ```
 
 The block size for padding is 16 bytes by default. Change this with:
