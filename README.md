@@ -8,9 +8,9 @@
 - Requires you to only manage a single encryption key (with the option to have more)
 - Makes migrating existing data and key rotation easy
 
-Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [how to secure emails](https://ankane.org/securing-user-emails-lockbox), and [how to secure sensitive data in Rails](https://ankane.org/sensitive-data-rails)
+Encrypted fields and files behave just like unencrypted ones for maximum compatibility with 3rd party libraries and existing code.
 
-Encrypted fields and files behave just like unencrypted ones for maximum compatibility with 3rd party libraries and existing code
+Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [how to secure emails](https://ankane.org/securing-user-emails-lockbox), and [how to secure sensitive data in Rails](https://ankane.org/sensitive-data-rails).
 
 [![Build Status](https://travis-ci.org/ankane/lockbox.svg?branch=master)](https://travis-ci.org/ankane/lockbox)
 
