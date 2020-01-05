@@ -650,20 +650,28 @@ Change the block size with:
 Lockbox.new(padding: 32) # bytes
 ```
 
+## Binary Columns
+
+You can use `binary` columns for the ciphertext instead of `text` columns to save space. You should disable Base64 encoding if you do this.
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, encode: false
+end
+```
+
+or set it globally:
+
+```ruby
+Lockbox.default_options = {encode: false}
+```
+
 ## Reference
 
 Set default options in an initializer with:
 
 ```ruby
 Lockbox.default_options = {algorithm: "xsalsa20"}
-```
-
-For database fields, encrypted data is encoded in Base64. If you use `binary` columns instead of `text` columns, set:
-
-```ruby
-class User < ApplicationRecord
-  encrypts :email, encode: false
-end
 ```
 
 ## Compatibility
