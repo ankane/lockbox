@@ -628,7 +628,7 @@ box.encrypt("clear").bytesize     # 44
 box.encrypt("consider").bytesize  # 44
 ```
 
-The block size for padding is 16 bytes by default. Note that if we have a status larger than 15 bytes, it will have a different length than the others.
+The block size for padding is 16 bytes by default. If we have a status larger than 15 bytes, it will have a different length than the others.
 
 ```ruby
 box.encrypt("123456789012345").bytesize   # 44
