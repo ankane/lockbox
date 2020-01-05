@@ -51,13 +51,11 @@ Combustion.initialize! :active_record, :active_job do
   config.time_zone = "Mountain Time (US & Canada)"
 end
 
-if ENV["VERBOSE"]
-  logger = ActiveSupport::Logger.new(STDOUT)
-  ActiveRecord::Base.logger = logger
-  ActiveJob::Base.logger = logger
-  ActiveStorage.logger = logger if defined?(ActiveStorage)
-  Mongoid.logger = logger
-  Mongo::Logger.logger = logger
-end
+logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
+ActiveRecord::Base.logger = logger
+ActiveJob::Base.logger = logger
+ActiveStorage.logger = logger if defined?(ActiveStorage)
+Mongoid.logger = logger
+Mongo::Logger.logger = logger
 
 require "carrierwave/orm/activerecord"
