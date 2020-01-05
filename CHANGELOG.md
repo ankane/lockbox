@@ -1,3 +1,7 @@
+## 0.3.2 (unreleased)
+
+- Added `Lockbox::Audit` model
+
 ## 0.3.1 (2019-12-26)
 
 - Fixed encoding for `encrypt_io` and `decrypt_io` in Ruby 2.7

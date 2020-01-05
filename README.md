@@ -412,6 +412,41 @@ For strings, use:
 Lockbox.new(key: key, previous_versions: [{key: previous_key}])
 ```
 
+## Auditing [master, experimental]
+
+It’s a good idea to track user and employee access to sensitive data. Lockbox provides a convenient way to do this with Active Record, but you can use a similar pattern to write audits to any location.
+
+```sh
+rails generate lockbox:audits
+rails db:migrate
+```
+
+Then create an audit wherever a user can view data:
+
+```ruby
+class UsersController < ApplicationController
+  def show
+    @user = User.find(params[:id])
+
+    Lockbox::Audit.create!(
+      subject: @user,
+      info: "email, dob",
+      viewer: current_user,
+      ip: request.remote_ip,
+      request_id: request.request_id
+    )
+  end
+end
+```
+
+Query audits with:
+
+```ruby
+Lockbox::Audit.last(100)
+```
+
+**Note:** This approach is not intended to be used in the event of a breach or insider attack, as it’s trivial for someone with access to your infrastructure to bypass.
+
 ## Fixtures
 
 You can use encrypted attributes in fixtures with:

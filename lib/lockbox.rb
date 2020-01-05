@@ -35,6 +35,8 @@ module Lockbox
   class DecryptionError < Error; end
   class PaddingError < Error; end
 
+  autoload :Audit, "lockbox/audit"
+
   extend Padding
 
   class << self
