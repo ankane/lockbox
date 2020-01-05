@@ -462,7 +462,9 @@ Be sure to include the `inspect` at the end or it won’t be encoded properly in
 
 ### AES-GCM
 
-This is the default algorithm. Rotate the key every 2 billion encryptions to minimize the chance of a [nonce collision](https://www.cryptologie.net/article/402/is-symmetric-security-solved/), which will expose the key.
+This is the default algorithm.
+
+**For users who do a lot of encryptions:** You should rotate a key after 2 billion encryptions to minimize the chance of a [nonce collision](https://www.cryptologie.net/article/402/is-symmetric-security-solved/), which will expose the key. Each database field and file uploader use a different key (derived from the master key) to extend this window.
 
 ### XSalsa20
 
