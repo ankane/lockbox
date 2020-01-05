@@ -112,7 +112,7 @@ class User < ApplicationRecord
 end
 ```
 
-**Note:** Always use a `text` column for the ciphertext in migrations, regardless of the type
+**Note:** Use a `text` column for the ciphertext in migrations, regardless of the type
 
 Lockbox automatically works with serialized fields for maximum compatibility with existing code and libraries.
 
