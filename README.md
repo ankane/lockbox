@@ -245,12 +245,30 @@ class LicenseUploader < Shrine
 end
 ```
 
+You can mount the uploader [as normal](https://shrinerb.com/docs/plugins/activerecord). With Active Record, this involves creating a migration:
+
+```ruby
+class AddLicenseDataToUsers < ActiveRecord::Migration[6.0]
+  def change
+    add_column :users, :license_data, :string
+  end
+end
+```
+
+And updating the model:
+
+```ruby
+class User < ApplicationRecord
+  include ImageUploader::Attachment(:license)
+end
+```
+
 To serve encrypted files, use a controller action.
 
 ```ruby
 def license
   user = User.find(params[:id])
-  send_data box.decrypt(user.license.read), type: user.license.mime_type
+  send_data user.license.read, type: user.license.mime_type
 end
 ```
 
