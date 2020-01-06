@@ -64,9 +64,7 @@ Other
 
 - [Strings](#strings)
 
-## Database Fields
-
-### Active Record
+## Active Record
 
 Create a migration with:
 
@@ -153,7 +151,7 @@ test_user:
 
 Be sure to include the `inspect` at the end or it won’t be encoded properly in YAML.
 
-### Mongoid
+## Mongoid
 
 Add to your model:
 
@@ -173,9 +171,7 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
-## Files
-
-### Active Storage
+## Active Storage
 
 Add to your model:
 
@@ -209,7 +205,7 @@ def license
 end
 ```
 
-### CarrierWave
+## CarrierWave
 
 Add to your uploader:
 
@@ -248,7 +244,7 @@ def license
 end
 ```
 
-### Shrine
+## Shrine
 
 Create a box
 
@@ -284,7 +280,7 @@ def license
 end
 ```
 
-### Local Files
+## Local Files
 
 Read the file as a binary string
 
