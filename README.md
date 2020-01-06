@@ -149,6 +149,35 @@ test_user:
 
 Be sure to include the `inspect` at the end or it won’t be encoded properly in YAML.
 
+#### Migrating Existing Data
+
+Lockbox makes it easy to encrypt an existing column. Add a new column for the ciphertext, then add to your model:
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, migrating: true
+end
+```
+
+Backfill the data in the Rails console:
+
+```ruby
+Lockbox.migrate(User)
+```
+
+Then update the model to the desired state:
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email
+
+  # remove this line after dropping email column
+  self.ignored_columns = ["email"]
+end
+```
+
+Finally, drop the unencrypted column.
+
 ## Mongoid
 
 Add to your model:
@@ -315,35 +344,6 @@ lockbox.decrypt(ciphertext)
 ```
 
 Use `decrypt_str` get the value as UTF-8
-
-## Migrating Existing Data
-
-Lockbox makes it easy to encrypt an existing column. Add a new column for the ciphertext, then add to your model:
-
-```ruby
-class User < ApplicationRecord
-  encrypts :email, migrating: true
-end
-```
-
-Backfill the data in the Rails console:
-
-```ruby
-Lockbox.migrate(User)
-```
-
-Then update the model to the desired state:
-
-```ruby
-class User < ApplicationRecord
-  encrypts :email
-
-  # remove this line after dropping email column
-  self.ignored_columns = ["email"]
-end
-```
-
-Finally, drop the unencrypted column.
 
 ## Key Rotation
 
