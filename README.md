@@ -142,6 +142,17 @@ end
 
 Validations work as expected with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).
 
+#### Fixtures
+
+You can use encrypted attributes in fixtures with:
+
+```yml
+test_user:
+  email_ciphertext: <%= User.generate_email_ciphertext("secret").inspect %>
+```
+
+Be sure to include the `inspect` at the end or it won’t be encoded properly in YAML.
+
 ### Mongoid
 
 Add to your model:
@@ -450,17 +461,6 @@ Lockbox::Audit.last(100)
 ```
 
 **Note:** This approach is not intended to be used in the event of a breach or insider attack, as it’s trivial for someone with access to your infrastructure to bypass.
-
-## Fixtures
-
-You can use encrypted attributes in fixtures with:
-
-```yml
-test_user:
-  email_ciphertext: <%= User.generate_email_ciphertext("secret").inspect %>
-```
-
-Be sure to include the `inspect` at the end or it won’t be encoded properly in YAML.
 
 ## Algorithms
 
