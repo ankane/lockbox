@@ -44,23 +44,21 @@ or create `config/initializers/lockbox.rb` with something like
 Lockbox.master_key = Rails.application.credentials.lockbox_master_key
 ```
 
-Alternatively, you can use a [key management service](#key-management) to manage your keys.
+Then follow the instructions below for the data you want to encrypt.
 
-## Instructions
-
-Database fields
+#### Database Fields
 
 - [Active Record](#active-record)
 - [Mongoid](#mongoid)
 
-Files
+#### Files
 
 - [Active Storage](#active-storage)
 - [CarrierWave](#carrierwave)
 - [Shrine](#shrine)
-- [Local files](#local-files)
+- [Local Files](#local-files)
 
-Other
+#### Other
 
 - [Strings](#strings)
 
