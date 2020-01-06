@@ -311,7 +311,7 @@ lockbox = Lockbox.new(key: key)
 Encrypt
 
 ```ruby
-ciphertext = lockbox.encrypt(message)
+ciphertext = lockbox.encrypt("hello")
 ```
 
 Decrypt
