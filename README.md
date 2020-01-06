@@ -58,7 +58,7 @@ Files
 - [Active Storage](#active-storage)
 - [CarrierWave](#carrierwave)
 - [Shrine](#shrine)
-- [Local Files](#local-files)
+- [Local files](#local-files)
 
 Other
 
