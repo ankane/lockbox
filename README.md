@@ -253,26 +253,26 @@ end
 Create a box
 
 ```ruby
-box = Lockbox.new(key: key)
+lockbox = Lockbox.new(key: key)
 ```
 
 Encrypt files before passing them to Shrine
 
 ```ruby
-LicenseUploader.upload(box.encrypt_io(file), :store)
+LicenseUploader.upload(lockbox.encrypt_io(file), :store)
 ```
 
 And decrypt them after reading
 
 ```ruby
-box.decrypt(uploaded_file.read)
+lockbox.decrypt(uploaded_file.read)
 ```
 
 For models, encrypt with:
 
 ```ruby
 license = params.require(:user).fetch(:license)
-user.license = box.encrypt_io(license)
+user.license = lockbox.encrypt_io(license)
 ```
 
 To serve encrypted files, use a controller action.
@@ -302,22 +302,22 @@ Generate a key
 key = Lockbox.generate_key
 ```
 
-Create a box
+Create a lockbox
 
 ```ruby
-box = Lockbox.new(key: key)
+lockbox = Lockbox.new(key: key)
 ```
 
 Encrypt
 
 ```ruby
-ciphertext = box.encrypt(message)
+ciphertext = lockbox.encrypt(message)
 ```
 
 Decrypt
 
 ```ruby
-box.decrypt(ciphertext)
+lockbox.decrypt(ciphertext)
 ```
 
 Use `decrypt_str` get the value as UTF-8
@@ -624,19 +624,19 @@ While encryption hides the content of a message, an attacker can still get the l
 Let’s say you want to encrypt the status of a candidate’s background check. Valid statuses are `clear`, `consider`, and `fail`. Even with the data encrypted, it’s trivial to map the ciphertext to a status.
 
 ```ruby
-box = Lockbox.new(key: key)
-box.encrypt("fail").bytesize      # 32
-box.encrypt("clear").bytesize     # 33
-box.encrypt("consider").bytesize  # 36
+lockbox = Lockbox.new(key: key)
+lockbox.encrypt("fail").bytesize      # 32
+lockbox.encrypt("clear").bytesize     # 33
+lockbox.encrypt("consider").bytesize  # 36
 ```
 
 Add padding to conceal the exact length of messages.
 
 ```ruby
-box = Lockbox.new(key: key, padding: true)
-box.encrypt("fail").bytesize      # 44
-box.encrypt("clear").bytesize     # 44
-box.encrypt("consider").bytesize  # 44
+lockbox = Lockbox.new(key: key, padding: true)
+lockbox.encrypt("fail").bytesize      # 44
+lockbox.encrypt("clear").bytesize     # 44
+lockbox.encrypt("consider").bytesize  # 44
 ```
 
 The block size for padding is 16 bytes by default. If we have a status larger than 15 bytes, it will have a different length than the others.
