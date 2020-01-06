@@ -1,9 +1,10 @@
 module Lockbox
   class Encryptor
-    def initialize(**options)
+    def initialize(encode: false, **options)
       options = Lockbox.default_options.merge(options)
       previous_versions = options.delete(:previous_versions)
 
+      @encode = encode
       @boxes =
         [Box.new(**options)] +
         Array(previous_versions).map { |v| Box.new(key: options[:key], **v) }
@@ -11,10 +12,13 @@ module Lockbox
 
     def encrypt(message, **options)
       message = check_string(message, "message")
-      @boxes.first.encrypt(message, **options)
+      ciphertext = @boxes.first.encrypt(message, **options)
+      ciphertext = Base64.strict_encode64(ciphertext) if @encode
+      ciphertext
     end
 
     def decrypt(ciphertext, **options)
+      ciphertext = Base64.decode64(ciphertext) if @encode
       ciphertext = check_string(ciphertext, "ciphertext")
 
       # ensure binary

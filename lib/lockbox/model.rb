@@ -280,9 +280,7 @@ module Lockbox
             if message.nil? || (message == "" && !options[:padding])
               message
             else
-              ciphertext = Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
-              ciphertext = Base64.strict_encode64(ciphertext) if options[:encode]
-              ciphertext
+              Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
             end
           end
 
@@ -291,7 +289,6 @@ module Lockbox
               if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                 ciphertext
               else
-                ciphertext = Base64.decode64(ciphertext) if options[:encode]
                 table = activerecord ? table_name : collection_name.to_s
                 Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).decrypt(ciphertext)
               end
