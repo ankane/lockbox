@@ -46,19 +46,19 @@ Lockbox.master_key = Rails.application.credentials.lockbox_master_key
 
 Then follow the instructions below for the data you want to encrypt.
 
-#### Database Fields
+### Database Fields
 
 - [Active Record](#active-record)
 - [Mongoid](#mongoid)
 
-#### Files
+### Files
 
 - [Active Storage](#active-storage)
 - [CarrierWave](#carrierwave)
 - [Shrine](#shrine)
 - [Local Files](#local-files)
 
-#### Other
+### Other
 
 - [Strings](#strings)
 
@@ -90,7 +90,7 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
-#### Types
+### Types
 
 Fields are strings by default. Specify the type of a field with:
 
@@ -134,11 +134,11 @@ class User < ApplicationRecord
 end
 ```
 
-#### Validations
+### Validations
 
 Validations work as expected with the exception of uniqueness. Uniqueness validations require a [blind index](https://github.com/ankane/blind_index).
 
-#### Fixtures
+### Fixtures
 
 You can use encrypted attributes in fixtures with:
 
