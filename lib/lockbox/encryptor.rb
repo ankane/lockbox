@@ -1,10 +1,10 @@
 module Lockbox
   class Encryptor
-    def initialize(encode: false, **options)
+    def initialize(**options)
       options = Lockbox.default_options.merge(options)
+      @encode = options.delete(:encode)
       previous_versions = options.delete(:previous_versions)
 
-      @encode = encode
       @boxes =
         [Box.new(**options)] +
         Array(previous_versions).map { |v| Box.new(key: options[:key], **v) }
