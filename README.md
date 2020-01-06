@@ -285,6 +285,12 @@ Then follow the instructions for encrypting a string below.
 
 ## Strings
 
+Generate a key
+
+```ruby
+key = Lockbox.generate_key
+```
+
 Create a box
 
 ```ruby
@@ -303,11 +309,7 @@ Decrypt
 box.decrypt(ciphertext)
 ```
 
-Decrypt and return UTF-8 instead of binary
-
-```ruby
-box.decrypt_str(ciphertext)
-```
+Use `decrypt_str` get the value as UTF-8
 
 ## Migrating Existing Data
 
