@@ -273,7 +273,7 @@ end
 
 ## Shrine
 
-Create a box
+Create a lockbox
 
 ```ruby
 lockbox = Lockbox.new(key: key)
