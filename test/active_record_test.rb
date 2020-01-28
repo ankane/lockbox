@@ -129,6 +129,13 @@ class ActiveRecordTest < Minitest::Test
     assert_equal new_name, user.name
     assert_equal new_email, user.email
     refute_equal original_email_ciphertext, user.email_ciphertext
+
+    # save
+    user.save!
+
+    # ensure previous changes
+    assert_equal [original_name, new_name], user.previous_changes["name"]
+    assert_equal [original_email, new_email], user.previous_changes["email"]
   end
 
   def test_dirty_before_last_save
