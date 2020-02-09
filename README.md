@@ -273,6 +273,12 @@ end
 
 ## Shrine
 
+Generate a key
+
+```ruby
+key = Lockbox.generate_key
+```
+
 Create a lockbox
 
 ```ruby
