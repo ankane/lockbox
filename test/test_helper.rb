@@ -10,37 +10,6 @@ require "mongoid"
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
 
-CarrierWave.configure do |config|
-  config.storage = :file
-  config.store_dir = "/tmp/store"
-  config.cache_dir = "/tmp/cache"
-end
-
-class TextUploader < CarrierWave::Uploader::Base
-  encrypt
-
-  process append: "!!"
-
-  version :thumb do
-    process append: ".."
-  end
-
-  def append(str)
-    File.write(current_path, File.read(current_path) + str)
-  end
-end
-
-class AvatarUploader < CarrierWave::Uploader::Base
-  encrypt
-end
-
-class DocumentUploader < CarrierWave::Uploader::Base
-  encrypt
-end
-
-class ImageUploader < CarrierWave::Uploader::Base
-end
-
 Combustion.path = "test/internal"
 Combustion.initialize! :active_record, :active_job do
   if ActiveRecord::VERSION::MAJOR < 6 && config.active_record.sqlite3.respond_to?(:represent_boolean_as_integer)
@@ -58,4 +27,4 @@ ActiveStorage.logger = logger if defined?(ActiveStorage)
 Mongoid.logger = logger
 Mongo::Logger.logger = logger
 
-require "carrierwave/orm/activerecord"
+require_relative "support/carrierwave"
