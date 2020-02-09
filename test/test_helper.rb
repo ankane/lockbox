@@ -8,8 +8,6 @@ require "minitest/pride"
 require "rbnacl"
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
-ActiveStorage.logger = $logger if defined?(ActiveStorage)
-ActiveJob::Base.logger = $logger
 
 if defined?(Mongoid)
   require_relative "support/mongoid"
@@ -19,5 +17,8 @@ end
 
 require_relative "support/carrierwave"
 require_relative "support/combustion"
+
+ActiveStorage.logger = $logger if defined?(ActiveStorage)
+ActiveJob::Base.logger = $logger
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
