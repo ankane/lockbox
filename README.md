@@ -178,6 +178,14 @@ end
 
 Finally, drop the unencrypted column.
 
+If adding blind indexes, Lockbox can migrate them at the same time.
+
+```ruby
+class User < ApplicationRecord
+  blind_index :email, migrating: true
+end
+```
+
 ## Mongoid
 
 Add to your model:
