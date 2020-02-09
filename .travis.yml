@@ -3,15 +3,23 @@ language: ruby
 rvm: 2.6
 services:
   - mongodb
+addons:
+  apt:
+    packages:
+      - libsodium23
 gemfile:
   - Gemfile
   - test/gemfiles/rails52.gemfile
   - test/gemfiles/rails51.gemfile
   - test/gemfiles/rails50.gemfile
-addons:
-  apt:
-    packages:
-      - libsodium23
+matrix:
+  include:
+    - gemfile: test/gemfiles/mongoid7.gemfile
+      services:
+        - mongodb
+    - gemfile: test/gemfiles/mongoid6.gemfile
+      services:
+        - mongodb
 script: bundle exec rake test
 notifications:
   email:

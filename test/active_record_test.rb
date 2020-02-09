@@ -1,6 +1,10 @@
 require_relative "test_helper"
 
 class ActiveRecordTest < Minitest::Test
+  def setup
+    skip if defined?(Mongoid)
+  end
+
   def test_symmetric
     email = "test@example.org"
     User.create!(email: email)

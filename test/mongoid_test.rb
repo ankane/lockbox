@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class MongoidTest < Minitest::Test
   def setup
+    skip unless defined?(Mongoid)
     Person.delete_all
   end
 

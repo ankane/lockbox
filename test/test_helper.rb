@@ -6,9 +6,18 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "rbnacl"
-require "mongoid"
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
+
+$logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
+ActiveStorage.logger = $logger if defined?(ActiveStorage)
+ActiveJob::Base.logger = $logger
+
+if defined?(Mongoid)
+  require_relative "support/mongoid"
+else
+  require_relative "support/active_record"
+end
 
 Combustion.path = "test/internal"
 Combustion.initialize! :active_record, :active_job do
@@ -19,12 +28,5 @@ Combustion.initialize! :active_record, :active_job do
   config.active_storage.service = :test if defined?(ActiveStorage)
   config.time_zone = "Mountain Time (US & Canada)"
 end
-
-logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
-ActiveRecord::Base.logger = logger
-ActiveJob::Base.logger = logger
-ActiveStorage.logger = logger if defined?(ActiveStorage)
-Mongoid.logger = logger
-Mongo::Logger.logger = logger
 
 require_relative "support/carrierwave"
