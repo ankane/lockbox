@@ -7,8 +7,6 @@ require "minitest/autorun"
 require "minitest/pride"
 require "rbnacl"
 
-Lockbox.master_key = SecureRandom.random_bytes(32)
-
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 ActiveStorage.logger = $logger if defined?(ActiveStorage)
 ActiveJob::Base.logger = $logger
@@ -19,14 +17,7 @@ else
   require_relative "support/active_record"
 end
 
-Combustion.path = "test/internal"
-Combustion.initialize! :active_record, :active_job do
-  if ActiveRecord::VERSION::MAJOR < 6 && config.active_record.sqlite3.respond_to?(:represent_boolean_as_integer)
-    config.active_record.sqlite3.represent_boolean_as_integer = true
-  end
-  config.active_job.queue_adapter = :inline
-  config.active_storage.service = :test if defined?(ActiveStorage)
-  config.time_zone = "Mountain Time (US & Canada)"
-end
-
 require_relative "support/carrierwave"
+require_relative "support/combustion"
+
+Lockbox.master_key = SecureRandom.random_bytes(32)
