@@ -396,8 +396,6 @@ class ModelTypesTest < Minitest::Test
     [result1, result2]
   end
 
-  private
-
   def mysql?
     ENV["ADAPTER"] == "mysql2"
   end
