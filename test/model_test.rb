@@ -2,7 +2,13 @@ require_relative "test_helper"
 
 class ActiveRecordTest < Minitest::Test
   def setup
-    skip if defined?(Mongoid)
+    User.delete_all
+  end
+
+  def teardown
+    # very important!!
+    # ensure no plaintext attributes exist
+    assert_no_plaintext_attributes if mongoid?
   end
 
   def test_symmetric
@@ -23,6 +29,8 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_restore
+    skip if mongoid?
+
     original_email = "test@example.org"
     user = User.create!(email: original_email)
     original_ciphertext = user.email_ciphertext
@@ -89,7 +97,7 @@ class ActiveRecordTest < Minitest::Test
     assert_equal original_email, user.email_was
 
     # in database
-    if ActiveRecord::VERSION::STRING >= "5.1"
+    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
       assert_equal original_name, user.name_in_database
       assert_equal original_email, user.email_in_database
     else
@@ -115,7 +123,7 @@ class ActiveRecordTest < Minitest::Test
     assert_equal original_email, user.email_was
 
     # ensure in database
-    if ActiveRecord::VERSION::STRING >= "5.1"
+    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
       assert_equal original_name, user.name_in_database
       assert_equal original_email, user.email_in_database
     else
@@ -127,7 +135,7 @@ class ActiveRecordTest < Minitest::Test
     assert_equal [original_name, new_name], user.name_change
     assert_equal [original_email, new_email], user.email_change
     assert_equal [original_name, new_name], user.changes["name"]
-    assert_equal [original_email, new_email], user.changes["email"]
+    assert_equal [original_email, new_email], user.changes["email"] unless mongoid?
 
     # ensure final value
     assert_equal new_name, user.name
@@ -139,11 +147,11 @@ class ActiveRecordTest < Minitest::Test
 
     # ensure previous changes
     assert_equal [original_name, new_name], user.previous_changes["name"]
-    assert_equal [original_email, new_email], user.previous_changes["email"]
+    assert_equal [original_email, new_email], user.previous_changes["email"] unless mongoid?
   end
 
   def test_dirty_before_last_save
-    skip if ActiveRecord::VERSION::STRING < "5.1"
+    skip if mongoid? || ActiveRecord::VERSION::STRING < "5.1"
 
     original_name = "Test"
     original_email = "test@example.org"
@@ -163,7 +171,12 @@ class ActiveRecordTest < Minitest::Test
   def test_dirty_bad_ciphertext
     user = User.create!(email_ciphertext: "bad")
     user.email = "test@example.org"
-    assert_nil user.email_was
+
+    if mongoid?
+      assert user.email_changed?
+    else
+      assert_nil user.email_was
+    end
   end
 
   def test_inspect
@@ -180,7 +193,7 @@ class ActiveRecordTest < Minitest::Test
     user = User.create!(email: original_email)
     user.email = new_email
     assert_equal new_email, user.email
-    assert_equal new_email, user.attributes["email"]
+    assert_equal new_email, user.attributes["email"] unless mongoid?
 
     # reload
     user.reload
@@ -190,7 +203,7 @@ class ActiveRecordTest < Minitest::Test
 
     # loaded
     assert_equal original_email, user.email
-    assert_equal original_email, user.attributes["email"]
+    assert_equal original_email, user.attributes["email"] unless mongoid?
   end
 
   def test_nil
@@ -246,6 +259,8 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_encode
+    skip "Can't get Mongoid to handle binary data" if mongoid?
+
     ssn = "123-45-6789"
     User.create!(ssn: ssn)
     user = User.last
@@ -306,6 +321,74 @@ class ActiveRecordTest < Minitest::Test
       end
     ensure
       Lockbox.master_key = previous_value
+    end
+  end
+
+  def test_reset
+    skip unless mongoid?
+
+    original_name = "Test"
+    original_email = "test@example.org"
+    new_name = "New"
+    new_email = "new@example.org"
+
+    user = User.create!(name: original_name, email: original_email)
+    user.name = new_name
+    user.email = new_email
+
+    assert_equal original_name, user.reset_name!
+    assert_equal original_email, user.reset_email!
+
+    assert_equal original_name, user.name
+    assert_equal original_email, user.email
+  end
+
+  def test_reset_to_default
+    skip unless mongoid?
+
+    original_name = "Test"
+    original_email = "test@example.org"
+    new_name = "New"
+    new_email = "new@example.org"
+
+    user = User.create!(name: original_name, email: original_email)
+    user.name = new_name
+    user.email = new_email
+
+    assert_nil user.reset_name_to_default!
+    assert_nil user.reset_email_to_default!
+
+    assert_nil user.name
+    assert_nil user.email
+  end
+
+  def test_plaintext_not_saved
+    skip unless mongoid?
+
+    user = User.create!(email: "test@example.org")
+
+    assert_no_plaintext_attributes
+
+    user = User.last
+    user.email = "new@example.org"
+    user.save!
+
+    assert_no_plaintext_attributes
+
+    user = User.last
+    user.email
+    user.email = "new2@example.org"
+    user.save!
+
+    assert_no_plaintext_attributes
+  end
+
+  private
+
+  def assert_no_plaintext_attributes
+    Guard.all.each do |person|
+      bad_keys = person.attributes.keys & %w(email phone ssn)
+      assert_equal [], bad_keys, "Plaintext attribute exists"
     end
   end
 end

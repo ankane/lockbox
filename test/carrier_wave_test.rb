@@ -70,6 +70,8 @@ class CarrierWaveTest < Minitest::Test
   end
 
   def test_mounted
+    skip if mongoid?
+
     message = "hello world"
 
     file = Tempfile.new

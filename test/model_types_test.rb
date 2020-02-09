@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class ModelTypesTest < Minitest::Test
   def setup
-    skip if defined?(Mongoid)
+    skip if mongoid?
   end
 
   def test_type_string
