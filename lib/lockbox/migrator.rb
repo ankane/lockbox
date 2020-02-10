@@ -7,6 +7,15 @@ module Lockbox
     def migrate(restart:)
       model = @model
 
+      base_relation =
+        if model.is_a?(ActiveRecord::Base)
+          model.unscoped
+        else
+          # TODO don't unscope relations
+          # waiting for 0.4.0
+          model.unscoped
+        end
+
       # get fields
       fields = model.lockbox_attributes.select { |k, v| v[:migrating] }
 
@@ -14,7 +23,7 @@ module Lockbox
       blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
       # build relation
-      relation = model.unscoped
+      relation = base_relation
 
       unless restart
         attributes = fields.map { |_, v| v[:encrypted_attribute] }
@@ -26,7 +35,7 @@ module Lockbox
               if i == 0
                 relation.where(attribute => nil)
               else
-                relation.or(model.unscoped.where(attribute => nil))
+                relation.or(base_relation.where(attribute => nil))
               end
           end
         end

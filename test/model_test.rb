@@ -295,6 +295,18 @@ class ActiveRecordTest < Minitest::Test
     assert_equal robot.email, robot.migrated_email
   end
 
+  def test_migrate_relation
+    skip "waiting for 0.4.0"
+
+    Robot.create!(name: "Hi")
+    Robot.create!(name: "Bye")
+    Robot.update_all(name_ciphertext: nil)
+    Lockbox.migrate(Robot.order(:id).limit(1))
+    robot1, robot2 = Robot.order(:id).to_a
+    assert_equal robot1.name, robot1.migrated_name
+    assert_nil robot2.migrated_name
+  end
+
   def test_bad_master_key
     previous_value = Lockbox.master_key
     begin
