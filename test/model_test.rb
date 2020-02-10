@@ -28,23 +28,6 @@ class ActiveRecordTest < Minitest::Test
     user.email
   end
 
-  def test_restore
-    skip if mongoid?
-
-    original_email = "test@example.org"
-    user = User.create!(email: original_email)
-    original_ciphertext = user.email_ciphertext
-
-    user = User.last
-    user.email = "new@example.org"
-    user.restore_email!
-    user.save!
-
-    user = User.last
-    assert_equal original_email, user.email
-    assert_equal original_ciphertext, user.email_ciphertext
-  end
-
   def test_was_bad_ciphertext
     user = User.create!(email_ciphertext: "bad")
     assert_raises Lockbox::DecryptionError do
@@ -324,9 +307,7 @@ class ActiveRecordTest < Minitest::Test
     end
   end
 
-  def test_reset
-    skip unless mongoid?
-
+  def test_restore_reset
     original_name = "Test"
     original_email = "test@example.org"
     new_name = "New"
@@ -336,8 +317,13 @@ class ActiveRecordTest < Minitest::Test
     user.name = new_name
     user.email = new_email
 
-    assert_equal original_name, user.reset_name!
-    assert_equal original_email, user.reset_email!
+    if mongoid?
+      assert_equal original_name, user.reset_name!
+      assert_equal original_email, user.reset_email!
+    else
+      user.restore_name!
+      user.restore_email!
+    end
 
     assert_equal original_name, user.name
     assert_equal original_email, user.email
