@@ -24,7 +24,7 @@ gem 'lockbox'
 
 ## Key Generation
 
-Generate an encryption key
+Generate a key
 
 ```ruby
 Lockbox.generate_key
