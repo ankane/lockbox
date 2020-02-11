@@ -1,11 +1,9 @@
 require "bundler/setup"
 require "carrierwave"
 require "combustion"
-require "active_storage/engine" if Rails.version >= "5.2"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
-require "rbnacl"
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
