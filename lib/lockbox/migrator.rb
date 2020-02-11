@@ -8,11 +8,12 @@ module Lockbox
       model = @model
 
       base_relation =
-        if model.is_a?(ActiveRecord::Base)
+        if defined?(ActiveRecord::Base) && model.is_a?(ActiveRecord::Base)
           model.unscoped
         else
           # TODO don't unscope relations
           # waiting for 0.4.0
+          # model.all
           model.unscoped
         end
 
@@ -29,7 +30,7 @@ module Lockbox
         attributes = fields.map { |_, v| v[:encrypted_attribute] }
         attributes += blind_indexes.map { |_, v| v[:bidx_attribute] }
 
-        if defined?(ActiveRecord::Base) && model.is_a?(ActiveRecord::Base)
+        if defined?(ActiveRecord::Relation) && base_relation.is_a?(ActiveRecord::Relation)
           attributes.each_with_index do |attribute, i|
             relation =
               if i == 0
