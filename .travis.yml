@@ -1,8 +1,6 @@
 dist: bionic
 language: ruby
 rvm: 2.6
-services:
-  - mongodb
 addons:
   apt:
     packages:
