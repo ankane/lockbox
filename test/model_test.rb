@@ -384,8 +384,8 @@ class ActiveRecordTest < Minitest::Test
   private
 
   def assert_no_plaintext_attributes
-    Guard.all.each do |person|
-      bad_keys = person.attributes.keys & %w(email phone ssn)
+    Guard.all.each do |user|
+      bad_keys = user.attributes.keys & %w(email phone ssn)
       assert_equal [], bad_keys, "Plaintext attribute exists"
     end
   end
