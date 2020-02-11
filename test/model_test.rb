@@ -257,16 +257,16 @@ class ActiveRecordTest < Minitest::Test
     email = "test@example.org"
     user = User.create!(email: email)
     key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
-    box = Lockbox.new(key: key)
-    assert_equal email, box.decrypt(Base64.decode64(user.email_ciphertext))
+    box = Lockbox.new(key: key, encode: true)
+    assert_equal email, box.decrypt(user.email_ciphertext)
   end
 
   def test_class_method
     email = "test@example.org"
     ciphertext = User.generate_email_ciphertext(email)
     key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
-    box = Lockbox.new(key: key)
-    assert_equal email, box.decrypt(Base64.decode64(ciphertext))
+    box = Lockbox.new(key: key, encode: true)
+    assert_equal email, box.decrypt(ciphertext)
   end
 
   def test_padding
