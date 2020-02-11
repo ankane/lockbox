@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class ActiveStorageTest < Minitest::Test
   def setup
-    skip unless defined?(ActiveStorage) && !mongoid?
+    skip unless defined?(ActiveStorage)
   end
 
   def test_encrypt_one
