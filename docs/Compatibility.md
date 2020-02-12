@@ -7,20 +7,19 @@ Here’s how to decrypt in other languages. For files, skip Base64 decoding the 
 ```js
 const crypto = require('crypto')
 
-key = '61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb'
-ciphertext = 'Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg=='
+let key = '61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb'
+let ciphertext = 'Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg=='
 
 key = Buffer.from(key, 'hex')
 ciphertext = Buffer.from(ciphertext, 'base64') // skip for files
 
-nonce = ciphertext.slice(0, 12)
-auth_tag = ciphertext.slice(-16)
+let nonce = ciphertext.slice(0, 12)
+let auth_tag = ciphertext.slice(-16)
 ciphertext = ciphertext.slice(12, -16)
 
 let aesgcm = crypto.createDecipheriv('aes-256-gcm', key, nonce)
 aesgcm.setAuthTag(auth_tag)
 let plaintext = aesgcm.update(ciphertext) + aesgcm.final()
-
 ```
 
 ## Python
