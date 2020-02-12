@@ -13,9 +13,14 @@ ciphertext = 'Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg=='
 key = Buffer.from(key, 'hex')
 ciphertext = Buffer.from(ciphertext, 'base64') // skip for files
 
-let aesgcm = crypto.createDecipheriv('aes-256-gcm', key, ciphertext.slice(0, 12))
-aesgcm.setAuthTag(ciphertext.slice(-16))
-let plaintext = aesgcm.update(ciphertext.slice(12, -16)) + aesgcm.final()
+nonce = ciphertext.slice(0, 12)
+auth_tag = ciphertext.slice(-16)
+ciphertext = ciphertext.slice(12, -16)
+
+let aesgcm = crypto.createDecipheriv('aes-256-gcm', key, nonce)
+aesgcm.setAuthTag(auth_tag)
+let plaintext = aesgcm.update(ciphertext) + aesgcm.final()
+
 ```
 
 ## Python
