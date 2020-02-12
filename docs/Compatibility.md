@@ -1,6 +1,22 @@
 # Compatibility
 
-Here’s how to decrypt files in other languages.
+Here’s how to decrypt in other languages. For files, skip Base64 decoding the ciphertext.
+
+## Node.js
+
+```js
+const crypto = require('crypto')
+
+key = '61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb'
+ciphertext = 'Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg=='
+
+key = Buffer.from(key, 'hex')
+ciphertext = Buffer.from(ciphertext, 'base64') // skip for files
+
+let aesgcm = crypto.createDecipheriv('aes-256-gcm', key, ciphertext.slice(0, 12))
+aesgcm.setAuthTag(ciphertext.slice(-16))
+let plaintext = aesgcm.update(ciphertext.slice(12, -16)) + aesgcm.final()
+```
 
 ## Python
 
@@ -8,11 +24,15 @@ Install the [cryptography](https://cryptography.io/en/latest/) package and do:
 
 ```py
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from base64 import b64decode
 
-key = bytes.fromhex('hex-key')
+key = '61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb'
+ciphertext = 'Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg=='
+
+key = bytes.fromhex(key)
+ciphertext = b64decode(ciphertext) # skip for files
+
 aesgcm = AESGCM(key)
-
-ciphertext = open('file.txt.enc', 'rb').read()
 plaintext = aesgcm.decrypt(ciphertext[:12], ciphertext[12:], b'')
 ```
 
