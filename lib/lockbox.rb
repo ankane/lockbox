@@ -1,4 +1,5 @@
-# dependencies
+# stdlib
+require "base64"
 require "openssl"
 require "securerandom"
 
