@@ -52,8 +52,8 @@ class ActiveRecordTest < Minitest::Test
   def test_rotation
     email = "test@example.org"
     key = User.lockbox_attributes[:email][:previous_versions].first[:key]
-    box = Lockbox.new(key: key)
-    user = User.create!(email_ciphertext: Base64.strict_encode64(box.encrypt(email)))
+    box = Lockbox.new(key: key, encode: true)
+    user = User.create!(email_ciphertext: box.encrypt(email))
     user = User.last
     assert_equal email, user.email
   end
@@ -62,8 +62,8 @@ class ActiveRecordTest < Minitest::Test
     email = "test@example.org"
     master_key = User.lockbox_attributes[:email][:previous_versions].last[:master_key]
     key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext", master_key: master_key)
-    box = Lockbox.new(key: key)
-    user = User.create!(email_ciphertext: Base64.strict_encode64(box.encrypt(email)))
+    box = Lockbox.new(key: key, encode: true)
+    user = User.create!(email_ciphertext: box.encrypt(email))
     user = User.last
     assert_equal email, user.email
   end
