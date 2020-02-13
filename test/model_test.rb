@@ -58,6 +58,16 @@ class ActiveRecordTest < Minitest::Test
     assert_equal email, user.email
   end
 
+  def test_rotation_master_key
+    email = "test@example.org"
+    master_key = User.lockbox_attributes[:email][:previous_versions].last[:master_key]
+    key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext", master_key: master_key)
+    box = Lockbox.new(key: key)
+    user = User.create!(email_ciphertext: Base64.strict_encode64(box.encrypt(email)))
+    user = User.last
+    assert_equal email, user.email
+  end
+
   # ensure consistent with normal attributes
   def test_dirty
     original_name = "Test"
