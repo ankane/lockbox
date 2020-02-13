@@ -365,7 +365,7 @@ To make key rotation easy, you can pass previous versions of keys that can decry
 
 ### Active Record
 
-For Active Record, use:
+Update your model:
 
 ```ruby
 class User < ApplicationRecord
@@ -373,15 +373,21 @@ class User < ApplicationRecord
 end
 ```
 
-To rotate, use:
+> Use `master_key` instead of `key` if passing the master key [master]
+
+To rotate existing records, use:
 
 ```ruby
-user.update!(email: user.email)
+User.find_each do |user|
+  user.update!(email: user.email)
+end
 ```
+
+Once all records are rotated, you can remove `previous_versions` from the model.
 
 ### Mongoid
 
-For Mongoid, use:
+Update your model:
 
 ```ruby
 class User
@@ -389,15 +395,21 @@ class User
 end
 ```
 
-To rotate, use:
+> Use `master_key` instead of `key` if passing the master key [master]
+
+To rotate existing records, use:
 
 ```ruby
-user.update!(email: user.email)
+User.all.each do |user|
+  user.update!(email: user.email)
+end
 ```
+
+Once all records are rotated, you can remove `previous_versions` from the model.
 
 ### Active Storage
 
-For Active Storage use:
+Update your model:
 
 ```ruby
 class User < ApplicationRecord
@@ -405,15 +417,21 @@ class User < ApplicationRecord
 end
 ```
 
+> Use `master_key` instead of `key` if passing the master key [master]
+
 To rotate existing files, use:
 
 ```ruby
-user.license.rotate_encryption!
+User.find_each do |user|
+  user.license.rotate_encryption!
+end
 ```
+
+Once all files are rotated, you can remove `previous_versions` from the model.
 
 ### CarrierWave
 
-For CarrierWave, use:
+Update your model:
 
 ```ruby
 class LicenseUploader < CarrierWave::Uploader::Base
@@ -421,11 +439,17 @@ class LicenseUploader < CarrierWave::Uploader::Base
 end
 ```
 
+> Use `master_key` instead of `key` if passing the master key [master]
+
 To rotate existing files, use:
 
 ```ruby
-user.license.rotate_encryption!
+User.find_each do |user|
+  user.license.rotate_encryption!
+end
 ```
+
+Once all files are rotated, you can remove `previous_versions` from the model.
 
 ### Strings
 
