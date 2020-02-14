@@ -2,6 +2,7 @@ module Lockbox
   class Migrator
     def initialize(model)
       @model = model
+      @transaction = @model.respond_to?(:transaction)
     end
 
     def rotate(attributes:, batch_size:)
@@ -89,7 +90,7 @@ module Lockbox
     end
 
     def with_transaction
-      if @model.respond_to?(:transaction)
+      if @transaction
         @model.transaction do
           yield
         end
