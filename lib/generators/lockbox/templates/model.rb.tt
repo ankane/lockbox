@@ -1,4 +1,6 @@
 class LockboxAudit < ApplicationRecord
   belongs_to :subject, polymorphic: true
-  belongs_to :viewer, polymorphic: true
+  belongs_to :viewer, polymorphic: true<% if info_type == "text" %>
+
+  serialize :info, JSON<% end %>
 end

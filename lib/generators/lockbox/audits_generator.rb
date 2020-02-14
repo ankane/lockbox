@@ -14,6 +14,19 @@ module Lockbox
       def migration_version
         "[#{ActiveRecord::VERSION::MAJOR}.#{ActiveRecord::VERSION::MINOR}]"
       end
+
+      def info_type
+        # use connection_config instead of connection.adapter
+        # so database connection isn't needed
+        case ActiveRecord::Base.connection_config[:adapter].to_s
+        when /postg/i # postgres, postgis
+          "jsonb"
+        when /mysql/i
+          "json"
+        else
+          "text"
+        end
+      end
     end
   end
 end
