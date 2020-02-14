@@ -3,7 +3,7 @@ class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version
     create_table :lockbox_audits do |t|
       t.references :subject, polymorphic: true
       t.references :viewer, polymorphic: true
-      t.<%= info_type %> :info
+      t.<%= data_type %> :data
       t.string :context
       t.string :ip
       t.datetime :created_at

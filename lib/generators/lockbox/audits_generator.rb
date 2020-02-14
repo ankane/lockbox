@@ -15,7 +15,7 @@ module Lockbox
         "[#{ActiveRecord::VERSION::MAJOR}.#{ActiveRecord::VERSION::MINOR}]"
       end
 
-      def info_type
+      def data_type
         # use connection_config instead of connection.adapter
         # so database connection isn't needed
         case ActiveRecord::Base.connection_config[:adapter].to_s
