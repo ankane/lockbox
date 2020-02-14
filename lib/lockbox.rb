@@ -50,12 +50,12 @@ module Lockbox
     @master_key ||= ENV["LOCKBOX_MASTER_KEY"]
   end
 
-  def self.migrate(model, restart: false, batch_size: 1000)
-    Migrator.new(model, batch_size: batch_size).migrate(restart: restart)
+  def self.migrate(relation, batch_size: 1000, restart: false)
+    Migrator.new(relation, batch_size: batch_size).migrate(restart: restart)
   end
 
-  def self.rotate(model, attributes:, batch_size: 1000)
-    Migrator.new(model, batch_size: batch_size).rotate(attributes: attributes)
+  def self.rotate(relation, batch_size: 1000, attributes:)
+    Migrator.new(relation, batch_size: batch_size).rotate(attributes: attributes)
   end
 
   def self.generate_key

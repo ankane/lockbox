@@ -1,16 +1,20 @@
 module Lockbox
   class Migrator
-    def initialize(model, batch_size:)
-      @model = model
-      @transaction = @model.respond_to?(:transaction)
+    def initialize(relation, batch_size:)
+      @relation = relation
+      @transaction = @relation.respond_to?(:transaction)
       @batch_size = batch_size
+    end
+
+    def model
+      @model ||= @relation
     end
 
     def rotate(attributes:)
       fields = {}
       attributes.each do |a|
         # use key instad of v[:attribute] to make it more intuitive when migrating: true
-        field = @model.lockbox_attributes[a]
+        field = model.lockbox_attributes[a]
         raise ArgumentError, "Unknown attribute: #{a}" unless field
         fields[a] = field
       end
@@ -20,9 +24,9 @@ module Lockbox
 
     # TODO add attributes option
     def migrate(restart:)
-      fields = @model.lockbox_attributes.select { |k, v| v[:migrating] }
+      fields = model.lockbox_attributes.select { |k, v| v[:migrating] }
 
-      blind_indexes = @model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
+      blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
       perform(fields: fields, blind_indexes: blind_indexes, restart: restart)
     end
@@ -30,8 +34,6 @@ module Lockbox
     private
 
     def perform(fields:, blind_indexes: [], restart: true)
-      model = @model
-
       base_relation =
         if defined?(ActiveRecord::Base) && model.is_a?(ActiveRecord::Base)
           model.unscoped
