@@ -34,28 +34,31 @@ module Lockbox
     private
 
     def perform(fields:, blind_indexes: [], restart: true)
-      base_relation = @relation
+      relation = @relation
 
       # remove true condition in 0.4.0
       if true || (defined?(ActiveRecord::Base) && base_relation.is_a?(ActiveRecord::Base))
-        base_relation = base_relation.unscoped
+        relation = relation.unscoped
       end
-
-      relation = base_relation
 
       unless restart
         attributes = fields.map { |_, v| v[:encrypted_attribute] }
         attributes += blind_indexes.map { |_, v| v[:bidx_attribute] }
 
-        if defined?(ActiveRecord::Relation) && base_relation.is_a?(ActiveRecord::Relation)
+        if defined?(ActiveRecord::Relation) && relation.all.is_a?(ActiveRecord::Relation)
+          base_relation = relation.unscoped
+          or_relation = relation.unscoped
+
           attributes.each_with_index do |attribute, i|
-            relation =
+            or_relation =
               if i == 0
-                relation.where(attribute => nil)
+                base_relation.where(attribute => nil)
               else
-                relation.or(base_relation.where(attribute => nil))
+                or_relation.or(base_relation.where(attribute => nil))
               end
           end
+
+          relation = relation.merge(or_relation)
         else
           relation = relation.or(attributes.map { |a| {a => nil} })
         end
