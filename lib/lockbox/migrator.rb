@@ -87,7 +87,9 @@ module Lockbox
       records.select! { |r| r.changed? }
 
       with_transaction do
-        records.map { |r| r.save(validate: false) }
+        records.each do |record|
+          record.save!(validate: false)
+        end
       end
     end
 
