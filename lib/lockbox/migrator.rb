@@ -56,6 +56,8 @@ module Lockbox
                 relation.or(base_relation.where(attribute => nil))
               end
           end
+        else
+          # TODO add where conditions for Mongoid
         end
       end
 
