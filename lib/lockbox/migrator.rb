@@ -41,11 +41,14 @@ module Lockbox
         relation = relation.unscoped
       end
 
+      # convert from possible class to ActiveRecord::Relation or Mongoid::Criteria
+      relation = relation.all
+
       unless restart
         attributes = fields.map { |_, v| v[:encrypted_attribute] }
         attributes += blind_indexes.map { |_, v| v[:bidx_attribute] }
 
-        if defined?(ActiveRecord::Relation) && relation.all.is_a?(ActiveRecord::Relation)
+        if defined?(ActiveRecord::Relation) && relation.is_a?(ActiveRecord::Relation)
           base_relation = relation.unscoped
           or_relation = relation.unscoped
 
