@@ -51,11 +51,11 @@ module Lockbox
   end
 
   def self.migrate(model, restart: false, batch_size: 1000)
-    Migrator.new(model).migrate(restart: restart, batch_size: batch_size)
+    Migrator.new(model, batch_size: batch_size).migrate(restart: restart)
   end
 
   def self.rotate(model, attributes:, batch_size: 1000)
-    Migrator.new(model).rotate(attributes: attributes, batch_size: batch_size)
+    Migrator.new(model, batch_size: batch_size).rotate(attributes: attributes)
   end
 
   def self.generate_key

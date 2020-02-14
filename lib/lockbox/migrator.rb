@@ -1,11 +1,12 @@
 module Lockbox
   class Migrator
-    def initialize(model)
+    def initialize(model, batch_size:)
       @model = model
       @transaction = @model.respond_to?(:transaction)
+      @batch_size = batch_size
     end
 
-    def rotate(attributes:, batch_size:)
+    def rotate(attributes:)
       fields = {}
       attributes.each do |a|
         # use key instad of v[:attribute] to make it more intuitive when migrating: true
@@ -14,20 +15,20 @@ module Lockbox
         fields[a] = field
       end
 
-      perform(fields: fields, blind_indexes: [], restart: true, batch_size: batch_size)
+      perform(fields: fields)
     end
 
-    def migrate(restart:, batch_size:)
+    def migrate(restart:)
       fields = @model.lockbox_attributes.select { |k, v| v[:migrating] }
 
       blind_indexes = @model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
-      perform(fields: fields, blind_indexes: blind_indexes, restart: restart, batch_size: batch_size)
+      perform(fields: fields, blind_indexes: blind_indexes, restart: restart)
     end
 
     private
 
-    def perform(fields:, blind_indexes:, restart:, batch_size:)
+    def perform(fields:, blind_indexes: [], restart: true)
       model = @model
 
       base_relation =
@@ -62,11 +63,11 @@ module Lockbox
       end
 
       if relation.respond_to?(:find_in_batches)
-        relation.find_in_batches(batch_size: batch_size) do |records|
+        relation.find_in_batches(batch_size: @batch_size) do |records|
           migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
         end
       else
-        each_batch(relation, batch_size: batch_size) do |records|
+        each_batch(relation, batch_size: @batch_size) do |records|
           migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
         end
       end
