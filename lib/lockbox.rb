@@ -54,6 +54,10 @@ module Lockbox
     Migrator.new(model).migrate(restart: restart, batch_size: batch_size)
   end
 
+  def self.rotate(model, attributes:, batch_size: 1000)
+    Migrator.new(model).rotate(attributes: attributes, batch_size: batch_size)
+  end
+
   def self.generate_key
     SecureRandom.hex(32)
   end

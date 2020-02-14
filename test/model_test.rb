@@ -49,25 +49,6 @@ class ActiveRecordTest < Minitest::Test
     assert_equal email, user.email
   end
 
-  def test_rotation
-    email = "test@example.org"
-    key = User.lockbox_attributes[:email][:previous_versions].first[:key]
-    box = Lockbox.new(key: key, encode: true)
-    user = User.create!(email_ciphertext: box.encrypt(email))
-    user = User.last
-    assert_equal email, user.email
-  end
-
-  def test_rotation_master_key
-    email = "test@example.org"
-    master_key = User.lockbox_attributes[:email][:previous_versions].last[:master_key]
-    key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext", master_key: master_key)
-    box = Lockbox.new(key: key, encode: true)
-    user = User.create!(email_ciphertext: box.encrypt(email))
-    user = User.last
-    assert_equal email, user.email
-  end
-
   # ensure consistent with normal attributes
   def test_dirty
     original_name = "Test"
@@ -317,6 +298,50 @@ class ActiveRecordTest < Minitest::Test
     robot1, robot2 = Robot.order(:id).to_a
     assert_equal robot1.name, robot1.migrated_name
     assert_nil robot2.migrated_name
+  end
+
+  def test_rotate
+    10.times do |i|
+      User.create!(city: "City #{i}", email: "test#{i}@example.org")
+    end
+
+    user = User.last
+    original_city_ciphertext = user.city_ciphertext
+    original_email_ciphertext = user.email_ciphertext
+
+    Lockbox.rotate(User, attributes: [:email], batch_size: 5)
+
+    user = User.last
+    assert_equal "City 9", user.city
+    assert_equal "test9@example.org", user.email
+    assert_equal original_city_ciphertext, user.city_ciphertext
+    refute_equal original_email_ciphertext, user.email_ciphertext
+  end
+
+  def test_rotate_unknown_attribute
+    error = assert_raises(ArgumentError) do
+      Lockbox.rotate(User, attributes: [:bad])
+    end
+    assert_equal "Unknown attribute: bad", error.message
+  end
+
+  def test_rotation
+    email = "test@example.org"
+    key = User.lockbox_attributes[:email][:previous_versions].first[:key]
+    box = Lockbox.new(key: key, encode: true)
+    user = User.create!(email_ciphertext: box.encrypt(email))
+    user = User.last
+    assert_equal email, user.email
+  end
+
+  def test_rotation_master_key
+    email = "test@example.org"
+    master_key = User.lockbox_attributes[:email][:previous_versions].last[:master_key]
+    key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext", master_key: master_key)
+    box = Lockbox.new(key: key, encode: true)
+    user = User.create!(email_ciphertext: box.encrypt(email))
+    user = User.last
+    assert_equal email, user.email
   end
 
   def test_bad_master_key

@@ -2,6 +2,7 @@
 
 - Added `encode` option to `Lockbox::Encryptor`
 - Added support for `master_key` in `previous_versions`
+- Added `Lockbox.rotate` method
 - Improved performance of `migrate` method
 - Added experimental `Lockbox::Audit` model
 

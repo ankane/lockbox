@@ -4,7 +4,29 @@ module Lockbox
       @model = model
     end
 
-    def migrate(restart:, batch_size: 1000)
+    def rotate(attributes:, batch_size:)
+      fields = {}
+      attributes.each do |a|
+        # use key instad of v[:attribute] to make it more intuitive when migrating: true
+        field = @model.lockbox_attributes[a]
+        raise ArgumentError, "Unknown attribute: #{a}" unless field
+        fields[a] = field
+      end
+
+      perform(fields: fields, blind_indexes: [], restart: true, batch_size: batch_size)
+    end
+
+    def migrate(restart:, batch_size:)
+      fields = @model.lockbox_attributes.select { |k, v| v[:migrating] }
+
+      blind_indexes = @model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
+
+      perform(fields: fields, blind_indexes: blind_indexes, restart: restart, batch_size: batch_size)
+    end
+
+    private
+
+    def perform(fields:, blind_indexes:, restart:, batch_size:)
       model = @model
 
       base_relation =
@@ -16,12 +38,6 @@ module Lockbox
           # model.all
           model.unscoped
         end
-
-      # get fields
-      fields = model.lockbox_attributes.select { |k, v| v[:migrating] }
-
-      # get blind indexes
-      blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
       # build relation
       relation = base_relation
@@ -52,8 +68,6 @@ module Lockbox
         end
       end
     end
-
-    private
 
     def migrate_records(records, fields:, blind_indexes:, restart:)
       # do computation outside of transaction
