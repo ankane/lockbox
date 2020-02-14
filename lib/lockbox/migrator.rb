@@ -57,7 +57,7 @@ module Lockbox
               end
           end
         else
-          # TODO add where conditions for Mongoid
+          relation = relation.or(attributes.map { |a| {a => nil} })
         end
       end
 
