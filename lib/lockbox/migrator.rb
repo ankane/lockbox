@@ -34,17 +34,13 @@ module Lockbox
     private
 
     def perform(fields:, blind_indexes: [], restart: true)
-      base_relation =
-        if defined?(ActiveRecord::Base) && model.is_a?(ActiveRecord::Base)
-          model.unscoped
-        else
-          # TODO don't unscope relations
-          # waiting for 0.4.0
-          # model.all
-          model.unscoped
-        end
+      base_relation = @relation
 
-      # build relation
+      # remove true condition in 0.4.0
+      if true || (defined?(ActiveRecord::Base) && base_relation.is_a?(ActiveRecord::Base))
+        base_relation = base_relation.unscoped
+      end
+
       relation = base_relation
 
       unless restart
