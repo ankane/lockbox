@@ -1,6 +1,4 @@
 class LockboxAudit < ApplicationRecord
-  self.table_name = "lockbox_audits"
-
   belongs_to :subject, polymorphic: true
   belongs_to :viewer, polymorphic: true
 end
