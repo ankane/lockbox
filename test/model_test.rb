@@ -297,9 +297,11 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_migrate
-    Robot.create!(name: "Hi", email: "test@example.org")
+    10.times do |i|
+      Robot.create!(name: "User #{i}", email: "test#{i}@example.org")
+    end
     Robot.update_all(name_ciphertext: nil, email_ciphertext: nil)
-    Lockbox.migrate(Robot)
+    Lockbox.migrate(Robot, batch_size: 5)
     robot = Robot.last
     assert_equal robot.name, robot.migrated_name
     assert_equal robot.email, robot.migrated_email

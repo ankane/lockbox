@@ -2,6 +2,7 @@
 
 - Added `encode` option to `Lockbox::Encryptor`
 - Added support for `master_key` in `previous_versions`
+- Improved performance of `migrate` method
 - Added experimental `Lockbox::Audit` model
 
 ## 0.3.1 (2019-12-26)

@@ -4,7 +4,7 @@ module Lockbox
       @model = model
     end
 
-    def migrate(restart:)
+    def migrate(restart:, batch_size: 1000)
       model = @model
 
       base_relation =
@@ -42,27 +42,60 @@ module Lockbox
         end
       end
 
-      if relation.respond_to?(:find_each)
-        relation.find_each do |record|
-          migrate_record(record, fields: fields, blind_indexes: blind_indexes, restart: restart)
+      if relation.respond_to?(:find_in_batches)
+        relation.find_in_batches(batch_size: batch_size) do |records|
+          migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
         end
       else
-        relation.all.each do |record|
-          migrate_record(record, fields: fields, blind_indexes: blind_indexes, restart: restart)
+        each_batch(relation, batch_size: batch_size) do |records|
+          migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
         end
       end
     end
 
     private
 
-    def migrate_record(record, fields:, blind_indexes:, restart:)
-      fields.each do |k, v|
-        record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
+    def migrate_records(records, fields:, blind_indexes:, restart:)
+      # do computation outside of transaction
+      # especially expensive blind index computation
+      records.each do |record|
+        fields.each do |k, v|
+          record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
+        end
+        blind_indexes.each do |k, v|
+          record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+        end
       end
-      blind_indexes.each do |k, v|
-        record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+
+      records.select! { |r| r.changed? }
+
+      with_transaction do
+        records.map { |r| r.save(validate: false) }
       end
-      record.save(validate: false) if record.changed?
+    end
+
+    def with_transaction
+      if @model.respond_to?(:transaction)
+        @model.transaction do
+          yield
+        end
+      else
+        yield
+      end
+    end
+
+    def each_batch(scope, batch_size:)
+      # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
+      # use cursor for Mongoid
+      items = []
+      scope.all.each do |item|
+        items << item
+        if items.length == batch_size
+          yield items
+          items = []
+        end
+      end
+      yield items if items.any?
     end
   end
 end
