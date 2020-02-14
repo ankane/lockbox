@@ -8,6 +8,7 @@ module Lockbox
 
       def copy_migration
         migration_template "migration.rb", "db/migrate/create_lockbox_audits.rb", migration_version: migration_version
+        template "model.rb", "app/models/lockbox_audit.rb"
       end
 
       def migration_version

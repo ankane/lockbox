@@ -473,12 +473,12 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
 
-    Lockbox::Audit.create!(
+    LockboxAudit.create!(
       subject: @user,
-      info: "email, dob",
       viewer: current_user,
-      ip: request.remote_ip,
-      request_id: request.request_id
+      info: "Viewed email and dob",
+      context: "#{controller_name}##{action_name}",
+      ip: request.remote_ip
     )
   end
 end
@@ -487,7 +487,7 @@ end
 Query audits with:
 
 ```ruby
-Lockbox::Audit.last(100)
+LockboxAudit.last(100)
 ```
 
 **Note:** This approach is not intended to be used in the event of a breach or insider attack, as it’s trivial for someone with access to your infrastructure to bypass.

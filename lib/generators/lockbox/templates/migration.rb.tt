@@ -4,8 +4,8 @@ class <%= migration_class_name %> < ActiveRecord::Migration<%= migration_version
       t.references :subject, polymorphic: true
       t.references :viewer, polymorphic: true
       t.text :info
+      t.string :context
       t.string :ip
-      t.string :request_id
       t.datetime :created_at
     end
   end
