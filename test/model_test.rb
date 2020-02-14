@@ -318,11 +318,11 @@ class ActiveRecordTest < Minitest::Test
     refute_equal original_email_ciphertext, user.email_ciphertext
   end
 
-  def test_rotate_unknown_attribute
+  def test_rotate_bad_attribute
     error = assert_raises(ArgumentError) do
       Lockbox.rotate(User, attributes: [:bad])
     end
-    assert_equal "Unknown attribute: bad", error.message
+    assert_equal "Bad attribute: bad", error.message
   end
 
   def test_rotation
