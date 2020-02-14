@@ -340,7 +340,7 @@ key = Lockbox.generate_key
 Create a lockbox
 
 ```ruby
-lockbox = Lockbox.new(key: key)
+lockbox = Lockbox.new(key: key, encode: true)
 ```
 
 Encrypt
@@ -371,14 +371,12 @@ class User < ApplicationRecord
 end
 ```
 
-> Use `master_key` instead of `key` if passing the master key [master]
+Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing records, use:
 
 ```ruby
-User.find_each do |user|
-  user.update!(email: user.email)
-end
+Lockbox.rotate(User, attributes: [:email])
 ```
 
 Once all records are rotated, you can remove `previous_versions` from the model.
@@ -393,14 +391,12 @@ class User
 end
 ```
 
-> Use `master_key` instead of `key` if passing the master key [master]
+Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing records, use:
 
 ```ruby
-User.all.each do |user|
-  user.update!(email: user.email)
-end
+Lockbox.rotate(User, attributes: [:email])
 ```
 
 Once all records are rotated, you can remove `previous_versions` from the model.
@@ -415,7 +411,7 @@ class User < ApplicationRecord
 end
 ```
 
-> Use `master_key` instead of `key` if passing the master key [master]
+Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing files, use:
 
@@ -437,7 +433,7 @@ class LicenseUploader < CarrierWave::Uploader::Base
 end
 ```
 
-> Use `master_key` instead of `key` if passing the master key [master]
+Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing files, use:
 
@@ -457,7 +453,7 @@ For strings, use:
 Lockbox.new(key: key, previous_versions: [{key: previous_key}])
 ```
 
-## Auditing [master, experimental]
+## Auditing
 
 It’s a good idea to track user and employee access to sensitive data. Lockbox provides a convenient way to do this with Active Record, but you can use a similar pattern to write audits to any location.
 

@@ -1,4 +1,4 @@
-## 0.3.2 (unreleased)
+## 0.3.2 (2020-02-14)
 
 - Added `encode` option to `Lockbox::Encryptor`
 - Added support for `master_key` in `previous_versions`
