@@ -18,6 +18,7 @@ module Lockbox
       perform(fields: fields)
     end
 
+    # TODO add attributes option
     def migrate(restart:)
       fields = @model.lockbox_attributes.select { |k, v| v[:migrating] }
 
