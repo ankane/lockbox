@@ -61,14 +61,28 @@ module Lockbox
         end
       end
 
+      each_batch(relation) do |records|
+        migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
+      end
+    end
+
+    def each_batch(relation)
       if relation.respond_to?(:find_in_batches)
         relation.find_in_batches(batch_size: @batch_size) do |records|
-          migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
+          yield records
         end
       else
-        each_batch(relation, batch_size: @batch_size) do |records|
-          migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
+        # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
+        # use cursor for Mongoid
+        records = []
+        relation.all.each do |record|
+          records << record
+          if records.length == @batch_size
+            yield records
+            records = []
+          end
         end
+        yield records if records.any?
       end
     end
 
@@ -95,26 +109,12 @@ module Lockbox
 
     def with_transaction
       if @transaction
-        @model.transaction do
+        @relation.transaction do
           yield
         end
       else
         yield
       end
-    end
-
-    def each_batch(scope, batch_size:)
-      # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
-      # use cursor for Mongoid
-      items = []
-      scope.all.each do |item|
-        items << item
-        if items.length == batch_size
-          yield items
-          items = []
-        end
-      end
-      yield items if items.any?
     end
   end
 end
