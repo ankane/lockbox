@@ -4,8 +4,6 @@
 
 - Uses state-of-the-art algorithms
 - Works with database fields, files, and strings
-- Stores encrypted data in a single field
-- Requires you to only manage a single encryption key (with the option to have more)
 - Makes migrating existing data and key rotation easy
 
 Lockbox aims to make encryption as friendly and intuitive as possible. Encrypted fields and files behave just like unencrypted ones for maximum compatibility with 3rd party libraries and existing code.
