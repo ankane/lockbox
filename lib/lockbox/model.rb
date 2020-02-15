@@ -196,6 +196,7 @@ module Lockbox
             begin
               send(name)
             rescue Lockbox::DecryptionError
+              warn "[lockbox] Decrypting previous value failed"
               nil
             end
 

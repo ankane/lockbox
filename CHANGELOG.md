@@ -1,6 +1,7 @@
 ## 0.3.3 (unreleased)
 
 - Improved performance of `rotate` for attributes with blind indexes
+- Added warning when decrypting previous value fails
 
 ## 0.3.2 (2020-02-14)
 
