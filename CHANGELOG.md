@@ -1,3 +1,7 @@
+## 0.3.3 (unreleased)
+
+- Improved performance of `rotate` for attributes with blind indexes
+
 ## 0.3.2 (2020-02-14)
 
 - Added `encode` option to `Lockbox::Encryptor`

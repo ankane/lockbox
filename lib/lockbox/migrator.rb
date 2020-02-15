@@ -10,8 +10,6 @@ module Lockbox
       @model ||= @relation
     end
 
-    # TODO skip blind index calculation during rotation
-    # this will speed things up significantly for attributes with blind indexes
     def rotate(attributes:)
       fields = {}
       attributes.each do |a|
@@ -21,7 +19,7 @@ module Lockbox
         fields[a] = field
       end
 
-      perform(fields: fields)
+      perform(fields: fields, rotate: true)
     end
 
     # TODO add attributes option
@@ -39,7 +37,7 @@ module Lockbox
 
     private
 
-    def perform(fields:, blind_indexes: [], restart: true)
+    def perform(fields:, blind_indexes: [], restart: true, rotate: false)
       relation = @relation
 
       # remove true condition in 0.4.0
@@ -74,7 +72,7 @@ module Lockbox
       end
 
       each_batch(relation) do |records|
-        migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart)
+        migrate_records(records, fields: fields, blind_indexes: blind_indexes, restart: restart, rotate: rotate)
       end
     end
 
@@ -98,15 +96,24 @@ module Lockbox
       end
     end
 
-    def migrate_records(records, fields:, blind_indexes:, restart:)
+    def migrate_records(records, fields:, blind_indexes:, restart:, rotate:)
       # do computation outside of transaction
       # especially expensive blind index computation
-      records.each do |record|
-        fields.each do |k, v|
-          record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
+      if rotate
+        records.each do |record|
+          fields.each do |k, v|
+            # update encrypted attribute directly to skip blind index computation
+            record.send("set_#{v[:encrypted_attribute]}", record.send(k))
+          end
         end
-        blind_indexes.each do |k, v|
-          record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+      else
+        records.each do |record|
+          fields.each do |k, v|
+            record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
+          end
+          blind_indexes.each do |k, v|
+            record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+          end
         end
       end
 

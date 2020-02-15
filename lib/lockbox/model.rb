@@ -201,12 +201,18 @@ module Lockbox
               nil
             end
 
-            # set ciphertext
-            ciphertext = self.class.send(encrypt_method_name, message, context: self)
-            send("#{encrypted_attribute}=", ciphertext)
+            send("set_#{encrypted_attribute}", message)
 
             super(original_message)
           end
+
+          # separate method for setting directly
+          # used to skip blind indexes for key rotation
+          define_method("set_#{encrypted_attribute}") do |message|
+            ciphertext = self.class.send(encrypt_method_name, message, context: self)
+            send("#{encrypted_attribute}=", ciphertext)
+          end
+          private :"set_#{encrypted_attribute}"
 
           define_method(name) do
             message = super()
