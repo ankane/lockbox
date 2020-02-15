@@ -103,7 +103,7 @@ module Lockbox
         records.each do |record|
           fields.each do |k, v|
             # update encrypted attribute directly to skip blind index computation
-            record.send("set_#{v[:encrypted_attribute]}", record.send(k))
+            record.send("lockbox_set_#{k}", record.send(k))
           end
         end
       else

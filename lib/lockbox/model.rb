@@ -191,8 +191,6 @@ module Lockbox
           end
 
           define_method("#{name}=") do |message|
-            original_message = message
-
             # decrypt first for dirty tracking
             # don't raise error if can't decrypt previous
             begin
@@ -201,18 +199,18 @@ module Lockbox
               nil
             end
 
-            send("set_#{encrypted_attribute}", message)
+            send("lockbox_set_#{name}", message)
 
-            super(original_message)
+            super(message)
           end
 
           # separate method for setting directly
           # used to skip blind indexes for key rotation
-          define_method("set_#{encrypted_attribute}") do |message|
+          define_method("lockbox_set_#{name}") do |message|
             ciphertext = self.class.send(encrypt_method_name, message, context: self)
             send("#{encrypted_attribute}=", ciphertext)
           end
-          private :"set_#{encrypted_attribute}"
+          private :"lockbox_set_#{name}"
 
           define_method(name) do
             message = super()
