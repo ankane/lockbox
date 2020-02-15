@@ -176,6 +176,14 @@ end
 
 Finally, drop the unencrypted column.
 
+If adding blind indexes, mark them as `migrating` during this process as well.
+
+```ruby
+class User < ApplicationRecord
+  blind_index :email, migrating: true
+end
+```
+
 ## Mongoid
 
 Add to your model:
