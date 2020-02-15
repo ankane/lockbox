@@ -15,7 +15,7 @@ module Lockbox
     def rotate(attributes:)
       fields = {}
       attributes.each do |a|
-        # use key instad of v[:attribute] to make it more intuitive when migrating: true
+        # use key instead of v[:attribute] to make it more intuitive when migrating: true
         field = model.lockbox_attributes[a]
         raise ArgumentError, "Bad attribute: #{a}" unless field
         fields[a] = field
