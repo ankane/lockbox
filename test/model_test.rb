@@ -300,6 +300,18 @@ class ActiveRecordTest < Minitest::Test
     assert_nil robot2.migrated_name
   end
 
+  def test_migrate_restart
+    10.times do |i|
+      Robot.create!(name: "User #{i}", email: "test#{i}@example.org")
+    end
+    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil)
+    Lockbox.migrate(Robot)
+    Lockbox.migrate(Robot, restart: true)
+    robot = Robot.last
+    assert_equal robot.name, robot.migrated_name
+    assert_equal robot.email, robot.migrated_email
+  end
+
   def test_rotate
     10.times do |i|
       User.create!(city: "City #{i}", email: "test#{i}@example.org")
