@@ -28,6 +28,10 @@ module Lockbox
 
       blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
+      # blind_index are updated with attribute in Blind Index 2+
+      # this line only makes a difference when restart: true (not the default)
+      blind_indexes = [] if defined?(BlindIndex::VERSION) && BlindIndex::VERSION >= "2"
+
       perform(fields: fields, blind_indexes: blind_indexes, restart: restart)
     end
 
