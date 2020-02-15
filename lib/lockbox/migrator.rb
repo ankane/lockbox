@@ -27,7 +27,6 @@ module Lockbox
       fields = model.lockbox_attributes.select { |k, v| v[:migrating] }
 
       # need blind indexes for building relation
-      # TODO only get blind indexes tied to migrating fields
       blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
       perform(fields: fields, blind_indexes: blind_indexes, restart: restart)
