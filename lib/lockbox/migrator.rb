@@ -37,8 +37,11 @@ module Lockbox
     def perform(fields:, blind_indexes: [], restart: true, rotate: false)
       relation = @relation
 
-      # remove true condition in 0.4.0
-      if true || (defined?(ActiveRecord::Base) && base_relation.is_a?(ActiveRecord::Base))
+      # unscope if passed a model
+      unless ar_relation?(relation) || mongoid_relation?(relation)
+        relation = relation.unscoped
+      else
+        # TODO remove in 0.4.0
         relation = relation.unscoped
       end
 
@@ -49,7 +52,7 @@ module Lockbox
         attributes = fields.map { |_, v| v[:encrypted_attribute] }
         attributes += blind_indexes.map { |_, v| v[:bidx_attribute] }
 
-        if defined?(ActiveRecord::Relation) && relation.is_a?(ActiveRecord::Relation)
+        if ar_relation?(relation)
           base_relation = relation.unscoped
           or_relation = relation.unscoped
 
@@ -136,6 +139,14 @@ module Lockbox
           end
         end
       end
+    end
+
+    def ar_relation?(relation)
+      defined?(ActiveRecord::Relation) && relation.is_a?(ActiveRecord::Relation)
+    end
+
+    def mongoid_relation?(relation)
+      defined?(Mongoid::Criteria) && relation.is_a?(Mongoid::Criteria)
     end
 
     def with_transaction
