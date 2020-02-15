@@ -11,6 +11,7 @@ module Lockbox
     end
 
     # TODO skip blind index calculation during rotation
+    # this will speed things up significantly for attributes with blind indexes
     def rotate(attributes:)
       fields = {}
       attributes.each do |a|
