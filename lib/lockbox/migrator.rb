@@ -28,10 +28,6 @@ module Lockbox
 
       blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
-      # blind_index are updated with attribute in Blind Index 2+
-      # this line only makes a difference when restart: true (not the default)
-      blind_indexes = [] if defined?(BlindIndex::VERSION) && BlindIndex::VERSION >= "2"
-
       perform(fields: fields, blind_indexes: blind_indexes, restart: restart)
     end
 
@@ -111,8 +107,14 @@ module Lockbox
           fields.each do |k, v|
             record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
           end
-          blind_indexes.each do |k, v|
-            record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+        end
+
+        # we only need to update blind indexes manually for Blind Index < 2
+        if blind_indexes.any? && (!defined?(BlindIndex::VERSION) || BlindIndex::VERSION < "2")
+          records.each do |record|
+            blind_indexes.each do |k, v|
+              record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+            end
           end
         end
       end
