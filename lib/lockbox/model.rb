@@ -196,7 +196,8 @@ module Lockbox
             begin
               send(name)
             rescue Lockbox::DecryptionError
-              warn "[lockbox] Decrypting previous value failed"
+              # this is expected for hybrid cryptography
+              warn "[lockbox] Decrypting previous value failed" unless options[:algorithm] == "hybrid"
               nil
             end
 
