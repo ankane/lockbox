@@ -201,18 +201,18 @@ module Lockbox
               nil
             end
 
-            send("lockbox_set_#{name}", message)
+            send("lockbox_direct_#{name}=", message)
 
             super(message)
           end
 
           # separate method for setting directly
           # used to skip blind indexes for key rotation
-          define_method("lockbox_set_#{name}") do |message|
+          define_method("lockbox_direct_#{name}=") do |message|
             ciphertext = self.class.send(encrypt_method_name, message, context: self)
             send("#{encrypted_attribute}=", ciphertext)
           end
-          private :"lockbox_set_#{name}"
+          private :"lockbox_direct_#{name}="
 
           define_method(name) do
             message = super()
