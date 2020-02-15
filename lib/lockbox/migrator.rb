@@ -105,17 +105,23 @@ module Lockbox
         end
       else
         records.each do |record|
-          fields.each do |k, v|
-            record.send("#{v[:attribute]}=", record.send(k)) if restart || !record.send(v[:encrypted_attribute])
-          end
-        end
-
-        # we only need to update blind indexes manually for Blind Index < 2
-        if blind_indexes.any? && (!defined?(BlindIndex::VERSION) || BlindIndex::VERSION < "2")
-          records.each do |record|
-            blind_indexes.each do |k, v|
-              record.send("compute_#{k}_bidx") if restart || !record.send(v[:bidx_attribute])
+          if restart
+            fields.each do |k, v|
+              record.send("#{v[:encrypted_attribute]}=", nil)
             end
+
+            blind_indexes.each do |k, v|
+              record.send("#{v[:bidx_attribute]}=", nil)
+            end
+          end
+
+          fields.each do |k, v|
+            record.send("#{v[:attribute]}=", record.send(k)) unless record.send(v[:encrypted_attribute])
+          end
+
+          # with Blind Index 2.0, bidx_attribute should be already set for each record
+          blind_indexes.each do |k, v|
+            record.send("compute_#{k}_bidx") unless record.send(v[:bidx_attribute])
           end
         end
       end
