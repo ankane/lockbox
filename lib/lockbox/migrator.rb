@@ -10,6 +10,7 @@ module Lockbox
       @model ||= @relation
     end
 
+    # TODO skip blind index calculation during rotation
     def rotate(attributes:)
       fields = {}
       attributes.each do |a|
