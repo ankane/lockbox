@@ -2,6 +2,12 @@
 
 Here’s how to decrypt in other languages. For files, skip Base64 decoding the ciphertext.
 
+- [Node.js](#node-js)
+- [Python](#python)
+- [Rust](#rust)
+
+Pull requests are welcome for other languages.
+
 ## Node.js
 
 ```js
@@ -24,7 +30,7 @@ let plaintext = aesgcm.update(ciphertext) + aesgcm.final()
 
 ## Python
 
-Install the [cryptography](https://cryptography.io/en/latest/) package and do:
+Install the [cryptography](https://cryptography.io/en/latest/) package and use:
 
 ```py
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -40,6 +46,29 @@ aesgcm = AESGCM(key)
 plaintext = aesgcm.decrypt(ciphertext[:12], ciphertext[12:], b'')
 ```
 
-## Other
+## Rust
 
-Submit a PR
+Add crates:
+
+```toml
+[dependencies]
+aead = "0.2.0"
+aes-gcm = "0.3.2"
+base64 = "0.11.0"
+hex = "0.4.2"
+```
+
+And use:
+
+```rust
+let key = hex::decode("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb").unwrap();
+let ciphertext = base64::decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").unwrap();
+
+use aes_gcm::Aes256Gcm;
+use aead::{Aead, NewAead, generic_array::GenericArray};
+
+let aead = Aes256Gcm::new(GenericArray::clone_from_slice(&key));
+
+let nonce = GenericArray::from_slice(&ciphertext[..12]);
+let plaintext = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failure!");
+```
