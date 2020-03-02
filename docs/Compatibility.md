@@ -61,8 +61,8 @@ hex = "0.4.2"
 And use:
 
 ```rust
-let key = hex::decode("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb").unwrap();
-let ciphertext = base64::decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").unwrap();
+let key = hex::decode("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb").expect("decode failure!");
+let ciphertext = base64::decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").expect("decode failure!");
 
 use aes_gcm::Aes256Gcm;
 use aead::{Aead, NewAead, generic_array::GenericArray};
