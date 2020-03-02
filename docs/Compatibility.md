@@ -71,3 +71,5 @@ let aead = Aes256Gcm::new(GenericArray::clone_from_slice(&key));
 let nonce = GenericArray::from_slice(&ciphertext[..12]);
 let plaintext = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failure!");
 ```
+
+Check out the [aes-gcm docs](https://docs.rs/aes-gcm/) for more on security and performance.
