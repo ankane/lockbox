@@ -52,6 +52,9 @@ class User < ActiveRecord::Base
   attribute :config2, Configuration.new
   encrypts :config2
 
+  attribute :conf, Configuration.new
+  encrypts :conf, migrating: true
+
   encrypts :country2, type: :string
   encrypts :active2, type: :boolean
   encrypts :born_on2, type: :date
