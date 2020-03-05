@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class ActiveRecordTest < Minitest::Test
+class ModelTest < Minitest::Test
   def setup
     User.delete_all
   end
@@ -184,13 +184,24 @@ class ActiveRecordTest < Minitest::Test
     skip if mongoid?
 
     user = User.create!(name: "Test", email: "test@example.org")
-    user.update_columns(name: "New")
 
+    user.update_columns(name: "New")
     # will fail
     # debatable if this is the right behavior
     assert_raises(ActiveRecord::StatementInvalid) do
       user.update_columns(email: "new@example.org")
     end
+
+    # TODO uncomment in 0.4.0
+    # user.update_columns(name: "New", email: "new@example.org")
+    # assert_equal "New", user.name
+    # # TODO make this work as well
+    # # Active Record calls write_attribute_without_type_cast
+    # assert_equal "test@example.org", user.email
+
+    # user = User.last
+    # assert_equal "New", user.name
+    # assert_equal "new@example.org", user.email
   end
 
   def test_nil
@@ -341,9 +352,14 @@ class ActiveRecordTest < Minitest::Test
     robot = Robot.create!(name: "Hi")
     robot.update_column(:name, "Bye")
     robot.update_columns(name: "Bye")
+
     # does not affect update column
     # debatable if this is the right behavior
     assert_equal "Hi", robot.migrated_name
+
+    # TODO uncomment in 0.4.0
+    # robot = Robot.last
+    # assert_equal "Bye", robot.migrated_name
   end
 
   def test_migrating_restore_reset

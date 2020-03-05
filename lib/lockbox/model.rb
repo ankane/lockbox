@@ -91,6 +91,29 @@ module Lockbox
                   end
                 end
               end
+
+              # TODO uncomment in 0.4.0
+              # def update_columns(attributes)
+              #   if attributes.is_a?(Hash)
+              #     # transform keys like Active Record
+              #     attributes = attributes.transform_keys do |key|
+              #       n = key.to_s
+              #       self.class.attribute_aliases[n] || n
+              #     end
+
+              #     self.class.lockbox_attributes.each do |key, lockbox_attribute|
+              #       attribute = key.to_s
+              #       if attributes.key?(attribute)
+              #         message = attributes[attribute]
+              #         attributes.delete(attribute) unless lockbox_attribute[:migrating]
+              #         encrypted_attribute = lockbox_attribute[:encrypted_attribute]
+              #         ciphertext = self.class.send("generate_#{encrypted_attribute}", message, context: self)
+              #         attributes[encrypted_attribute] = ciphertext
+              #       end
+              #     end
+              #   end
+              #   super(attributes)
+              # end
             else
               def reload
                 self.class.lockbox_attributes.each do |_, v|
