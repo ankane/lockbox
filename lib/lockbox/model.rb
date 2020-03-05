@@ -320,7 +320,7 @@ module Lockbox
                 # do nothing
                 # decrypt returns binary string
               else
-                type = (try(:attribute_types) || {})[name.to_s]
+                type = (try(:attribute_types) || {})[original_name.to_s]
                 message = type.deserialize(message) if type
                 message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
               end
