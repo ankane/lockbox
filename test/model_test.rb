@@ -312,21 +312,25 @@ class ActiveRecordTest < Minitest::Test
     assert_equal robot.email, robot.migrated_email
   end
 
-  def test_migrating_validate_false
+  def test_migrating_assignment
     Robot.create!(name: "Hi")
     Robot.update_all(name_ciphertext: nil)
     robot = Robot.last
     robot.name = "Bye"
     assert_equal "Bye", robot.migrated_name
     robot.save(validate: false)
+    assert_equal "Bye", Robot.last.migrated_name
+  end
 
-    robot.name = "Hello"
+  def test_migrating_restore_reset
+    robot = Robot.create!(name: "Hi")
+    robot.name = "Bye"
     if mongoid?
       robot.reset_name!
     else
       robot.restore_name!
     end
-    assert_equal "Bye", robot.migrated_name
+    assert_equal "Hi", robot.migrated_name
   end
 
   def test_rotate
