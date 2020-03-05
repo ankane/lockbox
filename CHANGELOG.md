@@ -1,5 +1,6 @@
 ## 0.3.4 (unreleased)
 
+- Fixed `migrating: true` with `validate: false`
 - Fixed serialization when migrating certain column types
 
 ## 0.3.3 (2020-02-16)
