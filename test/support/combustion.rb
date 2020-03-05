@@ -1,5 +1,10 @@
 require "active_storage/engine" if Rails.version >= "5.2"
 
+if Rails.version >= "6.0"
+  require "action_text/engine"
+  Lockbox.encrypts_rich_text_body
+end
+
 Combustion.path = "test/internal"
 
 Combustion.initialize! :active_record, :active_job do

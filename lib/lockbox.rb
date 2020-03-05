@@ -92,4 +92,11 @@ module Lockbox
   def self.new(**options)
     Encryptor.new(**options)
   end
+
+  def self.encrypts_rich_text_body(**options)
+    ActiveSupport.on_load(:action_text_rich_text) do
+      ActionText::RichText.encrypts :body, **options
+      ActionText::RichText.ignored_columns += ["body"] unless options[:migrating]
+    end
+  end
 end

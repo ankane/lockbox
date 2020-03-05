@@ -278,7 +278,7 @@ module Lockbox
                 # do nothing
                 # encrypt will convert to binary
               else
-                type = (try(:attribute_types) || {})[name.to_s]
+                type = (try(:attribute_types) || {})[original_name.to_s]
                 message = type.serialize(message) if type
               end
             end

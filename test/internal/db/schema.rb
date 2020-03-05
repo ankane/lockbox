@@ -1,4 +1,14 @@
 ActiveRecord::Schema.define do
+  create_table :action_text_rich_texts do |t|
+    t.string     :name, null: false
+    t.text       :body_ciphertext, size: :long
+    t.references :record, null: false, polymorphic: true, index: false
+
+    t.timestamps
+
+    t.index [ :record_type, :record_id, :name ], name: "index_action_text_rich_texts_uniqueness", unique: true
+  end
+
   create_table :active_storage_blobs do |t|
     t.string   :key,        null: false
     t.string   :filename,   null: false

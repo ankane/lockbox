@@ -64,6 +64,8 @@ class User < ActiveRecord::Base
   encrypts :info2, type: :hash
   encrypts :city, padding: true
   encrypts :ssn, encode: false
+
+  has_rich_text :content if respond_to?(:has_rich_text)
 end
 
 class Post < ActiveRecord::Base
