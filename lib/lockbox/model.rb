@@ -122,6 +122,7 @@ module Lockbox
               #   result = super(attributes)
 
               #   # same logic as Active Record
+              #   # (although this happens before saving)
               #   attributes_to_set.each do |k, v|
               #     write_attribute_without_type_cast(k, v)
               #   end
