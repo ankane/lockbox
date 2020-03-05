@@ -336,9 +336,23 @@ module Lockbox
           end
 
           if options[:migrating]
-            before_validation do
-              send("#{name}=", send(original_name)) if send("#{original_name}_changed?")
+            # TODO reuse module
+            m = Module.new do
+              define_method "#{original_name}=" do |value|
+                result = super(value)
+                send("#{name}=", send(original_name))
+                result
+              end
+
+              unless activerecord
+                define_method "reset_#{original_name}!" do
+                  result = super()
+                  send("#{name}=", send(original_name))
+                  result
+                end
+              end
             end
+            prepend m
           end
         end
       end
