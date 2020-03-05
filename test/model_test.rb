@@ -191,17 +191,6 @@ class ModelTest < Minitest::Test
     assert_raises(ActiveRecord::StatementInvalid) do
       user.update_columns(email: "new@example.org")
     end
-
-    # TODO uncomment in 0.4.0
-    # user.update_columns(name: "New", email: "new@example.org")
-    # assert_equal "New", user.name
-    # # TODO make this work as well
-    # # Active Record calls write_attribute_without_type_cast
-    # assert_equal "test@example.org", user.email
-
-    # user = User.last
-    # assert_equal "New", user.name
-    # assert_equal "new@example.org", user.email
   end
 
   def test_nil
@@ -357,11 +346,6 @@ class ModelTest < Minitest::Test
     # debatable if this is the right behavior
     assert_equal "Bye", robot.name
     assert_equal "Hi", robot.migrated_name
-
-    # TODO uncomment in 0.4.0
-    # robot = Robot.last
-    # assert_equal "Bye", robot.name
-    # assert_equal "Bye", robot.migrated_name
   end
 
   def test_migrating_restore_reset
