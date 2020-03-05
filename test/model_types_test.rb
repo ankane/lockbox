@@ -313,6 +313,13 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :config, "USA", format: "USA!!"
   end
 
+  def test_type_migrating
+    user = User.create!(conf: "Hi")
+    key = Lockbox.attribute_key(table: "users", attribute: "conf_ciphertext")
+    box = Lockbox.new(key: key, encode: true)
+    assert_equal "Hi!!", box.decrypt_str(user.conf_ciphertext)
+  end
+
   private
 
   def assert_attribute(attribute, value, format: nil, time_zone: false, check_nil: true, **options)

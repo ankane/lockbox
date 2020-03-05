@@ -125,7 +125,13 @@ module Lockbox
               serialize name, JSON if options[:type] == :json
               serialize name, Hash if options[:type] == :hash
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
-              attribute name, :string
+              # when migrating it's best to specify the type directly
+              # however, we can try to use the original type if its already defined
+              if attributes_to_define_after_schema_loads.key?(original_name.to_s)
+                attribute name, attributes_to_define_after_schema_loads[original_name.to_s].first
+              else
+                attribute name, :string
+              end
             end
 
             define_method("#{name}_was") do

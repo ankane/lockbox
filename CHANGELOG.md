@@ -1,3 +1,7 @@
+## 0.3.4 (unreleased)
+
+- Fixed serialization when migrating certain column types
+
 ## 0.3.3 (2020-02-16)
 
 - Improved performance of `rotate` for attributes with blind indexes

@@ -67,6 +67,7 @@ ActiveRecord::Schema.define do
     t.text :configuration2_ciphertext
     t.text :config
     t.text :config2_ciphertext
+    t.text :conf_ciphertext
     t.text :city_ciphertext
     t.binary :ssn_ciphertext
   end
