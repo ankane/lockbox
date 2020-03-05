@@ -94,6 +94,8 @@ module Lockbox
 
               # TODO uncomment in 0.4.0
               # def update_columns(attributes)
+              #   attributes_to_set = {}
+
               #   if attributes.is_a?(Hash)
               #     # transform keys like Active Record
               #     attributes = attributes.transform_keys do |key|
@@ -104,15 +106,27 @@ module Lockbox
               #     self.class.lockbox_attributes.each do |key, lockbox_attribute|
               #       attribute = key.to_s
               #       if attributes.key?(attribute)
+              #         # check read only
+              #         verify_readonly_attribute(attribute)
+
               #         message = attributes[attribute]
               #         attributes.delete(attribute) unless lockbox_attribute[:migrating]
               #         encrypted_attribute = lockbox_attribute[:encrypted_attribute]
               #         ciphertext = self.class.send("generate_#{encrypted_attribute}", message, context: self)
               #         attributes[encrypted_attribute] = ciphertext
+              #         attributes_to_set[attribute] = message
               #       end
               #     end
               #   end
-              #   super(attributes)
+
+              #   result = super(attributes)
+
+              #   # same logic as Active Record
+              #   attributes_to_set.each do |k, v|
+              #     write_attribute_without_type_cast(k, v)
+              #   end
+
+              #   result
               # end
             else
               def reload
