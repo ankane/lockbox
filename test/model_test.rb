@@ -322,6 +322,15 @@ class ActiveRecordTest < Minitest::Test
     assert_equal "Bye", Robot.last.migrated_name
   end
 
+  def test_migrating_update_column
+    skip if mongoid?
+
+    robot = Robot.create!(name: "Hi")
+    robot.update_column(:name, "Bye")
+    # does not affect update column
+    assert_equal "Hi", robot.migrated_name
+  end
+
   def test_migrating_restore_reset
     robot = Robot.create!(name: "Hi")
     robot.name = "Bye"
