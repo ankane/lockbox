@@ -180,6 +180,19 @@ class ActiveRecordTest < Minitest::Test
     assert_equal original_email, user.attributes["email"] unless mongoid?
   end
 
+  def test_update_columns
+    skip if mongoid?
+
+    user = User.create!(name: "Test", email: "test@example.org")
+    user.update_columns(name: "New")
+
+    # will fail
+    # debatable if this is the right behavior
+    assert_raises(ActiveRecord::StatementInvalid) do
+      user.update_columns(email: "new@example.org")
+    end
+  end
+
   def test_nil
     user = User.create!(email: "test@example.org")
     user.email = nil
@@ -322,12 +335,14 @@ class ActiveRecordTest < Minitest::Test
     assert_equal "Bye", Robot.last.migrated_name
   end
 
-  def test_migrating_update_column
+  def test_migrating_update_columns
     skip if mongoid?
 
     robot = Robot.create!(name: "Hi")
     robot.update_column(:name, "Bye")
+    robot.update_columns(name: "Bye")
     # does not affect update column
+    # debatable if this is the right behavior
     assert_equal "Hi", robot.migrated_name
   end
 
