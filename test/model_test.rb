@@ -355,6 +355,7 @@ class ModelTest < Minitest::Test
 
     # does not affect update column
     # debatable if this is the right behavior
+    assert_equal "Bye", robot.name
     assert_equal "Hi", robot.migrated_name
 
     # TODO uncomment in 0.4.0
