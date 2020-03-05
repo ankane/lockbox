@@ -359,6 +359,7 @@ class ModelTest < Minitest::Test
 
     # TODO uncomment in 0.4.0
     # robot = Robot.last
+    # assert_equal "Bye", robot.name
     # assert_equal "Bye", robot.migrated_name
   end
 
