@@ -50,6 +50,7 @@ class ModelTest < Minitest::Test
   end
 
   # ensure consistent with normal attributes
+  # https://github.com/rails/rails/blob/master/activemodel/lib/active_model/dirty.rb
   def test_dirty
     original_name = "Test"
     original_email = "test@example.org"
@@ -82,6 +83,7 @@ class ModelTest < Minitest::Test
     assert !user.name_changed?
     assert !user.email_changed?
     assert !user.changed?
+    assert_equal [], user.changed
 
     # update
     user.name = new_name
@@ -91,6 +93,11 @@ class ModelTest < Minitest::Test
     assert user.name_changed?
     assert user.email_changed?
     assert user.changed?
+    if mongoid?
+      assert_equal ["email_ciphertext", "name"], user.changed.sort
+    else
+      assert_equal ["email", "email_ciphertext", "name"], user.changed.sort
+    end
 
     # ensure was
     assert_equal original_name, user.name_was
@@ -135,7 +142,16 @@ class ModelTest < Minitest::Test
     user = User.create!(name: original_name, email: original_email)
     user = User.last
 
+    assert !user.name_previously_changed?
+    assert !user.email_previously_changed?
+
     user.update!(name: new_name, email: new_email)
+
+    assert user.name_previously_changed?
+    assert user.email_previously_changed?
+
+    assert_equal [original_name, new_name], user.name_previous_change
+    assert_equal [original_email, new_email], user.email_previous_change
 
     # ensure updated
     assert_equal original_name, user.name_before_last_save
