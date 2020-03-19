@@ -67,7 +67,8 @@ module Lockbox
 
           relation = relation.merge(or_relation)
         else
-          relation = relation.or(attributes.map { |a| {a => nil} })
+          base_relation = relation.unscoped
+          relation.and(base_relation.or(attributes.map { |a| {a => nil} }))
         end
       end
 
