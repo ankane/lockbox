@@ -83,16 +83,19 @@ module Lockbox
       target.set_encoding(source.external_encoding) if source.respond_to?(:external_encoding)
     end
 
+    # TODO remove in 0.4.0
     # legacy for attr_encrypted
     def self.encrypt(options)
       box(options).encrypt(options[:value])
     end
 
+    # TODO remove in 0.4.0
     # legacy for attr_encrypted
     def self.decrypt(options)
       box(options).decrypt(options[:value])
     end
 
+    # TODO remove in 0.4.0
     # legacy for attr_encrypted
     def self.box(options)
       options = options.slice(:key, :encryption_key, :decryption_key, :algorithm, :previous_versions)
