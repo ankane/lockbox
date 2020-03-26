@@ -472,7 +472,7 @@ class UsersController < ApplicationController
     LockboxAudit.create!(
       subject: @user,
       viewer: current_user,
-      data: ["email", "dob"],
+      data: ["name", "email"],
       context: "#{controller_name}##{action_name}",
       ip: request.remote_ip
     )
