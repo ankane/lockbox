@@ -29,9 +29,11 @@ module Lockbox
         ciphertext = ciphertext.dup.force_encoding(Encoding::BINARY)
       end
 
+      message = nil
       @boxes.each_with_index do |box, i|
         begin
-          return box.decrypt(ciphertext, **options)
+          message = box.decrypt(ciphertext, **options)
+          break
         rescue => e
           # returning DecryptionError instead of PaddingError
           # is for end-user convenience, not for security
@@ -45,6 +47,14 @@ module Lockbox
           end
         end
       end
+
+      # maybe for 1.0: return UTF-8
+      # if @encode
+      #   message.force_encoding(Encoding::UTF_8)
+      #   warn "[lockbox] Message not valid UTF-8" unless message.valid_encoding?
+      # end
+
+      message
     end
 
     def encrypt_io(io, **options)
