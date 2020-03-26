@@ -3,6 +3,7 @@ module Lockbox
     def initialize(**options)
       options = Lockbox.default_options.merge(options)
       @encode = options.delete(:encode)
+      # warn "[lockbox] Lockbox 1.0 will default to encode: true. Pass encode: false to keep the current behavior." if @encode.nil?
       previous_versions = options.delete(:previous_versions)
 
       @boxes =
