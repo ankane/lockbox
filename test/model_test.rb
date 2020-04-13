@@ -177,8 +177,13 @@ class ModelTest < Minitest::Test
     user = User.new
     assert_nil user.email
     user.email = "test@example.org"
-    assert_nil user.changes["email"][0]
+    assert_nil user.email_was
+    assert_nil user.changes["email"][0] unless mongoid?
+    user.email = "new@example.org"
+    assert_nil user.email_was
+    assert_nil user.changes["email"][0] unless mongoid?
     user.email = nil
+    assert_nil user.email_was
     assert_empty user.changes
   end
 
