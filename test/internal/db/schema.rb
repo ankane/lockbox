@@ -31,6 +31,8 @@ ActiveRecord::Schema.define do
     t.text :properties2_ciphertext
     t.text :settings
     t.text :settings2_ciphertext
+    t.text :messages
+    t.text :messages2_ciphertext
     t.string :country
     t.text :country2_ciphertext
     t.boolean :active

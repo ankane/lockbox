@@ -364,6 +364,36 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
+  def test_serialize_array
+    messages = [1, 2, 3]
+    assert_attribute :messages, messages, format: messages.to_yaml
+
+    user = User.last
+    new_messages = [4]
+    user.messages = new_messages
+    assert_equal [messages, new_messages], user.changes["messages"]
+    user.messages2 = new_messages
+    assert_equal [messages, new_messages], user.changes["messages2"]
+  end
+
+  def test_serialize_array_in_place
+    user = User.create!(messages2: [1, 2, 3])
+    user.messages2[3] = 4
+    user.save!
+    user = User.last
+    assert_equal 4, user.messages2[3]
+  end
+
+  def test_serialize_array_invalid
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(messages: "invalid")
+    end
+
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(messages2: "invalid")
+    end
+  end
+
   def test_store
     credentials = {a: 1, b: "hi"}.as_json
     assert_attribute :credentials, credentials, format: credentials.to_json

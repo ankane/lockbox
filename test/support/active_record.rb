@@ -37,10 +37,14 @@ class User < ActiveRecord::Base
 
   serialize :settings, Hash
   serialize :settings2, Hash
+
+  serialize :messages, Array
+  serialize :messages2, Array
+
+  encrypts :properties2, :settings2, :messages2
+
   serialize :info, Hash
   serialize :coordinates, Array
-
-  encrypts :properties2, :settings2
 
   store :credentials, accessors: [:username], coder: JSON
   store :credentials2, accessors: [:username2], coder: JSON
