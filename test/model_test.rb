@@ -187,6 +187,13 @@ class ModelTest < Minitest::Test
     assert_empty user.changes
   end
 
+  def test_dirty_type_cast
+    user = User.create!(signed_at2: Time.now)
+    user = User.last
+    user.signed_at2 = Time.now
+    assert_kind_of Time, user.signed_at2_was
+  end
+
   def test_inspect
     user = User.create!(email: "test@example.org")
     assert_nil user.serializable_hash["email"]

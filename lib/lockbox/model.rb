@@ -238,6 +238,7 @@ module Lockbox
                 @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
 
                 # cache
+                # decrypt method does type casting
                 if respond_to?(:write_attribute_without_type_cast, true)
                   write_attribute_without_type_cast(name, message) if !@attributes.frozen?
                 else
