@@ -234,8 +234,8 @@ module Lockbox
                 end
 
                 # cache
-                if respond_to?(:_write_attribute, true)
-                  _write_attribute(name, message) if !@attributes.frozen?
+                if respond_to?(:write_attribute_without_type_cast, true)
+                  write_attribute_without_type_cast(name, message) if !@attributes.frozen?
                 else
                   raw_write_attribute(name, message) if !@attributes.frozen?
                 end

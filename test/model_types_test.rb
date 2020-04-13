@@ -217,6 +217,19 @@ class ModelTypesTest < Minitest::Test
     assert_equal "world", user.data2["c"]
   end
 
+  def test_type_json_save_twice
+    data2 = {a: 1, b: "hi"}
+    user = User.create!(data2: data2)
+    user.reload
+    user.save!
+
+    user.data2
+    user.save!
+
+    new_data2 = {"a" => 1, "b" => "hi"}
+    assert_equal new_data2, user.data2
+  end
+
   def test_type_hash
     info = {a: 1, b: "hi"}
     assert_attribute :info, info, format: info.to_yaml

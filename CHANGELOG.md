@@ -1,3 +1,7 @@
+## 0.3.5 (unreleased)
+
+- Fixed serialize error with `json` type
+
 ## 0.3.4 (2020-04-05)
 
 - Fixed `migrating: true` with `validate: false`
