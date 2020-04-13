@@ -226,19 +226,13 @@ module Lockbox
           define_method(name) do
             message = super()
 
-            if activerecord && @attributes[name.to_s].value_before_type_cast.nil?
-              message = nil
-            end
-
-            unless message
+            if message.nil? || (activerecord && @attributes[name.to_s].value_before_type_cast.nil?)
               ciphertext = send(encrypted_attribute)
               message = self.class.send(decrypt_method_name, ciphertext, context: self)
 
               if activerecord
                 # set previous attribute on first decrypt
-                if @attributes[name.to_s]
-                  @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
-                end
+                @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
 
                 # cache
                 if respond_to?(:write_attribute_without_type_cast, true)

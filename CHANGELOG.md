@@ -1,5 +1,6 @@
 ## 0.3.5 (unreleased)
 
+- Added `array` type
 - Fixed serialize error with `json` type
 - Fixed empty hash with `hash` type
 

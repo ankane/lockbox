@@ -103,6 +103,7 @@ class User < ApplicationRecord
   encrypts :video, type: :binary
   encrypts :properties, type: :json
   encrypts :settings, type: :hash
+  encrypts :messages, type: :array # [master]
 end
 ```
 

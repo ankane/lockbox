@@ -276,7 +276,6 @@ class ModelTypesTest < Minitest::Test
     coordinates = [1, 2, 3]
     assert_attribute :coordinates, coordinates, format: coordinates.to_yaml
 
-    # TODO see why keys are strings instead of symbols
     user = User.last
     new_coordinates = [1, 2, 3, 4, 5]
     user.coordinates = new_coordinates
