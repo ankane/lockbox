@@ -188,6 +188,8 @@ class ModelTest < Minitest::Test
   end
 
   def test_dirty_type_cast
+    skip if mongoid?
+
     user = User.create!(signed_at2: Time.now)
     user = User.last
     user.signed_at2 = Time.now
