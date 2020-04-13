@@ -11,6 +11,8 @@ module Lockbox
       #   options[:type] = :json
       # when Hash
       #   options[:type] = :hash
+      # when Array
+      #   options[:type] = :array
       # when String
       #   options[:type] = :string
       # when Integer
@@ -20,7 +22,7 @@ module Lockbox
       # end
 
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
-      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
+      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash, :array].include?(options[:type])
 
       activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
       raise ArgumentError, "Type not supported yet with Mongoid" if options[:type] && !activerecord
@@ -112,7 +114,7 @@ module Lockbox
             if options[:type]
               attribute_type =
                 case options[:type]
-                when :json, :hash
+                when :json, :hash, :array
                   :string
                 when :integer
                   ActiveModel::Type::Integer.new(limit: 8)
@@ -124,6 +126,7 @@ module Lockbox
 
               serialize name, JSON if options[:type] == :json
               serialize name, Hash if options[:type] == :hash
+              serialize name, Array if options[:type] == :array
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
               # when migrating it's best to specify the type directly
               # however, we can try to use the original type if its already defined
@@ -223,8 +226,7 @@ module Lockbox
           define_method(name) do
             message = super()
 
-            # Hash serializer returns {} when nil
-            if message == {} && activerecord && @attributes[name.to_s].value_before_type_cast.nil?
+            if activerecord && @attributes[name.to_s].value_before_type_cast.nil?
               message = nil
             end
 

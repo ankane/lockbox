@@ -272,6 +272,48 @@ class ModelTypesTest < Minitest::Test
     assert_equal info2, user.info2
   end
 
+  def test_type_array
+    coordinates = [1, 2, 3]
+    assert_attribute :coordinates, coordinates, format: coordinates.to_yaml
+
+    # TODO see why keys are strings instead of symbols
+    user = User.last
+    new_coordinates = [1, 2, 3, 4, 5]
+    user.coordinates = new_coordinates
+    assert_equal [coordinates, new_coordinates], user.changes["coordinates"]
+    user.coordinates2 = new_coordinates
+    assert_equal [coordinates, new_coordinates], user.changes["coordinates2"]
+  end
+
+  def test_type_array_invalid
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(coordinates: "invalid")
+    end
+
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(coordinates2: "invalid")
+    end
+  end
+
+  def test_type_array_in_place
+    user = User.create!(coordinates2: [1, 2, 3])
+    user.coordinates2[3] = 4
+    user.save!
+    user = User.last
+    assert_equal 4, user.coordinates2[3]
+  end
+
+  def test_type_array_save_twice
+    coordinates2 = [1, 2, 3]
+    user = User.create!(coordinates2: coordinates2)
+    user.reload
+    user.save!
+
+    user.coordinates2
+    user.save!
+    assert_equal coordinates2, user.coordinates2
+  end
+
   def test_serialize_json
     properties = {a: 1, b: "hi"}.as_json
     assert_attribute :properties, properties, format: properties.to_json
