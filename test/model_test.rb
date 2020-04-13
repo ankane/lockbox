@@ -184,7 +184,7 @@ class ModelTest < Minitest::Test
     assert_nil user.changes["email"][0] unless mongoid?
     user.email = nil
     assert_nil user.email_was
-    assert_empty user.changes
+    assert_empty user.changes unless mongoid?
   end
 
   def test_dirty_type_cast
