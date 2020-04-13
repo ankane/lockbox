@@ -226,9 +226,10 @@ module Lockbox
           define_method(name) do
             message = super()
 
-            # Hash serializer returns {} when nil, Array serializer returns [] when nil
             # possibly keep track of decrypted attributes directly in the future
-            if message.nil? || (activerecord && @attributes[name.to_s].value_before_type_cast.nil?)
+            # Hash serializer returns {} when nil, Array serializer returns [] when nil
+            # check for this explicitly as a layer of safety
+            if message.nil? || ((message == {} || message == []) && activerecord && @attributes[name.to_s].value_before_type_cast.nil?)
               ciphertext = send(encrypted_attribute)
               message = self.class.send(decrypt_method_name, ciphertext, context: self)
 
