@@ -38,6 +38,7 @@ class User < ActiveRecord::Base
   serialize :settings, Hash
   serialize :settings2, Hash
   serialize :info, Hash
+  serialize :coordinates, Array
 
   encrypts :properties2, :settings2
 
@@ -65,6 +66,7 @@ class User < ActiveRecord::Base
   encrypts :video2, type: :binary
   encrypts :data2, type: :json
   encrypts :info2, type: :hash
+  encrypts :coordinates2, type: :array
   encrypts :city, padding: true
   encrypts :ssn, encode: false
 end
