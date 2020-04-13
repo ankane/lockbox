@@ -232,11 +232,10 @@ module Lockbox
               message = self.class.send(decrypt_method_name, ciphertext, context: self)
 
               if activerecord
-                # set previous attribute on first decrypt
-                attribute = @attributes[name.to_s]
-                if attribute.value_before_type_cast.nil?
-                  attribute.instance_variable_set("@value_before_type_cast", message)
-                end
+                # set previous attribute so changes populate correctly
+                # it's fine if this is set on future decryptions (as is the case when message is nil)
+                # as only the first value is loaded into changes
+                @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
 
                 # cache
                 if respond_to?(:write_attribute_without_type_cast, true)

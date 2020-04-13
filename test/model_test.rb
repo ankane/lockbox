@@ -173,6 +173,15 @@ class ModelTest < Minitest::Test
     end
   end
 
+  def test_dirty_nil
+    user = User.new
+    assert_nil user.email
+    user.email = "test@example.org"
+    assert_nil user.changes["email"][0]
+    user.email = nil
+    assert_empty user.changes
+  end
+
   def test_inspect
     user = User.create!(email: "test@example.org")
     assert_nil user.serializable_hash["email"]
