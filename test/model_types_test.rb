@@ -261,6 +261,17 @@ class ModelTypesTest < Minitest::Test
     assert_equal "world", user.info2[:c]
   end
 
+  def test_type_hash_save_twice
+    info2 = {a: 1, b: "hi"}
+    user = User.create!(info2: info2)
+    user.reload
+    user.save!
+
+    user.info2
+    user.save!
+    assert_equal info2, user.info2
+  end
+
   def test_serialize_json
     properties = {a: 1, b: "hi"}.as_json
     assert_attribute :properties, properties, format: properties.to_json

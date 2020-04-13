@@ -1,6 +1,7 @@
 ## 0.3.5 (unreleased)
 
 - Fixed serialize error with `json` type
+- Fixed empty hash with `hash` type
 
 ## 0.3.4 (2020-04-05)
 

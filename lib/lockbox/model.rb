@@ -223,6 +223,11 @@ module Lockbox
           define_method(name) do
             message = super()
 
+            # Hash serializer returns {} when nil
+            if message == {} && activerecord && @attributes[name.to_s].value_before_type_cast.nil?
+              message = nil
+            end
+
             unless message
               ciphertext = send(encrypted_attribute)
               message = self.class.send(decrypt_method_name, ciphertext, context: self)
