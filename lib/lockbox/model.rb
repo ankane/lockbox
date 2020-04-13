@@ -233,7 +233,10 @@ module Lockbox
 
               if activerecord
                 # set previous attribute on first decrypt
-                @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
+                attribute = @attributes[name.to_s]
+                if attribute.value_before_type_cast.nil?
+                  attribute.instance_variable_set("@value_before_type_cast", message)
+                end
 
                 # cache
                 if respond_to?(:write_attribute_without_type_cast, true)
