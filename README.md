@@ -843,5 +843,6 @@ To get started with development and testing:
 git clone https://github.com/ankane/lockbox.git
 cd lockbox
 bundle install
+brew install libsodium
 bundle exec rake test
 ```
