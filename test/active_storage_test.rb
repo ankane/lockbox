@@ -179,4 +179,14 @@ class ActiveStorageTest < Minitest::Test
     assert_equal message, post.photo.download
     assert_equal message, post.photo.blob.download
   end
+
+  def test_open
+    path = "test/support/image.png"
+    user = User.create!
+    user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")
+
+    user.avatar.open do |f|
+      assert_equal File.binread(path), f.read
+    end
+  end
 end
