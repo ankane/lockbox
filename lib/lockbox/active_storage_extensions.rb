@@ -101,6 +101,23 @@ module Lockbox
         result
       end
 
+      if ActiveStorage::VERSION::MAJOR >= 6
+        def open(tmpdir: nil, &block)
+          blob.open(tmpdir: tmpdir) do |file|
+            options = Utils.encrypted_options(record, name)
+            if options
+              result = file.read
+              file.rewind
+              file.truncate(0)
+              file.write(Utils.build_box(record, options, record.class.table_name, name).decrypt(result))
+              file.rewind
+            end
+
+            yield file
+          end
+        end
+      end
+
       def mark_analyzed
         if Utils.encrypted_options(record, name)
           blob.update!(metadata: blob.metadata.merge(analyzed: true))
