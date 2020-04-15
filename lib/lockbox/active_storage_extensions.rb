@@ -108,6 +108,9 @@ module Lockbox
             if options
               result = file.read
               file.rewind
+              # truncate may not be available on all platforms
+              # according to the Ruby docs
+              # may need to create a new temp file instead
               file.truncate(0)
               file.write(Utils.build_box(record, options, record.class.table_name, name).decrypt(result))
               file.rewind
