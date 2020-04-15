@@ -102,8 +102,8 @@ module Lockbox
       end
 
       if ActiveStorage::VERSION::MAJOR >= 6
-        def open(tmpdir: nil, &block)
-          blob.open(tmpdir: tmpdir) do |file|
+        def open(**options)
+          blob.open(**options) do |file|
             options = Utils.encrypted_options(record, name)
             if options
               result = file.read

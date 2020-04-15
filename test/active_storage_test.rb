@@ -181,6 +181,8 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_open
+    skip if ActiveStorage::VERSION::MAJOR < 6
+
     path = "test/support/image.png"
     user = User.create!
     user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")

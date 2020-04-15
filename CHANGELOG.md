@@ -1,3 +1,5 @@
+## 0.3.6 (unreleased)
+
 - Fixed decryption with Active Storage 6 and `attachment.open`
 
 ## 0.3.5 (2020-04-13)
