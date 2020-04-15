@@ -59,8 +59,6 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_encrypt_create
-    skip if ActiveStorage::VERSION::MAJOR >= 6
-
     message = "hello world"
 
     file = Tempfile.new
