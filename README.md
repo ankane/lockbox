@@ -316,7 +316,7 @@ To serve encrypted files, use a controller action.
 ```ruby
 def license
   user = User.find(params[:id])
-  send_data box.decrypt(user.license.read), type: user.license.mime_type
+  send_data lockbox.decrypt(user.license.read), type: user.license.mime_type
 end
 ```
 
