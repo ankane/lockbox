@@ -1,6 +1,6 @@
 ## 0.3.6 (unreleased)
 
-- Fixed content type detection for Active Storage
+- Fixed content type detection for Active Storage and CarrierWave
 - Fixed decryption with Active Storage 6 and `attachment.open`
 
 ## 0.3.5 (2020-04-13)

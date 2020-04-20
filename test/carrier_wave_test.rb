@@ -64,18 +64,16 @@ class CarrierWaveTest < Minitest::Test
     uploader = AvatarUploader.new
     uploader.retrieve_from_store!("image.png")
 
-    # incorrect mime type in CarrierWave 2.0
-    # assert_equal "image/png", uploader.content_type
+    assert_equal "image/png", uploader.content_type
     assert_equal File.binread(path), uploader.read
   end
 
   def test_mounted
     skip if mongoid?
 
-    message = "hello world"
-
-    file = Tempfile.new
-    file.write(message)
+    path = "test/support/image.png"
+    message = File.binread(path)
+    file = File.open(path)
 
     user = User.create!(document: file)
 
@@ -84,5 +82,6 @@ class CarrierWaveTest < Minitest::Test
 
     user = User.last
     assert_equal message, user.document.read
+    assert_equal "image/png", user.document.content_type
   end
 end

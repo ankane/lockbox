@@ -29,6 +29,11 @@ module Lockbox
           end
         end
 
+        # based on CarrierWave::SanitizedFile#mime_magic_content_type
+        def content_type
+          @content_type ||= MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
+        end
+
         private
 
         define_method :lockbox do
