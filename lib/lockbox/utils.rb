@@ -49,23 +49,30 @@ module Lockbox
     def self.encrypt_attachable(record, name, attachable)
       options = encrypted_options(record, name)
       box = build_box(record, options, record.class.table_name, name)
+      io = nil
 
       case attachable
       when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
+        io = attachable
         attachable = {
-          io: box.encrypt_io(attachable),
+          io: box.encrypt_io(io),
           filename: attachable.original_filename,
           content_type: attachable.content_type
         }
       when Hash
+        io = attachable[:io]
         attachable = {
-          io: box.encrypt_io(attachable[:io]),
+          io: box.encrypt_io(io),
           filename: attachable[:filename],
           content_type: attachable[:content_type]
         }
       else
         raise NotImplementedError, "Not supported"
       end
+
+      # set content type based on unencrypted data
+      # keep synced with ActiveStorage::Blob#extract_content_type
+      attachable[:io].extracted_content_type = Marcel::MimeType.for(io, name: attachable[:filename].to_s, declared_type: attachable[:content_type])
 
       attachable
     end

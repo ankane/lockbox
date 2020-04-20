@@ -154,20 +154,22 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_image
-    path = "test/support/image.png"
-    user = User.create!
-    user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")
+    # run many times to make sure content type is detected correctly
+    iterations = ENV["CI"] ? 1000 : 1
+    iterations.times do
+      path = "test/support/image.png"
+      user = User.create!
+      user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")
 
-    # flaky
-    # assert_equal "image/png", user.avatar.content_type
-    assert_equal "image.png", user.avatar.filename.to_s
-    assert_equal File.binread(path), user.avatar.download
+      assert_equal "image/png", user.avatar.content_type
+      assert_equal "image.png", user.avatar.filename.to_s
+      assert_equal File.binread(path), user.avatar.download
 
-    user = User.last
-    # flaky
-    # assert_equal "image/png", user.avatar.content_type
-    assert_equal "image.png", user.avatar.filename.to_s
-    assert_equal File.binread(path), user.avatar.download
+      user = User.last
+      assert_equal "image/png", user.avatar.content_type
+      assert_equal "image.png", user.avatar.filename.to_s
+      assert_equal File.binread(path), user.avatar.download
+    end
   end
 
   def test_has_one_attached_with_no_encrypted_attachments

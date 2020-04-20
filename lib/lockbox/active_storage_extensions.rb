@@ -131,5 +131,17 @@ module Lockbox
         after_save :mark_analyzed
       end
     end
+
+    module Blob
+      private
+
+      def extract_content_type(io)
+        if io.is_a?(Lockbox::IO) && io.extracted_content_type
+          io.extracted_content_type
+        else
+          super
+        end
+      end
+    end
   end
 end
