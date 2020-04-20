@@ -8,6 +8,7 @@ module Lockbox
           @file = CarrierWave::SanitizedFile.new(lockbox.encrypt_io(file))
         end
 
+        # TODO safe to cache?
         def read
           r = super
           lockbox.decrypt(r) if r
