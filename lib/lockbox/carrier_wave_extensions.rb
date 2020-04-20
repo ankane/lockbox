@@ -5,13 +5,13 @@ module Lockbox
         before :cache, :encrypt
 
         def encrypt(file)
-          @file = CarrierWave::SanitizedFile.new(lockbox.encrypt_io(file))
+          @file = CarrierWave::SanitizedFile.new(with_notification("encrypt_file") { lockbox.encrypt_io(file) })
         end
 
         # TODO safe to memoize?
         def read
           r = super
-          lockbox.decrypt(r) if r
+          with_notification("decrypt_file") { lockbox.decrypt(r) } if r
         end
 
         def size
@@ -40,18 +40,37 @@ module Lockbox
         define_method :lockbox do
           @lockbox ||= begin
             table = model ? model.class.table_name : "_uploader"
-            attribute =
-              if mounted_as
-                mounted_as.to_s
-              else
-                uploader = self
-                while uploader.parent_version
-                  uploader = uploader.parent_version
-                end
-                uploader.class.name.sub(/Uploader\z/, "").underscore
-              end
+            attribute = lockbox_name
 
             Utils.build_box(self, options, table, attribute)
+          end
+        end
+
+        def lockbox_name
+          if mounted_as
+            mounted_as.to_s
+          else
+            uploader = self
+            while uploader.parent_version
+              uploader = uploader.parent_version
+            end
+            uploader.class.name.sub(/Uploader\z/, "").underscore
+          end
+        end
+
+        def with_notification(type)
+          if defined?(ActiveSupport::Notifications)
+            name = lockbox_name
+
+            # get version
+            version, _ = parent_version && parent_version.versions.find { |k, v| v == self }
+            name = "#{name} #{version} version" if version
+
+            ActiveSupport::Notifications.instrument("#{type}.lockbox", {name: name}) do
+              yield
+            end
+          else
+            yield
           end
         end
       end

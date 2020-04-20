@@ -82,10 +82,8 @@ module Lockbox
 
     def self.decrypt_result(record, name, options, result)
       ActiveSupport::Notifications.instrument("decrypt_file.lockbox", {name: name}) do
-        result = Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
+        Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
       end
-
-      result
     end
   end
 end

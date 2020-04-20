@@ -1,6 +1,6 @@
 ## 0.3.7 (unreleased)
 
-- Added Active Support notifications for Active Storage encryption and decryption
+- Added Active Support notifications for Active Storage and Carrierwave
 
 ## 0.3.6 (2020-04-19)
 
