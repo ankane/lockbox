@@ -1,4 +1,4 @@
-## 0.3.7 (unreleased)
+## 0.3.7 (2020-04-20)
 
 - Added Active Support notifications for Active Storage and Carrierwave
 
