@@ -337,7 +337,7 @@ lockbox = Lockbox.new(key: key)
 Encrypt
 
 ```ruby
-ciphertext = lockbox.encrypt(File.open("file.txt", "rb"))
+ciphertext = lockbox.encrypt(File.binread("file.txt"))
 ```
 
 Decrypt
