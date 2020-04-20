@@ -780,6 +780,20 @@ end
 
 ## Upgrading
 
+### 0.3.6
+
+0.3.6 makes content type detection more reliable for Active Storage. You can check and update the content type of existing files with:
+
+```ruby
+User.find_each do |user|
+  license = user.license
+  content_type = Marcel::MimeType.for(license.download, name: license.filename.to_s)
+  if content_type != license.content_type
+    license.update!(content_type: content_type)
+  end
+end
+```
+
 ### 0.2.0
 
 0.2.0 brings a number of improvements. Here are a few to be aware of:
