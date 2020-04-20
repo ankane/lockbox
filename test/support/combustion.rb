@@ -8,15 +8,13 @@ Combustion.initialize! *components do
     config.active_record.sqlite3.represent_boolean_as_integer = true
   end
 
+  config.logger = $logger
+
   config.time_zone = "Mountain Time (US & Canada)"
 
   config.active_job.queue_adapter = :inline
-  config.active_job.logger = $logger
 
   if defined?(ActiveStorage)
-    config.active_storage.logger = $logger
     config.active_storage.service = :test
   end
 end
-
-ActiveSupport::LogSubscriber.logger = $logger
