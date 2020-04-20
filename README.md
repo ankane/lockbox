@@ -322,13 +322,29 @@ end
 
 ## Local Files
 
-Read the file as a binary string
+Generate a key
 
 ```ruby
-message = File.binread("file.txt")
+key = Lockbox.generate_key
 ```
 
-Then follow the instructions for encrypting a string below.
+Create a lockbox
+
+```ruby
+lockbox = Lockbox.new(key: key)
+```
+
+Encrypt
+
+```ruby
+ciphertext = lockbox.encrypt(File.open("file.txt", "rb"))
+```
+
+Decrypt
+
+```ruby
+lockbox.decrypt(ciphertext)
+```
 
 ## Strings
 
