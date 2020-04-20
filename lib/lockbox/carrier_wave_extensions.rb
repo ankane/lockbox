@@ -17,6 +17,11 @@ module Lockbox
           read.bytesize
         end
 
+        # based on CarrierWave::SanitizedFile#mime_magic_content_type
+        def content_type
+          @content_type ||= MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
+        end
+
         def rotate_encryption!
           io = Lockbox::IO.new(read)
           io.original_filename = file.filename
@@ -27,11 +32,6 @@ module Lockbox
           ensure
             self.enable_processing = previous_value
           end
-        end
-
-        # based on CarrierWave::SanitizedFile#mime_magic_content_type
-        def content_type
-          @content_type ||= MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
         end
 
         private
