@@ -1,8 +1,9 @@
-require "active_storage/engine" if Rails.version >= "5.2"
-
 Combustion.path = "test/internal"
 
-Combustion.initialize! :active_record, :active_job do
+components = [:active_record, :active_job]
+components << :active_storage if Rails.version >= "5.2"
+
+Combustion.initialize! *components do
   if ActiveRecord::VERSION::MAJOR < 6 && config.active_record.sqlite3.respond_to?(:represent_boolean_as_integer)
     config.active_record.sqlite3.represent_boolean_as_integer = true
   end
