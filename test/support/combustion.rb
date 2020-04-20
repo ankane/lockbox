@@ -18,3 +18,5 @@ Combustion.initialize! *components do
     config.active_storage.service = :test
   end
 end
+
+ActiveSupport::LogSubscriber.logger = $logger

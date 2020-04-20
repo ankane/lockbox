@@ -95,7 +95,7 @@ module Lockbox
 
         options = Utils.encrypted_options(record, name)
         if options
-          result = Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
+          result = Utils.decrypt_result(record, name, options, result)
         end
 
         result
@@ -106,13 +106,13 @@ module Lockbox
           blob.open(**options) do |file|
             options = Utils.encrypted_options(record, name)
             if options
-              result = file.read
+              result = Utils.decrypt_result(record, name, options, file.read)
               file.rewind
               # truncate may not be available on all platforms
               # according to the Ruby docs
               # may need to create a new temp file instead
               file.truncate(0)
-              file.write(Utils.build_box(record, options, record.class.table_name, name).decrypt(result))
+              file.write(result)
               file.rewind
             end
 

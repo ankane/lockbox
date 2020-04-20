@@ -11,6 +11,10 @@ module Lockbox
         end
         ActiveStorage::Attached::One.prepend(Lockbox::ActiveStorageExtensions::AttachedOne)
         ActiveStorage::Attached::Many.prepend(Lockbox::ActiveStorageExtensions::AttachedMany)
+
+        # notifications only used for Active Storage right now
+        require "lockbox/log_subscriber"
+        Lockbox::LogSubscriber.attach_to :lockbox
       end
 
       app.config.to_prepare do

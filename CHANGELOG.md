@@ -1,3 +1,7 @@
+## 0.3.7 (unreleased)
+
+- Added Active Support notifications for Active Storage encryption and decryption
+
 ## 0.3.6 (2020-04-19)
 
 - Fixed content type detection for Active Storage and CarrierWave
