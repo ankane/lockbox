@@ -8,7 +8,7 @@ module Lockbox
           @file = CarrierWave::SanitizedFile.new(lockbox.encrypt_io(file))
         end
 
-        # TODO safe to cache?
+        # TODO safe to memoize?
         def read
           r = super
           lockbox.decrypt(r) if r
@@ -20,7 +20,7 @@ module Lockbox
 
         # based on CarrierWave::SanitizedFile#mime_magic_content_type
         def content_type
-          @content_type ||= MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
+          MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
         end
 
         def rotate_encryption!
