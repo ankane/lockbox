@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "carrierwave"
-  spec.add_development_dependency "combustion"
+  spec.add_development_dependency "combustion", "~> 1.1.2" # 1.2.0 broken
   spec.add_development_dependency "rails"
   spec.add_development_dependency "minitest", ">= 5"
   spec.add_development_dependency "rake"
