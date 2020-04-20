@@ -83,5 +83,6 @@ class CarrierWaveTest < Minitest::Test
     user = User.last
     assert_equal message, user.document.read
     assert_equal "image/png", user.document.content_type
+    refute_equal message, user.document.file.read
   end
 end
