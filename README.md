@@ -464,12 +464,20 @@ end
 
 Once all files are rotated, you can remove `previous_versions` from the model.
 
+### Local Files
+
+For local files, use:
+
+```ruby
+Lockbox.new(key: key, previous_versions: [{key: previous_key}])
+```
+
 ### Strings
 
 For strings, use:
 
 ```ruby
-Lockbox.new(key: key, previous_versions: [{key: previous_key}])
+Lockbox.new(key: key, encode: true, previous_versions: [{key: previous_key}])
 ```
 
 ## Auditing
