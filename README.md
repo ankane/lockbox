@@ -380,32 +380,12 @@ Use `decrypt_str` get the value as UTF-8
 
 To make key rotation easy, you can pass previous versions of keys that can decrypt.
 
-### Active Record
+### Active Record & Mongoid
 
 Update your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, previous_versions: [{key: previous_key}]
-end
-```
-
-Use `master_key` instead of `key` if passing the master key.
-
-To rotate existing records, use:
-
-```ruby
-Lockbox.rotate(User, attributes: [:email])
-```
-
-Once all records are rotated, you can remove `previous_versions` from the model.
-
-### Mongoid
-
-Update your model:
-
-```ruby
-class User
   encrypts :email, previous_versions: [{key: previous_key}]
 end
 ```
