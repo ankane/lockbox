@@ -205,6 +205,8 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
+You can [migrate existing data](#migrate-existing-data) similarly to Active Record.
+
 ## Active Storage
 
 Add to your model:
