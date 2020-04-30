@@ -197,12 +197,16 @@ class ModelTest < Minitest::Test
   end
 
   def test_attributes
+    skip if mongoid?
+
     User.create!(email: "test@example.org")
     user = User.last
     assert_equal "test@example.org", user.attributes["email"]
   end
 
   def test_attributes_bad_ciphertext
+    skip if mongoid?
+
     User.create!(email_ciphertext: "bad")
     user = User.last
     assert_raises(Lockbox::DecryptionError) do
