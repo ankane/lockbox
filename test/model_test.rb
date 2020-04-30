@@ -196,6 +196,20 @@ class ModelTest < Minitest::Test
     assert_kind_of Time, user.signed_at2_was
   end
 
+  def test_attributes
+    User.create!(email: "test@example.org")
+    user = User.last
+    assert_equal "test@example.org", user.attributes["email"]
+  end
+
+  def test_attributes_bad_ciphertext
+    User.create!(email_ciphertext: "bad")
+    user = User.last
+    assert_raises(Lockbox::DecryptionError) do
+      user.attributes
+    end
+  end
+
   def test_inspect
     user = User.create!(email: "test@example.org")
     assert_nil user.serializable_hash["email"]
@@ -215,12 +229,10 @@ class ModelTest < Minitest::Test
     # reload
     user.reload
 
-    # not loaded yet
-    assert_nil user.attributes["email"]
-
     # loaded
-    assert_equal original_email, user.email
+    # ensure attributes is set before we call email
     assert_equal original_email, user.attributes["email"] unless mongoid?
+    assert_equal original_email, user.email
   end
 
   def test_update_columns

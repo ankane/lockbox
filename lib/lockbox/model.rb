@@ -81,6 +81,17 @@ module Lockbox
             end
 
             if activerecord
+              # TODO wrap in module?
+              def attributes
+                # load attributes
+                # essentially a no-op if already loaded
+                # an exception is thrown if decryption fails
+                self.class.lockbox_attributes.each do |_, lockbox_attribute|
+                  send(lockbox_attribute[:attribute])
+                end
+                super
+              end
+
               # needed for in-place modifications
               # assigned attributes are encrypted on assignment
               # and then again here

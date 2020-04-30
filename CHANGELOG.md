@@ -1,3 +1,7 @@
+## 0.4.0 (unreleased)
+
+- Load encrypted attributes when `attributes` called
+
 ## 0.3.7 (2020-04-20)
 
 - Added Active Support notifications for Active Storage and Carrierwave
