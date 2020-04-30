@@ -2,6 +2,7 @@
 
 - Load encrypted attributes when `attributes` called
 - Removed deprecated `attached_encrypted` method
+- Removed legacy `attr_encrypted` encryptor
 
 ## 0.3.7 (2020-04-20)
 
