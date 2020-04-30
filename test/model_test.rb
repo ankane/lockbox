@@ -434,6 +434,22 @@ class ModelTest < Minitest::Test
     refute_equal original_email_ciphertext, user.email_ciphertext
   end
 
+  def test_rotate_relation
+    users =
+      2.times.map do |i|
+        User.create!(email: "test#{i}@example.org")
+      end
+
+    original_ciphertexts = users.map(&:email_ciphertext)
+
+    Lockbox.rotate(User.where(id: users.last.id), attributes: [:email])
+
+    new_ciphertexts = User.order(:id).map(&:email_ciphertext)
+
+    assert_equal original_ciphertexts.first, new_ciphertexts.first
+    refute_equal original_ciphertexts.last, new_ciphertexts.last
+  end
+
   def test_rotate_bad_attribute
     error = assert_raises(ArgumentError) do
       Lockbox.rotate(User, attributes: [:bad])
