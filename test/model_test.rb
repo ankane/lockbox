@@ -434,17 +434,12 @@ class ModelTest < Minitest::Test
   end
 
   def test_rotate_relation
-    users =
-      2.times.map do |i|
-        User.create!(email: "test#{i}@example.org")
-      end
-
+    users = 2.times.map { |i| User.create!(email: "test#{i}@example.org") }
     original_ciphertexts = users.map(&:email_ciphertext)
 
     Lockbox.rotate(User.where(id: users.last.id), attributes: [:email])
 
     new_ciphertexts = users.map(&:reload).map(&:email_ciphertext)
-
     assert_equal original_ciphertexts.first, new_ciphertexts.first
     refute_equal original_ciphertexts.last, new_ciphertexts.last
   end
