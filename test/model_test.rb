@@ -361,13 +361,12 @@ class ModelTest < Minitest::Test
   end
 
   def test_migrate_relation
-    Robot.create!(name: "Hi")
-    Robot.create!(name: "Bye")
+    robots = ["Hi", "Bye"].map { |v| Robot.create!(name: v) }
     Robot.update_all(name_ciphertext: nil)
-    Lockbox.migrate(Robot.order(:id).limit(1))
-    robot1, robot2 = Robot.order(:id).to_a
-    assert_equal robot1.name, robot1.migrated_name
-    assert_nil robot2.migrated_name
+    Lockbox.migrate(Robot.where(id: robots.first.id))
+    robots.map(&:reload)
+    assert_equal robots.first.name, robots.first.migrated_name
+    assert_nil robots.last.migrated_name
   end
 
   def test_migrate_restart
@@ -444,7 +443,7 @@ class ModelTest < Minitest::Test
 
     Lockbox.rotate(User.where(id: users.last.id), attributes: [:email])
 
-    new_ciphertexts = User.order(:id).map(&:email_ciphertext)
+    new_ciphertexts = users.map(&:reload).map(&:email_ciphertext)
 
     assert_equal original_ciphertexts.first, new_ciphertexts.first
     refute_equal original_ciphertexts.last, new_ciphertexts.last
