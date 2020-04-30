@@ -402,12 +402,6 @@ module Lockbox
           end
         end
       end
-
-      # TODO remove in future version
-      def attached_encrypted(attribute, **options)
-        warn "[lockbox] DEPRECATION WARNING: Use encrypts_attached instead"
-        encrypts_attached(attribute, **options)
-      end
     end
   end
 end
