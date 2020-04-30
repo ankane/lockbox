@@ -361,8 +361,6 @@ class ModelTest < Minitest::Test
   end
 
   def test_migrate_relation
-    skip "waiting for 0.4.0"
-
     Robot.create!(name: "Hi")
     Robot.create!(name: "Bye")
     Robot.update_all(name_ciphertext: nil)

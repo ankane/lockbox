@@ -40,9 +40,6 @@ module Lockbox
       # unscope if passed a model
       unless ar_relation?(relation) || mongoid_relation?(relation)
         relation = relation.unscoped
-      else
-        # TODO remove in 0.4.0
-        relation = relation.unscoped
       end
 
       # convert from possible class to ActiveRecord::Relation or Mongoid::Criteria

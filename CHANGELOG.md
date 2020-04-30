@@ -1,6 +1,7 @@
 ## 0.4.0 (unreleased)
 
 - Load encrypted attributes when `attributes` called
+- Added support for migrating and rotating relations
 - Removed deprecated `attached_encrypted` method
 - Removed legacy `attr_encrypted` encryptor
 
