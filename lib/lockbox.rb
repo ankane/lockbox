@@ -29,8 +29,6 @@ if defined?(ActiveSupport)
 
   ActiveSupport.on_load(:mongoid) do
     Mongoid::Document::ClassMethods.include(Lockbox::Model)
-    # TODO remove in 0.4.0
-    Mongoid::Document::ClassMethods.include(Lockbox::Model::Attached)
   end
 end
 
