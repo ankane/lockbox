@@ -1,4 +1,4 @@
-## 0.4.0 (unreleased)
+## 0.4.0 (2020-05-03)
 
 - Load encrypted attributes when `attributes` called
 - Added support for migrating and rotating relations
