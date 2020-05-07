@@ -1,5 +1,28 @@
-## 0.3.4 (unreleased)
+## 0.4.0 (2020-05-03)
 
+- Load encrypted attributes when `attributes` called
+- Added support for migrating and rotating relations
+- Removed deprecated `attached_encrypted` method
+- Removed legacy `attr_encrypted` encryptor
+
+## 0.3.7 (2020-04-20)
+
+- Added Active Support notifications for Active Storage and Carrierwave
+
+## 0.3.6 (2020-04-19)
+
+- Fixed content type detection for Active Storage and CarrierWave
+- Fixed decryption with Active Storage 6 and `attachment.open`
+
+## 0.3.5 (2020-04-13)
+
+- Added `array` type
+- Fixed serialize error with `json` type
+- Fixed empty hash with `hash` type
+
+## 0.3.4 (2020-04-05)
+
+- Fixed `migrating: true` with `validate: false`
 - Fixed serialization when migrating certain column types
 
 ## 0.3.3 (2020-02-16)

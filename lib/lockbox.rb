@@ -19,6 +19,9 @@ require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
 require "lockbox/railtie" if defined?(Rails)
 
 if defined?(ActiveSupport)
+  require "lockbox/log_subscriber"
+  Lockbox::LogSubscriber.attach_to :lockbox
+
   ActiveSupport.on_load(:active_record) do
     extend Lockbox::Model
     extend Lockbox::Model::Attached
@@ -26,8 +29,6 @@ if defined?(ActiveSupport)
 
   ActiveSupport.on_load(:mongoid) do
     Mongoid::Document::ClassMethods.include(Lockbox::Model)
-    # TODO remove in 0.4.0
-    Mongoid::Document::ClassMethods.include(Lockbox::Model::Attached)
   end
 end
 

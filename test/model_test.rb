@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class ActiveRecordTest < Minitest::Test
+class ModelTest < Minitest::Test
   def setup
     User.delete_all
   end
@@ -50,6 +50,7 @@ class ActiveRecordTest < Minitest::Test
   end
 
   # ensure consistent with normal attributes
+  # https://github.com/rails/rails/blob/master/activemodel/lib/active_model/dirty.rb
   def test_dirty
     original_name = "Test"
     original_email = "test@example.org"
@@ -82,6 +83,7 @@ class ActiveRecordTest < Minitest::Test
     assert !user.name_changed?
     assert !user.email_changed?
     assert !user.changed?
+    assert_equal [], user.changed
 
     # update
     user.name = new_name
@@ -91,6 +93,11 @@ class ActiveRecordTest < Minitest::Test
     assert user.name_changed?
     assert user.email_changed?
     assert user.changed?
+    if mongoid?
+      assert_equal ["email_ciphertext", "name"], user.changed.sort
+    else
+      assert_equal ["email", "email_ciphertext", "name"], user.changed.sort
+    end
 
     # ensure was
     assert_equal original_name, user.name_was
@@ -135,7 +142,20 @@ class ActiveRecordTest < Minitest::Test
     user = User.create!(name: original_name, email: original_email)
     user = User.last
 
+    assert !user.name_previously_changed?
+    assert !user.email_previously_changed?
+
     user.update!(name: new_name, email: new_email)
+
+    assert user.name_previously_changed?
+    assert user.email_previously_changed?
+
+    assert_equal [original_name, new_name], user.name_previous_change
+    assert_equal [original_email, new_email], user.email_previous_change
+
+    # TODO enable for Rails 6.1
+    # assert_equal original_name, user.name_previously_was
+    # assert_equal original_email, user.email_previously_was
 
     # ensure updated
     assert_equal original_name, user.name_before_last_save
@@ -150,6 +170,47 @@ class ActiveRecordTest < Minitest::Test
       assert user.email_changed?
     else
       assert_nil user.email_was
+    end
+  end
+
+  def test_dirty_nil
+    user = User.new
+    assert_nil user.email
+    user.email = "test@example.org"
+    assert_nil user.email_was
+    assert_nil user.changes["email"][0] unless mongoid?
+    user.email = "new@example.org"
+    assert_nil user.email_was
+    assert_nil user.changes["email"][0] unless mongoid?
+    user.email = nil
+    assert_nil user.email_was
+    assert_empty user.changes unless mongoid?
+  end
+
+  def test_dirty_type_cast
+    skip if mongoid?
+
+    user = User.create!(signed_at2: Time.now)
+    user = User.last
+    user.signed_at2 = Time.now
+    assert_kind_of Time, user.signed_at2_was
+  end
+
+  def test_attributes
+    skip if mongoid?
+
+    User.create!(email: "test@example.org")
+    user = User.last
+    assert_equal "test@example.org", user.attributes["email"]
+  end
+
+  def test_attributes_bad_ciphertext
+    skip if mongoid?
+
+    User.create!(email_ciphertext: "bad")
+    user = User.last
+    assert_raises(Lockbox::DecryptionError) do
+      user.attributes
     end
   end
 
@@ -172,12 +233,23 @@ class ActiveRecordTest < Minitest::Test
     # reload
     user.reload
 
-    # not loaded yet
-    assert_nil user.attributes["email"]
-
     # loaded
-    assert_equal original_email, user.email
+    # ensure attributes is set before we call email
     assert_equal original_email, user.attributes["email"] unless mongoid?
+    assert_equal original_email, user.email
+  end
+
+  def test_update_columns
+    skip if mongoid?
+
+    user = User.create!(name: "Test", email: "test@example.org")
+
+    user.update_columns(name: "New")
+    # will fail
+    # debatable if this is the right behavior
+    assert_raises(ActiveRecord::StatementInvalid) do
+      user.update_columns(email: "new@example.org")
+    end
   end
 
   def test_nil
@@ -289,15 +361,12 @@ class ActiveRecordTest < Minitest::Test
   end
 
   def test_migrate_relation
-    skip "waiting for 0.4.0"
-
-    Robot.create!(name: "Hi")
-    Robot.create!(name: "Bye")
+    robots = ["Hi", "Bye"].map { |v| Robot.create!(name: v) }
     Robot.update_all(name_ciphertext: nil)
-    Lockbox.migrate(Robot.order(:id).limit(1))
-    robot1, robot2 = Robot.order(:id).to_a
-    assert_equal robot1.name, robot1.migrated_name
-    assert_nil robot2.migrated_name
+    Lockbox.migrate(Robot.where(id: robots.first.id))
+    robots.map(&:reload)
+    assert_equal robots.first.name, robots.first.migrated_name
+    assert_nil robots.last.migrated_name
   end
 
   def test_migrate_restart
@@ -310,6 +379,40 @@ class ActiveRecordTest < Minitest::Test
     robot = Robot.last
     assert_equal robot.name, robot.migrated_name
     assert_equal robot.email, robot.migrated_email
+  end
+
+  def test_migrating_assignment
+    Robot.create!(name: "Hi")
+    Robot.update_all(name_ciphertext: nil)
+    robot = Robot.last
+    robot.name = "Bye"
+    assert_equal "Bye", robot.migrated_name
+    robot.save(validate: false)
+    assert_equal "Bye", Robot.last.migrated_name
+  end
+
+  def test_migrating_update_columns
+    skip if mongoid?
+
+    robot = Robot.create!(name: "Hi")
+    robot.update_column(:name, "Bye")
+    robot.update_columns(name: "Bye")
+
+    # does not affect update column
+    # debatable if this is the right behavior
+    assert_equal "Bye", robot.name
+    assert_equal "Hi", robot.migrated_name
+  end
+
+  def test_migrating_restore_reset
+    robot = Robot.create!(name: "Hi")
+    robot.name = "Bye"
+    if mongoid?
+      robot.reset_name!
+    else
+      robot.restore_name!
+    end
+    assert_equal "Hi", robot.migrated_name
   end
 
   def test_rotate
@@ -328,6 +431,17 @@ class ActiveRecordTest < Minitest::Test
     assert_equal "test9@example.org", user.email
     assert_equal original_city_ciphertext, user.city_ciphertext
     refute_equal original_email_ciphertext, user.email_ciphertext
+  end
+
+  def test_rotate_relation
+    users = 2.times.map { |i| User.create!(email: "test#{i}@example.org") }
+    original_ciphertexts = users.map(&:email_ciphertext)
+
+    Lockbox.rotate(User.where(id: users.last.id), attributes: [:email])
+
+    new_ciphertexts = users.map(&:reload).map(&:email_ciphertext)
+    assert_equal original_ciphertexts.first, new_ciphertexts.first
+    refute_equal original_ciphertexts.last, new_ciphertexts.last
   end
 
   def test_rotate_bad_attribute

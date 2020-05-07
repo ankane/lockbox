@@ -104,6 +104,7 @@ class User < ApplicationRecord
   encrypts :video, type: :binary
   encrypts :properties, type: :json
   encrypts :settings, type: :hash
+  encrypts :messages, type: :array
 end
 ```
 
@@ -237,6 +238,8 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
+You can [migrate existing data](#migrating-existing-data) similarly to Active Record.
+
 ## Active Storage
 
 Add to your model:
@@ -348,19 +351,35 @@ To serve encrypted files, use a controller action.
 ```ruby
 def license
   user = User.find(params[:id])
-  send_data box.decrypt(user.license.read), type: user.license.mime_type
+  send_data lockbox.decrypt(user.license.read), type: user.license.mime_type
 end
 ```
 
 ## Local Files
 
-Read the file as a binary string
+Generate a key
 
 ```ruby
-message = File.binread("file.txt")
+key = Lockbox.generate_key
 ```
 
-Then follow the instructions for encrypting a string below.
+Create a lockbox
+
+```ruby
+lockbox = Lockbox.new(key: key)
+```
+
+Encrypt
+
+```ruby
+ciphertext = lockbox.encrypt(File.binread("file.txt"))
+```
+
+Decrypt
+
+```ruby
+lockbox.decrypt(ciphertext)
+```
 
 ## Strings
 
@@ -394,32 +413,12 @@ Use `decrypt_str` get the value as UTF-8
 
 To make key rotation easy, you can pass previous versions of keys that can decrypt.
 
-### Active Record
+### Active Record & Mongoid
 
 Update your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, previous_versions: [{key: previous_key}]
-end
-```
-
-Use `master_key` instead of `key` if passing the master key.
-
-To rotate existing records, use:
-
-```ruby
-Lockbox.rotate(User, attributes: [:email])
-```
-
-Once all records are rotated, you can remove `previous_versions` from the model.
-
-### Mongoid
-
-Update your model:
-
-```ruby
-class User
   encrypts :email, previous_versions: [{key: previous_key}]
 end
 ```
@@ -478,9 +477,9 @@ end
 
 Once all files are rotated, you can remove `previous_versions` from the model.
 
-### Strings
+### Local Files & Strings
 
-For strings, use:
+For local files and strings, use:
 
 ```ruby
 Lockbox.new(key: key, previous_versions: [{key: previous_key}])
@@ -505,7 +504,7 @@ class UsersController < ApplicationController
     LockboxAudit.create!(
       subject: @user,
       viewer: current_user,
-      data: ["email", "dob"],
+      data: ["name", "email"],
       context: "#{controller_name}##{action_name}",
       ip: request.remote_ip
     )
@@ -812,6 +811,20 @@ end
 
 ## Upgrading
 
+### 0.3.6
+
+0.3.6 makes content type detection more reliable for Active Storage. You can check and update the content type of existing files with:
+
+```ruby
+User.find_each do |user|
+  license = user.license
+  content_type = Marcel::MimeType.for(license.download, name: license.filename.to_s)
+  if content_type != license.content_type
+    license.update!(content_type: content_type)
+  end
+end
+```
+
 ### 0.2.0
 
 0.2.0 brings a number of improvements. Here are a few to be aware of:
@@ -869,7 +882,7 @@ Everyone is encouraged to help improve this project. Here are a few ways you can
 - Write, clarify, or fix documentation
 - Suggest or add new features
 
-To get started with development and testing:
+To get started with development, [install Libsodium](https://github.com/crypto-rb/rbnacl/wiki/Installing-libsodium) and run:
 
 ```sh
 git clone https://github.com/ankane/lockbox.git

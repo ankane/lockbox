@@ -2,6 +2,7 @@ module Lockbox
   class Utils
     def self.build_box(context, options, table, attribute)
       options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type)
+      options[:encode] = false unless options.key?(:encode)
       options.each do |k, v|
         if v.is_a?(Proc)
           options[k] = context.instance_exec(&v) if v.respond_to?(:call)
@@ -46,27 +47,43 @@ module Lockbox
     end
 
     def self.encrypt_attachable(record, name, attachable)
-      options = encrypted_options(record, name)
-      box = build_box(record, options, record.class.table_name, name)
+      io = nil
 
-      case attachable
-      when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
-        attachable = {
-          io: box.encrypt_io(attachable),
-          filename: attachable.original_filename,
-          content_type: attachable.content_type
-        }
-      when Hash
-        attachable = {
-          io: box.encrypt_io(attachable[:io]),
-          filename: attachable[:filename],
-          content_type: attachable[:content_type]
-        }
-      else
-        raise NotImplementedError, "Not supported"
+      ActiveSupport::Notifications.instrument("encrypt_file.lockbox", {name: name}) do
+        options = encrypted_options(record, name)
+        box = build_box(record, options, record.class.table_name, name)
+
+        case attachable
+        when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
+          io = attachable
+          attachable = {
+            io: box.encrypt_io(io),
+            filename: attachable.original_filename,
+            content_type: attachable.content_type
+          }
+        when Hash
+          io = attachable[:io]
+          attachable = {
+            io: box.encrypt_io(io),
+            filename: attachable[:filename],
+            content_type: attachable[:content_type]
+          }
+        else
+          raise NotImplementedError, "Not supported"
+        end
       end
 
+      # set content type based on unencrypted data
+      # keep synced with ActiveStorage::Blob#extract_content_type
+      attachable[:io].extracted_content_type = Marcel::MimeType.for(io, name: attachable[:filename].to_s, declared_type: attachable[:content_type])
+
       attachable
+    end
+
+    def self.decrypt_result(record, name, options, result)
+      ActiveSupport::Notifications.instrument("decrypt_file.lockbox", {name: name}) do
+        Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
+      end
     end
   end
 end

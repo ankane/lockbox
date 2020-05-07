@@ -59,8 +59,6 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_encrypt_create
-    skip if ActiveStorage::VERSION::MAJOR >= 6
-
     message = "hello world"
 
     file = Tempfile.new
@@ -156,19 +154,22 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_image
-    path = "test/support/image.png"
-    user = User.create!
-    user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")
+    # run many times to make sure content type is detected correctly
+    iterations = ENV["CI"] ? 1000 : 1
+    iterations.times do
+      path = "test/support/image.png"
+      user = User.create!
+      user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")
 
-    # flaky
-    # assert_equal "image/png", user.avatar.content_type
-    assert_equal "image.png", user.avatar.filename.to_s
-    assert_equal File.binread(path), user.avatar.download
+      assert_equal "image/png", user.avatar.content_type
+      assert_equal "image.png", user.avatar.filename.to_s
+      assert_equal File.binread(path), user.avatar.download
 
-    user = User.last
-    assert_equal "image/png", user.avatar.content_type
-    assert_equal "image.png", user.avatar.filename.to_s
-    assert_equal File.binread(path), user.avatar.download
+      user = User.last
+      assert_equal "image/png", user.avatar.content_type
+      assert_equal "image.png", user.avatar.filename.to_s
+      assert_equal File.binread(path), user.avatar.download
+    end
   end
 
   def test_has_one_attached_with_no_encrypted_attachments
@@ -177,5 +178,17 @@ class ActiveStorageTest < Minitest::Test
     post.photo.attach(io: StringIO.new(message), filename: "test.txt")
     assert_equal message, post.photo.download
     assert_equal message, post.photo.blob.download
+  end
+
+  def test_open
+    skip if ActiveStorage::VERSION::MAJOR < 6
+
+    path = "test/support/image.png"
+    user = User.create!
+    user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")
+
+    user.avatar.open do |f|
+      assert_equal File.binread(path), f.read
+    end
   end
 end

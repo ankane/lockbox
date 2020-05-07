@@ -70,7 +70,7 @@ module Lockbox
           nonce, ciphertext = extract_nonce(@box, ciphertext)
           @box.decrypt(nonce, ciphertext, associated_data)
         end
-      message = Lockbox.unpad(message, size: @padding) if @padding
+      message = Lockbox.unpad!(message, size: @padding) if @padding
       message
     end
 

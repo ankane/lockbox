@@ -3,16 +3,24 @@ module Lockbox
     PAD_FIRST_BYTE = "\x80".b
     PAD_ZERO_BYTE = "\x00".b
 
+    def pad(str, **options)
+      pad!(str.dup, **options)
+    end
+
+    def unpad(str, **options)
+      unpad!(str.dup, **options)
+    end
+
     # ISO/IEC 7816-4
     # same as Libsodium
     # https://libsodium.gitbook.io/doc/padding
     # apply prior to encryption
     # note: current implementation does not
     # try to minimize side channels
-    def pad(str, size: 16)
+    def pad!(str, size: 16)
       raise ArgumentError, "Invalid size" if size < 1
 
-      str = str.dup.force_encoding(Encoding::BINARY)
+      str.force_encoding(Encoding::BINARY)
 
       pad_length = size - 1
       pad_length -= str.bytesize % size
@@ -27,12 +35,10 @@ module Lockbox
 
     # note: current implementation does not
     # try to minimize side channels
-    def unpad(str, size: 16)
+    def unpad!(str, size: 16)
       raise ArgumentError, "Invalid size" if size < 1
 
-      if str.encoding != Encoding::BINARY
-        str = str.dup.force_encoding(Encoding::BINARY)
-      end
+      str.force_encoding(Encoding::BINARY)
 
       i = 1
       while i <= size
@@ -40,7 +46,8 @@ module Lockbox
         when PAD_ZERO_BYTE
           i += 1
         when PAD_FIRST_BYTE
-          return str[0..-(i + 1)]
+          str.slice!(-i..-1)
+          return str
         else
           break
         end

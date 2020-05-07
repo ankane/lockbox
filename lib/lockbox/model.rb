@@ -11,6 +11,8 @@ module Lockbox
       #   options[:type] = :json
       # when Hash
       #   options[:type] = :hash
+      # when Array
+      #   options[:type] = :array
       # when String
       #   options[:type] = :string
       # when Integer
@@ -20,7 +22,7 @@ module Lockbox
       # end
 
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
-      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash].include?(options[:type])
+      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash, :array].include?(options[:type])
 
       activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
       raise ArgumentError, "Type not supported yet with Mongoid" if options[:type] && !activerecord
@@ -79,6 +81,17 @@ module Lockbox
             end
 
             if activerecord
+              # TODO wrap in module?
+              def attributes
+                # load attributes
+                # essentially a no-op if already loaded
+                # an exception is thrown if decryption fails
+                self.class.lockbox_attributes.each do |_, lockbox_attribute|
+                  send(lockbox_attribute[:attribute])
+                end
+                super
+              end
+
               # needed for in-place modifications
               # assigned attributes are encrypted on assignment
               # and then again here
@@ -112,7 +125,7 @@ module Lockbox
             if options[:type]
               attribute_type =
                 case options[:type]
-                when :json, :hash
+                when :json, :hash, :array
                   :string
                 when :integer
                   ActiveModel::Type::Integer.new(limit: 8)
@@ -124,6 +137,7 @@ module Lockbox
 
               serialize name, JSON if options[:type] == :json
               serialize name, Hash if options[:type] == :hash
+              serialize name, Array if options[:type] == :array
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
               # when migrating it's best to specify the type directly
               # however, we can try to use the original type if its already defined
@@ -223,19 +237,23 @@ module Lockbox
           define_method(name) do
             message = super()
 
-            unless message
+            # possibly keep track of decrypted attributes directly in the future
+            # Hash serializer returns {} when nil, Array serializer returns [] when nil
+            # check for this explicitly as a layer of safety
+            if message.nil? || ((message == {} || message == []) && activerecord && @attributes[name.to_s].value_before_type_cast.nil?)
               ciphertext = send(encrypted_attribute)
               message = self.class.send(decrypt_method_name, ciphertext, context: self)
 
               if activerecord
-                # set previous attribute on first decrypt
-                if @attributes[name.to_s]
-                  @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
-                end
+                # set previous attribute so changes populate correctly
+                # it's fine if this is set on future decryptions (as is the case when message is nil)
+                # as only the first value is loaded into changes
+                @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
 
                 # cache
-                if respond_to?(:_write_attribute, true)
-                  _write_attribute(name, message) if !@attributes.frozen?
+                # decrypt method does type casting
+                if respond_to?(:write_attribute_without_type_cast, true)
+                  write_attribute_without_type_cast(name, message) if !@attributes.frozen?
                 else
                   raw_write_attribute(name, message) if !@attributes.frozen?
                 end
@@ -252,7 +270,7 @@ module Lockbox
             table = activerecord ? table_name : collection_name.to_s
 
             unless message.nil?
-              # TODO use attribute type class in 0.4.0
+              # TODO use attribute type class in 0.5.0
               case options[:type]
               when :boolean
                 message = ActiveRecord::Type::Boolean.new.serialize(message)
@@ -306,7 +324,7 @@ module Lockbox
               end
 
             unless message.nil?
-              # TODO use attribute type class in 0.4.0
+              # TODO use attribute type class in 0.5.0
               case options[:type]
               when :boolean
                 message = message == "t"
@@ -336,9 +354,23 @@ module Lockbox
           end
 
           if options[:migrating]
-            before_validation do
-              send("#{name}=", send(original_name)) if send("#{original_name}_changed?")
+            # TODO reuse module
+            m = Module.new do
+              define_method "#{original_name}=" do |value|
+                result = super(value)
+                send("#{name}=", send(original_name))
+                result
+              end
+
+              unless activerecord
+                define_method "reset_#{original_name}!" do
+                  result = super()
+                  send("#{name}=", send(original_name))
+                  result
+                end
+              end
             end
+            prepend m
           end
         end
       end
@@ -369,12 +401,6 @@ module Lockbox
             @lockbox_attachments[name] = options
           end
         end
-      end
-
-      # TODO remove in future version
-      def attached_encrypted(attribute, **options)
-        warn "[lockbox] DEPRECATION WARNING: Use encrypts_attached instead"
-        encrypts_attached(attribute, **options)
       end
     end
   end

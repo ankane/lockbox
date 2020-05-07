@@ -3,6 +3,8 @@ module Lockbox
     def initialize(**options)
       options = Lockbox.default_options.merge(options)
       @encode = options.delete(:encode)
+      # option may be renamed to binary: true
+      # warn "[lockbox] Lockbox 1.0 will default to encode: true. Pass encode: false to keep the current behavior." if @encode.nil?
       previous_versions = options.delete(:previous_versions)
 
       @boxes =
@@ -79,23 +81,6 @@ module Lockbox
         end
       target.content_type = source.content_type if source.respond_to?(:content_type)
       target.set_encoding(source.external_encoding) if source.respond_to?(:external_encoding)
-    end
-
-    # legacy for attr_encrypted
-    def self.encrypt(options)
-      box(options).encrypt(options[:value])
-    end
-
-    # legacy for attr_encrypted
-    def self.decrypt(options)
-      box(options).decrypt(options[:value])
-    end
-
-    # legacy for attr_encrypted
-    def self.box(options)
-      options = options.slice(:key, :encryption_key, :decryption_key, :algorithm, :previous_versions)
-      options[:algorithm] = "aes-gcm" if options[:algorithm] == "aes-256-gcm"
-      Lockbox.new(options)
     end
   end
 end

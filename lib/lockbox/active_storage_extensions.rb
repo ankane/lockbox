@@ -95,10 +95,30 @@ module Lockbox
 
         options = Utils.encrypted_options(record, name)
         if options
-          result = Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
+          result = Utils.decrypt_result(record, name, options, result)
         end
 
         result
+      end
+
+      if ActiveStorage::VERSION::MAJOR >= 6
+        def open(**options)
+          blob.open(**options) do |file|
+            options = Utils.encrypted_options(record, name)
+            if options
+              result = Utils.decrypt_result(record, name, options, file.read)
+              file.rewind
+              # truncate may not be available on all platforms
+              # according to the Ruby docs
+              # may need to create a new temp file instead
+              file.truncate(0)
+              file.write(result)
+              file.rewind
+            end
+
+            yield file
+          end
+        end
       end
 
       def mark_analyzed
@@ -109,6 +129,18 @@ module Lockbox
 
       included do
         after_save :mark_analyzed
+      end
+    end
+
+    module Blob
+      private
+
+      def extract_content_type(io)
+        if io.is_a?(Lockbox::IO) && io.extracted_content_type
+          io.extracted_content_type
+        else
+          super
+        end
       end
     end
   end

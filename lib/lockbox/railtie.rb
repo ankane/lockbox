@@ -16,6 +16,7 @@ module Lockbox
       app.config.to_prepare do
         if defined?(ActiveStorage)
           ActiveStorage::Attachment.include(Lockbox::ActiveStorageExtensions::Attachment)
+          ActiveStorage::Blob.prepend(Lockbox::ActiveStorageExtensions::Blob)
         end
       end
     end

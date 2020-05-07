@@ -217,6 +217,19 @@ class ModelTypesTest < Minitest::Test
     assert_equal "world", user.data2["c"]
   end
 
+  def test_type_json_save_twice
+    data2 = {a: 1, b: "hi"}
+    user = User.create!(data2: data2)
+    user.reload
+    user.save!
+
+    user.data2
+    user.save!
+
+    new_data2 = {"a" => 1, "b" => "hi"}
+    assert_equal new_data2, user.data2
+  end
+
   def test_type_hash
     info = {a: 1, b: "hi"}
     assert_attribute :info, info, format: info.to_yaml
@@ -246,6 +259,58 @@ class ModelTypesTest < Minitest::Test
     user.save!
     user = User.last
     assert_equal "world", user.info2[:c]
+  end
+
+  def test_type_hash_save_twice
+    info2 = {a: 1, b: "hi"}
+    user = User.create!(info2: info2)
+    user.reload
+    user.save!
+
+    user.info2
+    user.save!
+    assert_equal info2, user.info2
+  end
+
+  def test_type_array
+    coordinates = [1, 2, 3]
+    assert_attribute :coordinates, coordinates, format: coordinates.to_yaml
+
+    user = User.last
+    new_coordinates = [1, 2, 3, 4, 5]
+    user.coordinates = new_coordinates
+    assert_equal [coordinates, new_coordinates], user.changes["coordinates"]
+    user.coordinates2 = new_coordinates
+    assert_equal [coordinates, new_coordinates], user.changes["coordinates2"]
+  end
+
+  def test_type_array_invalid
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(coordinates: "invalid")
+    end
+
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(coordinates2: "invalid")
+    end
+  end
+
+  def test_type_array_in_place
+    user = User.create!(coordinates2: [1, 2, 3])
+    user.coordinates2[3] = 4
+    user.save!
+    user = User.last
+    assert_equal 4, user.coordinates2[3]
+  end
+
+  def test_type_array_save_twice
+    coordinates2 = [1, 2, 3]
+    user = User.create!(coordinates2: coordinates2)
+    user.reload
+    user.save!
+
+    user.coordinates2
+    user.save!
+    assert_equal coordinates2, user.coordinates2
   end
 
   def test_serialize_json
@@ -296,6 +361,36 @@ class ModelTypesTest < Minitest::Test
 
     assert_raises ActiveRecord::SerializationTypeMismatch do
       User.create!(settings2: "invalid")
+    end
+  end
+
+  def test_serialize_array
+    messages = [1, 2, 3]
+    assert_attribute :messages, messages, format: messages.to_yaml
+
+    user = User.last
+    new_messages = [4]
+    user.messages = new_messages
+    assert_equal [messages, new_messages], user.changes["messages"]
+    user.messages2 = new_messages
+    assert_equal [messages, new_messages], user.changes["messages2"]
+  end
+
+  def test_serialize_array_in_place
+    user = User.create!(messages2: [1, 2, 3])
+    user.messages2[3] = 4
+    user.save!
+    user = User.last
+    assert_equal 4, user.messages2[3]
+  end
+
+  def test_serialize_array_invalid
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(messages: "invalid")
+    end
+
+    assert_raises ActiveRecord::SerializationTypeMismatch do
+      User.create!(messages2: "invalid")
     end
   end
 
