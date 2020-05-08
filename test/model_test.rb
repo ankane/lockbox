@@ -545,6 +545,8 @@ class ModelTest < Minitest::Test
   end
 
   def test_unencrypted_column
+    skip if mongoid?
+
     assert_output(nil, /WARNING: Unencrypted column with same name: state/) do
       User.create!(state: "CA")
     end
