@@ -47,6 +47,7 @@ Then follow the instructions below for the data you want to encrypt.
 #### Database Fields
 
 - [Active Record](#active-record)
+- [Action Text](#action-text) [master]
 - [Mongoid](#mongoid)
 
 #### Files
@@ -184,6 +185,38 @@ class User < ApplicationRecord
   blind_index :email, migrating: true
 end
 ```
+
+## Action Text
+
+Create a migration with:
+
+```ruby
+class AddBodyCiphertextToRichTexts < ActiveRecord::Migration[6.0]
+  def change
+    add_column :action_text_rich_texts, :body_ciphertext, :text
+  end
+end
+```
+
+Create `config/initializers/lockbox.rb` with:
+
+```ruby
+Lockbox.encrypts_action_text_body(migrating: true)
+```
+
+Migrate existing data:
+
+```ruby
+Lockbox.migrate(ActionText::RichText)
+```
+
+Update the initializer:
+
+```ruby
+Lockbox.encrypts_action_text_body
+```
+
+And drop the unencrypted column.
 
 ## Mongoid
 

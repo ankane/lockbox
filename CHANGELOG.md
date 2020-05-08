@@ -1,3 +1,7 @@
+## 0.4.1 (unreleased)
+
+- Added support for Action Text
+
 ## 0.4.0 (2020-05-03)
 
 - Load encrypted attributes when `attributes` called

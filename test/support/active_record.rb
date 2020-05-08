@@ -73,6 +73,8 @@ class User < ActiveRecord::Base
   encrypts :coordinates2, type: :array
   encrypts :city, padding: true
   encrypts :ssn, encode: false
+
+  has_rich_text :content if respond_to?(:has_rich_text)
 end
 
 class Post < ActiveRecord::Base
