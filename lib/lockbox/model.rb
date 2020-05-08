@@ -223,6 +223,10 @@ module Lockbox
 
             send("lockbox_direct_#{name}=", message)
 
+            if activerecord && !options[:migrating] && self.class.column_names.include?(name.to_s)
+              warn "[lockbox] WARNING: Unencrypted column with same name: #{name}. Set `ignored_columns` or remove it to protect the data."
+            end
+
             super(message)
           end
 

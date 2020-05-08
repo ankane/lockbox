@@ -74,6 +74,8 @@ ActiveRecord::Schema.define do
     t.text :conf_ciphertext
     t.text :city_ciphertext
     t.binary :ssn_ciphertext
+    t.text :state
+    t.text :state_ciphertext
   end
 
   create_table :posts do |t|

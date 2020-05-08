@@ -544,6 +544,14 @@ class ModelTest < Minitest::Test
     assert_no_plaintext_attributes
   end
 
+  def test_unencrypted_column
+    assert_output(nil, /WARNING: Unencrypted column with same name: state/) do
+      User.create!(state: "CA")
+    end
+    result = User.connection.select_all("SELECT state FROM users").to_a
+    assert_equal [{"state" => "CA"}], result
+  end
+
   private
 
   def assert_no_plaintext_attributes
