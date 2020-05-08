@@ -47,7 +47,7 @@ Then follow the instructions below for the data you want to encrypt.
 #### Database Fields
 
 - [Active Record](#active-record)
-- [Action Text](#action-text) [master]
+- [Action Text](#action-text)
 - [Mongoid](#mongoid)
 
 #### Files

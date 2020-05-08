@@ -1,4 +1,4 @@
-## 0.4.1 (unreleased)
+## 0.4.1 (2020-05-08)
 
 - Added support for Action Text
 - Added warning if unencrypted column exists and not migrating
