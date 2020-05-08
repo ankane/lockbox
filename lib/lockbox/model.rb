@@ -223,8 +223,16 @@ module Lockbox
 
             send("lockbox_direct_#{name}=", message)
 
-            if activerecord && !options[:migrating] && self.class.column_names.include?(name.to_s)
-              warn "[lockbox] WARNING: Unencrypted column with same name: #{name}. Set `ignored_columns` or remove it to protect the data."
+            if !options[:migrating]
+              if activerecord
+                if self.class.columns_hash.key?(name.to_s)
+                  warn "[lockbox] WARNING: Unencrypted column with same name: #{name}. Set `ignored_columns` or remove it to protect the data."
+                end
+              else
+                if self.class.fields.key?(name.to_s)
+                  warn "[lockbox] WARNING: Unencrypted field with same name: #{name}. Remove it to protect the data."
+                end
+              end
             end
 
             super(message)

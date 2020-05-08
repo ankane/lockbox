@@ -13,6 +13,8 @@ class User
   field :phone_ciphertext, type: String
   field :city_ciphertext, type: String
   field :ssn_ciphertext, type: BSON::Binary
+  field :state, type: String
+  field :state_ciphertext, type: String
 
   encrypts :email, previous_versions: [{key: Lockbox.generate_key}]
 
@@ -21,6 +23,7 @@ class User
 
   encrypts :city, padding: true
   encrypts :ssn, encode: false
+  encrypts :state
 end
 
 class Guard

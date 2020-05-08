@@ -545,13 +545,17 @@ class ModelTest < Minitest::Test
   end
 
   def test_unencrypted_column
-    skip if mongoid?
-
-    assert_output(nil, /WARNING: Unencrypted column with same name: state/) do
-      User.create!(state: "CA")
+    if mongoid?
+      assert_output(nil, /WARNING: Unencrypted field with same name: state/) do
+        User.create!(state: "CA")
+      end
+    else
+      assert_output(nil, /WARNING: Unencrypted column with same name: state/) do
+        User.create!(state: "CA")
+      end
+      result = User.connection.select_all("SELECT state FROM users").to_a
+      assert_equal [{"state" => "CA"}], result
     end
-    result = User.connection.select_all("SELECT state FROM users").to_a
-    assert_equal [{"state" => "CA"}], result
   end
 
   private
