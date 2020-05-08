@@ -223,6 +223,8 @@ module Lockbox
 
             send("lockbox_direct_#{name}=", message)
 
+            # warn every time, as this should be addressed
+            # maybe throw an error in the future
             if !options[:migrating]
               if activerecord
                 if self.class.columns_hash.key?(name.to_s)
