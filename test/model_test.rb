@@ -549,10 +549,13 @@ class ModelTest < Minitest::Test
       assert_output(nil, /WARNING: Unencrypted field with same name: state/) do
         User.create!(state: "CA")
       end
+      # not currently saved, but this is not guaranted
+      assert_equal ["_id", "state_ciphertext"], User.collection.find.first.keys
     else
       assert_output(nil, /WARNING: Unencrypted column with same name: state/) do
         User.create!(state: "CA")
       end
+      # currently saved
       result = User.connection.select_all("SELECT state FROM users").to_a
       assert_equal [{"state" => "CA"}], result
     end
