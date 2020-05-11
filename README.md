@@ -327,7 +327,13 @@ User.with_attached_licenses.find_each do |user|
 end
 ```
 
-Once everything is migrated, update your application to use the new key.
+Once everything is migrated, update your application to use the new key. Then delete the unencrypted files:
+
+```ruby
+User.with_attached_license.find_each do |user|
+  user.license.purge
+end
+```
 
 ## CarrierWave
 
