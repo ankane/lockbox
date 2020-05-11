@@ -276,7 +276,7 @@ def license
 end
 ```
 
-#### Migrating Existing Files [master, experimental]
+#### Migrating Existing Files [experimental]
 
 **Note:** This feature is experimental. Please try it in a non-production environment and let us know how it goes.
 

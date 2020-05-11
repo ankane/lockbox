@@ -1,4 +1,4 @@
-## 0.4.2 (unreleased)
+## 0.4.2 (2020-05-11)
 
 - Added experimental support for migrating Active Storage files
 - Fixed `metadata` support for Active Storage
