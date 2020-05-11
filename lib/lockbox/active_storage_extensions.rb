@@ -16,14 +16,6 @@ module Lockbox
       def encrypt_attachable(attachable)
         Utils.encrypt_attachable(record, name, attachable)
       end
-
-      def rebuild_attachable(attachment)
-        {
-          io: StringIO.new(attachment.download),
-          filename: attachment.filename,
-          content_type: attachment.content_type
-        }
-      end
     end
 
     module AttachedOne
@@ -37,7 +29,7 @@ module Lockbox
       def rotate_encryption!
         raise "Not encrypted" unless encrypted?
 
-        attach(rebuild_attachable(self)) if attached?
+        attach(Utils.rebuild_attachable(self)) if attached?
 
         true
       end
@@ -65,7 +57,7 @@ module Lockbox
 
         attachables =
           previous_attachments.map do |attachment|
-            rebuild_attachable(attachment)
+            Utils.rebuild_attachable(attachment)
           end
 
         ActiveStorage::Attachment.transaction do

@@ -24,26 +24,49 @@ module Lockbox
 
     # TODO add attributes option
     def migrate(restart:)
-      fields = model.lockbox_attributes.select { |k, v| v[:migrating] }
+      fields = model.respond_to?(:lockbox_attributes) ? model.lockbox_attributes.select { |k, v| v[:migrating] } : {}
 
       # need blind indexes for building relation
       blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
+      attachments = model.respond_to?(:lockbox_attachments) ? model.lockbox_attachments.select { |k, v| v[:migrating] } : {}
+
       perform(fields: fields, blind_indexes: blind_indexes, restart: restart) if fields.any? || blind_indexes.any?
+      perform_attachments(attachments: attachments, restart: restart) if attachments.any?
     end
 
     private
 
-    def perform(fields:, blind_indexes: [], restart: true, rotate: false)
-      relation = @relation
+    def perform_attachments(attachments:, restart:)
+      relation = base_relation
 
-      # unscope if passed a model
-      unless ar_relation?(relation) || mongoid_relation?(relation)
-        relation = relation.unscoped
+      # eager load attachments
+      attachments.each_key do |k|
+        relation = relation.send("with_attached_#{k}")
       end
 
-      # convert from possible class to ActiveRecord::Relation or Mongoid::Criteria
-      relation = relation.all
+      each_batch(relation) do |records|
+        records.each do |record|
+          attachments.each_key do |k|
+            attachment = record.send(k)
+            if attachment.attached?
+              if attachment.is_a?(ActiveStorage::Attached::One)
+                unless attachment.metadata["encrypted"]
+                  attachment.rotate_encryption!
+                end
+              else
+                unless attachment.all? { |a| a.metadata["encrypted"] }
+                  attachment.rotate_encryption!
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def perform(fields:, blind_indexes: [], restart: true, rotate: false)
+      relation = base_relation
 
       unless restart
         attributes = fields.map { |_, v| v[:encrypted_attribute] }
@@ -136,6 +159,18 @@ module Lockbox
           end
         end
       end
+    end
+
+    def base_relation
+      relation = @relation
+
+      # unscope if passed a model
+      unless ar_relation?(relation) || mongoid_relation?(relation)
+        relation = relation.unscoped
+      end
+
+      # convert from possible class to ActiveRecord::Relation or Mongoid::Criteria
+      relation.all
     end
 
     def ar_relation?(relation)
