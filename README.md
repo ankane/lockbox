@@ -313,6 +313,49 @@ def license
 end
 ```
 
+### Migrating Existing Files
+
+Create a new encrypted uploader:
+
+```ruby
+class LicenseV2Uploader < CarrierWave::Uploader::Base
+  encrypt
+end
+```
+
+Add a new column for the uploader, then add to your model:
+
+```ruby
+class User < ApplicationRecord
+  mount_uploader :license_v2, LicenseV2Uploader
+
+  before_save :migrate_license, if: :license_changed?
+
+  def migrate_license
+    self.license_v2 = self.license
+  end
+end
+```
+
+Migrate existing files:
+
+```ruby
+User.find_each do |user|
+  user.migrate_license
+  user.save!
+end
+```
+
+Then update the model to the desired state:
+
+```ruby
+class User < ApplicationRecord
+  mount_uploader :license, LicenseV2Uploader, mount_on: :license_v2
+end
+```
+
+Finally, delete unencrypted files and drop the column for the original uploader.
+
 ## Shrine
 
 Generate a key
