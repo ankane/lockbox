@@ -105,6 +105,17 @@ class ActiveStorageTest < Minitest::Test
     # assert user.avatars.all? { |a| a.metadata["encrypted"] }
   end
 
+  def test_encrypt_many_create
+    messages = ["hello world", "goodbye moon"]
+    avatars = messages.map { |m| {io: StringIO.new(m), filename: "#{m.gsub(" ", "_")}.txt"} }
+    user = User.create!(avatars: avatars)
+    assert_equal messages, user.avatars.map(&:download)
+    refute_equal messages, user.avatars.map { |a| a.blob.download }
+
+    user = User.last
+    assert_equal messages, user.avatars.map(&:download)
+  end
+
   def test_no_encrypt_one
     message = "hello world"
     user = User.create!
