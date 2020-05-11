@@ -18,7 +18,7 @@ class ActiveStorageTest < Minitest::Test
     assert_equal message, user.avatar.download
 
     # only set when migrating for now
-    # assert user.avatar.blob.metadata["encrypted"]
+    # assert user.avatar.metadata["encrypted"]
   end
 
   def test_encrypt_uploaded_file
@@ -98,7 +98,7 @@ class ActiveStorageTest < Minitest::Test
     assert_equal messages, user.avatars.map(&:download)
 
     # only set when migrating for now
-    # assert user.avatars.all? { |a| a.blob.metadata["encrypted"] }
+    # assert user.avatars.all? { |a| a.metadata["encrypted"] }
   end
 
   def test_no_encrypt_one
