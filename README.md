@@ -276,6 +276,40 @@ def license
 end
 ```
 
+#### Migrating Existing Files
+
+Encrypt existing files without downtime. Add to your model:
+
+```ruby
+class User < ApplicationRecord
+  has_one_attached :license_v2
+  encrypts_attached :license_v2
+end
+```
+
+Update your application to write to both keys:
+
+```ruby
+user.update!(license: license, license_v2: license)
+```
+
+Migrate existing files:
+
+```ruby
+User.with_attached_license.find_each do |user|
+  license = user.license
+  if license.attached? && !user.license_v2.attached?
+    user.license_v2.attach(
+      io: StringIO.new(license.download),
+      filename: license.filename,
+      content_type: license.content_type
+    )
+  end
+end
+```
+
+Once everything is migrated, update your application to use the new key.
+
 ## CarrierWave
 
 Add to your uploader:
