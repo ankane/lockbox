@@ -282,7 +282,7 @@ end
 
 Lockbox makes it easy to encrypt existing files without downtime.
 
-Update your model:
+Add to your model:
 
 ```ruby
 class User < ApplicationRecord
