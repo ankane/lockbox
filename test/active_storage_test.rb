@@ -3,6 +3,8 @@ require_relative "test_helper"
 class ActiveStorageTest < Minitest::Test
   def setup
     skip unless defined?(ActiveStorage)
+    ActiveStorage::Attachment.delete_all
+    ActiveStorage::Blob.delete_all
   end
 
   def test_encrypt_one
@@ -217,6 +219,8 @@ class ActiveStorageTest < Minitest::Test
       refute_equal message, comment.image.blob.download
       assert comment.image.metadata["encrypted"]
     end
+
+    assert_equal 1, ActiveStorage::Blob.count
   end
 
   def test_migrate_one
@@ -245,6 +249,8 @@ class ActiveStorageTest < Minitest::Test
       refute_equal message, comment.image.blob.download
       assert comment.image.metadata["encrypted"]
     end
+
+    assert_equal 1, ActiveStorage::Blob.count
   end
 
   def test_migrate_many
@@ -277,6 +283,8 @@ class ActiveStorageTest < Minitest::Test
       refute_equal new_message, comment.images.last.blob.download
       assert comment.images.last.metadata["encrypted"]
     end
+
+    assert_equal 4, ActiveStorage::Blob.count
   end
 
   def test_migrate_one_none_attached
@@ -327,6 +335,8 @@ class ActiveStorageTest < Minitest::Test
       assert_equal message, comment2.image.blob.download
       assert_nil comment2.image.metadata["encrypted"]
     end
+
+    assert_equal 2, ActiveStorage::Blob.count
   end
 
   def with_migrating(name)
