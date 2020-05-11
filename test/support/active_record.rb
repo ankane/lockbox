@@ -26,6 +26,8 @@ class User < ActiveRecord::Base
   end
 
   mount_uploader :document, DocumentUploader
+  mount_uploaders :documents, DocumentUploader
+  serialize :documents, JSON
 
   encrypts :email, previous_versions: [{key: Lockbox.generate_key}, {master_key: Lockbox.generate_key}]
 

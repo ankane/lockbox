@@ -85,4 +85,22 @@ class CarrierWaveTest < Minitest::Test
     assert_equal "image/png", user.document.content_type
     refute_equal message, user.document.file.read
   end
+
+  def test_mounted_many
+    skip if mongoid?
+
+    path = "test/support/image.png"
+    message = File.binread(path)
+    file = File.open(path)
+
+    user = User.create!(documents: [file])
+
+    assert_equal message, user.documents.first.read
+    refute_equal message, user.documents.first.file.read
+
+    user = User.last
+    assert_equal message, user.documents.first.read
+    assert_equal "image/png", user.documents.first.content_type
+    refute_equal message, user.documents.first.file.read
+  end
 end
