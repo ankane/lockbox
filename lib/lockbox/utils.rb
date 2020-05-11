@@ -68,6 +68,11 @@ module Lockbox
         else
           raise NotImplementedError, "Not supported"
         end
+
+        # don't analyze encrypted data
+        metadata = {"analyzed" => true}
+        metadata["encrypted"] = true if options[:migrating]
+        attachable[:metadata] = (attachable[:metadata] || {}).merge(metadata)
       end
 
       # set content type based on unencrypted data
