@@ -80,8 +80,6 @@ module Lockbox
     end
 
     module Attachment
-      extend ActiveSupport::Concern
-
       def download
         result = super
 
