@@ -200,6 +200,17 @@ class ActiveStorageTest < Minitest::Test
     end
   end
 
+  def test_metadata
+    message = "hello world"
+    user = User.create!
+
+    user.image.attach(io: StringIO.new(message), filename: "test.txt", metadata: {"hello" => true})
+    assert user.image.metadata["hello"]
+
+    user.avatar.attach(io: StringIO.new(message), filename: "test.txt", metadata: {"hello" => true})
+    assert user.avatar.metadata["hello"]
+  end
+
   def test_migrating
     Comment.destroy_all
 

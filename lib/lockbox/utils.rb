@@ -63,11 +63,8 @@ module Lockbox
           }
         when Hash
           io = attachable[:io]
-          attachable = {
-            io: box.encrypt_io(io),
-            filename: attachable[:filename],
-            content_type: attachable[:content_type]
-          }
+          attachable = attachable.dup
+          attachable[:io] = box.encrypt_io(io)
         else
           raise NotImplementedError, "Not supported"
         end
