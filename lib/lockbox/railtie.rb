@@ -13,10 +13,20 @@ module Lockbox
         ActiveStorage::Attached::Many.prepend(Lockbox::ActiveStorageExtensions::AttachedMany)
       end
 
-      app.config.to_prepare do
-        if defined?(ActiveStorage)
-          ActiveStorage::Attachment.include(Lockbox::ActiveStorageExtensions::Attachment)
-          ActiveStorage::Blob.prepend(Lockbox::ActiveStorageExtensions::Blob)
+      # use load hooks when possible
+      if ActiveStorage::VERSION::MAJOR >= 6
+        ActiveSupport.on_load(:active_storage_attachment) do
+          include Lockbox::ActiveStorageExtensions::Attachment
+        end
+        ActiveSupport.on_load(:active_storage_blob) do
+          prepend Lockbox::ActiveStorageExtensions::Blob
+        end
+      else
+        app.config.to_prepare do
+          if defined?(ActiveStorage)
+            ActiveStorage::Attachment.include(Lockbox::ActiveStorageExtensions::Attachment)
+            ActiveStorage::Blob.prepend(Lockbox::ActiveStorageExtensions::Blob)
+          end
         end
       end
     end
