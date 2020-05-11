@@ -276,7 +276,9 @@ def license
 end
 ```
 
-#### Migrating Existing Files [master]
+#### Migrating Existing Files [master, experimental]
+
+**Note:** This feature is experimental. Please try it in a non-production environment and let us know how it goes.
 
 Lockbox makes it easy to encrypt existing files without downtime.
 
