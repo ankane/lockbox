@@ -554,7 +554,7 @@ Use `master_key` instead of `key` if passing the master key.
 To rotate existing files, use:
 
 ```ruby
-User.find_each do |user|
+User.with_attached_license.find_each do |user|
   user.license.rotate_encryption!
 end
 ```
