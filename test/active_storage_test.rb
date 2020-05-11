@@ -104,8 +104,20 @@ class ActiveStorageTest < Minitest::Test
 
   def test_no_encrypt_one
     message = "hello world"
+    user = User.create!(image: attachment)
+
+    assert_equal message, user.image.download
+    assert_equal message, user.image.blob.download
+
+    user = User.last
+    assert_equal message, user.image.download
+  end
+
+  def test_no_encrypt_one_attach
+    message = "hello world"
     user = User.create!
-    user.image.attach(io: StringIO.new(message), filename: "test.txt")
+    user.image.attach(attachment)
+
     assert_equal message, user.image.download
     assert_equal message, user.image.blob.download
 
@@ -115,10 +127,8 @@ class ActiveStorageTest < Minitest::Test
 
   def test_no_encrypt_many
     messages = ["hello world", "goodbye moon"]
-    user = User.create!
-    messages.each do |message|
-      user.images.attach(io: StringIO.new(message), filename: "test.txt")
-    end
+    user = User.create!(images: messages.map { |m| attachment(m) })
+
     assert_equal messages, user.images.map(&:download)
     assert_equal messages, user.images.map { |a| a.blob.download }
 
@@ -130,8 +140,7 @@ class ActiveStorageTest < Minitest::Test
     message = "hello world"
     filename = "test.txt"
     content_type = "image/png"
-    user = User.create!
-    user.avatar.attach(io: StringIO.new(message), filename: filename, content_type: content_type)
+    user = User.create!(avatar: {io: StringIO.new(message), filename: filename, content_type: content_type})
     blob = user.avatar.attachment.blob
     user.avatar.rotate_encryption!
 
@@ -149,10 +158,7 @@ class ActiveStorageTest < Minitest::Test
 
   def test_rotate_encryption_many
     messages = ["hello world", "goodbye moon"]
-    user = User.create!
-    messages.each do |message|
-      user.avatars.attach(io: StringIO.new(message), filename: "test.txt")
-    end
+    user = User.create!(avatars: messages.map { |m| attachment(m) })
     blobs = user.avatars.map(&:blob)
 
     user.avatars.rotate_encryption!
