@@ -276,6 +276,32 @@ def license
 end
 ```
 
+#### Migrating Existing Files [master]
+
+Lockbox makes it easy to encrypt existing files without downtime.
+
+Update your model:
+
+```ruby
+class User < ApplicationRecord
+  encrypts_attached :license, migrating: true
+end
+```
+
+Migrate existing files:
+
+```ruby
+Lockbox.migrate(User, attributes: [:license])
+```
+
+Then update the model to the desired state:
+
+```ruby
+class User < ApplicationRecord
+  encrypts_attached :license
+end
+```
+
 ## CarrierWave
 
 Add to your uploader:

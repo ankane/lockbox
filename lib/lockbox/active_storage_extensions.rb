@@ -94,7 +94,8 @@ module Lockbox
         result = super
 
         options = Utils.encrypted_options(record, name)
-        if options
+        encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
+        if encrypted
           result = Utils.decrypt_result(record, name, options, result)
         end
 
@@ -105,7 +106,8 @@ module Lockbox
         def open(**options)
           blob.open(**options) do |file|
             options = Utils.encrypted_options(record, name)
-            if options
+            encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
+            if encrypted
               result = Utils.decrypt_result(record, name, options, file.read)
               file.rewind
               # truncate may not be available on all platforms
@@ -123,7 +125,7 @@ module Lockbox
 
       def mark_analyzed
         if Utils.encrypted_options(record, name)
-          blob.update!(metadata: blob.metadata.merge(analyzed: true))
+          blob.update!(metadata: blob.metadata.merge(analyzed: true, encrypted: true))
         end
       end
 
