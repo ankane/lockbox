@@ -313,7 +313,7 @@ For multiple attachments, use:
 ```ruby
 User.with_attached_licenses.find_each do |user|
   licenses = user.licenses
-  if licenses.size != user.licenses_v2.size
+  if user.licenses_v2.size != licenses.size
     new_licenses = []
     licenses.each do |license|
       new_licenses << {
