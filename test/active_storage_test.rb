@@ -56,20 +56,17 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_encrypt_unsupported
-    message = "hello world"
-    user = User.create!
-
     # silently fails with Active Storage 5.2
     if ActiveStorage::VERSION::MAJOR >= 6
       error = assert_raises(ArgumentError) do
-        user.image.attach(123)
+        User.create!(image: 123)
       end
       assert_equal "Could not find or build blob: expected attachable, got 123", error.message
     end
 
     # TODO raise ArgumentError
     error = assert_raises(NotImplementedError) do
-      user.avatar.attach(123)
+      User.create!(avatar: 123)
     end
     assert_equal "Could not find or build blob: expected attachable, got 123", error.message
   end
