@@ -415,6 +415,10 @@ class ModelTest < Minitest::Test
     assert_equal "Hi", robot.migrated_name
   end
 
+  def test_migrate_nothing
+    Lockbox.migrate(Post)
+  end
+
   def test_rotate
     10.times do |i|
       User.create!(city: "City #{i}", email: "test#{i}@example.org")

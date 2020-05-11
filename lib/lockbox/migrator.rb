@@ -29,7 +29,7 @@ module Lockbox
       # need blind indexes for building relation
       blind_indexes = model.respond_to?(:blind_indexes) ? model.blind_indexes.select { |k, v| v[:migrating] } : {}
 
-      perform(fields: fields, blind_indexes: blind_indexes, restart: restart)
+      perform(fields: fields, blind_indexes: blind_indexes, restart: restart) if fields.any? || blind_indexes.any?
     end
 
     private
