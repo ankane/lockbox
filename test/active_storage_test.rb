@@ -58,9 +58,16 @@ class ActiveStorageTest < Minitest::Test
     message = "hello world"
     user = User.create!
 
-    assert_raises NotImplementedError do
-      user.avatar.attach(message)
+    error = assert_raises(ArgumentError) do
+      user.image.attach(123)
     end
+    assert_equal "Could not find or build blob: expected attachable, got 123", error.message
+
+    # TODO raise ArgumentError
+    error = assert_raises(NotImplementedError) do
+      user.avatar.attach(123)
+    end
+    assert_equal "Could not find or build blob: expected attachable, got 123", error.message
   end
 
   def test_encrypt_create
