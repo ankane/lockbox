@@ -86,6 +86,9 @@ module Lockbox
         result = super
 
         options = Utils.encrypted_options(record, name)
+        # only trust the metadata when migrating
+        # as earlier versions of Lockbox won't have it
+        # and it's not a good practice to trust modifiable data
         encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
         if encrypted
           result = Utils.decrypt_result(record, name, options, result)
@@ -98,6 +101,9 @@ module Lockbox
         def open(**options)
           blob.open(**options) do |file|
             options = Utils.encrypted_options(record, name)
+            # only trust the metadata when migrating
+            # as earlier versions of Lockbox won't have it
+            # and it's not a good practice to trust modifiable data
             encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
             if encrypted
               result = Utils.decrypt_result(record, name, options, file.read)
@@ -116,8 +122,11 @@ module Lockbox
       end
 
       def mark_analyzed
-        if Utils.encrypted_options(record, name)
-          blob.update!(metadata: blob.metadata.merge(analyzed: true, encrypted: true))
+        options = Utils.encrypted_options(record, name)
+        if options
+          new_metadata = {analyzed: true}
+          new_metadata[:encrypted] = true if options[:migrating]
+          blob.update!(metadata: blob.metadata.merge(new_metadata))
         end
       end
 
