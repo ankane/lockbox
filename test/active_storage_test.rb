@@ -3,6 +3,8 @@ require_relative "test_helper"
 class ActiveStorageTest < Minitest::Test
   def setup
     skip unless defined?(ActiveStorage)
+    ActiveStorage::Attachment.delete_all
+    ActiveStorage::Blob.delete_all
   end
 
   def test_encrypt_one
@@ -14,6 +16,9 @@ class ActiveStorageTest < Minitest::Test
 
     user = User.last
     assert_equal message, user.avatar.download
+
+    # only set when migrating for now
+    # assert user.avatar.blob.metadata["encrypted"]
   end
 
   def test_encrypt_uploaded_file
@@ -84,6 +89,9 @@ class ActiveStorageTest < Minitest::Test
 
     user = User.last
     assert_equal messages, user.avatars.map(&:download)
+
+    # only set when migrating for now
+    # assert user.avatars.all? { |a| a.blob.metadata["encrypted"] }
   end
 
   def test_no_encrypt_one
@@ -190,5 +198,151 @@ class ActiveStorageTest < Minitest::Test
     user.avatar.open do |f|
       assert_equal File.binread(path), f.read
     end
+  end
+
+  def test_migrating
+    Comment.destroy_all
+
+    message = "hello world"
+
+    comment = Comment.create!
+    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+
+    assert_equal message, comment.image.download
+    assert_equal message, comment.image.blob.download
+    assert_nil comment.image.metadata["encrypted"]
+
+    with_migrating(:image) do
+      comment = Comment.last
+      comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+      assert_equal message, comment.image.download
+      refute_equal message, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+    end
+
+    assert_equal 1, ActiveStorage::Blob.count
+  end
+
+  def test_migrate_one
+    Comment.destroy_all
+
+    message = "hello world"
+
+    comment = Comment.create!
+    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+
+    assert_equal message, comment.image.download
+    assert_equal message, comment.image.blob.download
+    assert_nil comment.image.metadata["encrypted"]
+
+    with_migrating(:image) do
+      Lockbox.migrate(Comment)
+
+      comment = Comment.last
+      assert_equal message, comment.image.download
+      refute_equal message, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+
+      comment = Comment.last
+      comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+      assert_equal message, comment.image.download
+      refute_equal message, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+    end
+
+    assert_equal 1, ActiveStorage::Blob.count
+  end
+
+  def test_migrate_many
+    Comment.destroy_all
+
+    messages = ["Test 1", "Test 2", "Test 3"]
+
+    comment = Comment.create!
+    messages.each do |message|
+      comment.images.attach(io: StringIO.new(message), filename: "test.txt")
+    end
+
+    assert_equal messages, comment.images.map(&:download).sort
+    assert_equal messages, comment.images.blobs.map(&:download).sort
+    assert_nil comment.images.first.metadata["encrypted"]
+
+    with_migrating(:images) do
+      Lockbox.migrate(Comment)
+
+      comment = Comment.last
+      assert_equal 3, comment.images.size
+      assert_equal messages, comment.images.map(&:download).sort
+      refute_equal messages, comment.images.blobs.map(&:download).sort
+      assert comment.images.all? { |image| image.metadata["encrypted"] }
+
+      comment = Comment.last
+      new_message = "Test 4"
+      comment.images.attach(io: StringIO.new(new_message), filename: "test.txt")
+      assert_equal new_message, comment.images.last.download
+      refute_equal new_message, comment.images.last.blob.download
+      assert comment.images.last.metadata["encrypted"]
+    end
+
+    assert_equal 4, ActiveStorage::Blob.count
+  end
+
+  def test_migrate_one_none_attached
+    Comment.destroy_all
+
+    comment = Comment.create!
+
+    with_migrating(:image) do
+      Lockbox.migrate(Comment)
+    end
+  end
+
+  def test_migrate_many_none_attached
+    Comment.destroy_all
+
+    comment = Comment.create!
+
+    with_migrating(:images) do
+      Lockbox.migrate(Comment)
+    end
+  end
+
+  def test_migrate_relation
+    Comment.destroy_all
+
+    message = "hello world"
+
+    comment = Comment.create!
+    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+
+    comment2 = Comment.create!
+    comment2.image.attach(io: StringIO.new(message), filename: "test.txt")
+
+    assert_nil comment.image.metadata["encrypted"]
+    assert_nil comment2.image.metadata["encrypted"]
+
+    with_migrating(:image) do
+      Lockbox.migrate(Comment.where(id: comment.id))
+
+      comment.reload
+      comment2.reload
+
+      assert_equal message, comment.image.download
+      refute_equal message, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+
+      assert_equal message, comment2.image.download
+      assert_equal message, comment2.image.blob.download
+      assert_nil comment2.image.metadata["encrypted"]
+    end
+
+    assert_equal 2, ActiveStorage::Blob.count
+  end
+
+  def with_migrating(name)
+    Comment.instance_variable_get(:@lockbox_attachments)[name] = {migrating: true}
+    yield
+  ensure
+    Comment.instance_variable_get(:@lockbox_attachments).delete(name)
   end
 end

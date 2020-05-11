@@ -1,3 +1,7 @@
+## 0.4.2 (unreleased)
+
+- Added experimental support for migrating Active Storage files
+
 ## 0.4.1 (2020-05-08)
 
 - Added support for Action Text

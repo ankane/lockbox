@@ -85,5 +85,13 @@ module Lockbox
         Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
       end
     end
+
+    def self.rebuild_attachable(attachment)
+      {
+        io: StringIO.new(attachment.download),
+        filename: attachment.filename,
+        content_type: attachment.content_type
+      }
+    end
   end
 end

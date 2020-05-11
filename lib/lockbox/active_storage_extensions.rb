@@ -16,14 +16,6 @@ module Lockbox
       def encrypt_attachable(attachable)
         Utils.encrypt_attachable(record, name, attachable)
       end
-
-      def rebuild_attachable(attachment)
-        {
-          io: StringIO.new(attachment.download),
-          filename: attachment.filename,
-          content_type: attachment.content_type
-        }
-      end
     end
 
     module AttachedOne
@@ -37,7 +29,7 @@ module Lockbox
       def rotate_encryption!
         raise "Not encrypted" unless encrypted?
 
-        attach(rebuild_attachable(self)) if attached?
+        attach(Utils.rebuild_attachable(self)) if attached?
 
         true
       end
@@ -65,7 +57,7 @@ module Lockbox
 
         attachables =
           previous_attachments.map do |attachment|
-            rebuild_attachable(attachment)
+            Utils.rebuild_attachable(attachment)
           end
 
         ActiveStorage::Attachment.transaction do
@@ -94,7 +86,11 @@ module Lockbox
         result = super
 
         options = Utils.encrypted_options(record, name)
-        if options
+        # only trust the metadata when migrating
+        # as earlier versions of Lockbox won't have it
+        # and it's not a good practice to trust modifiable data
+        encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
+        if encrypted
           result = Utils.decrypt_result(record, name, options, result)
         end
 
@@ -105,7 +101,11 @@ module Lockbox
         def open(**options)
           blob.open(**options) do |file|
             options = Utils.encrypted_options(record, name)
-            if options
+            # only trust the metadata when migrating
+            # as earlier versions of Lockbox won't have it
+            # and it's not a good practice to trust modifiable data
+            encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
+            if encrypted
               result = Utils.decrypt_result(record, name, options, file.read)
               file.rewind
               # truncate may not be available on all platforms
@@ -122,8 +122,12 @@ module Lockbox
       end
 
       def mark_analyzed
-        if Utils.encrypted_options(record, name)
-          blob.update!(metadata: blob.metadata.merge(analyzed: true))
+        options = Utils.encrypted_options(record, name)
+        if options
+          new_metadata = {analyzed: true}
+          # only set when migrating since feature is experimental
+          new_metadata[:encrypted] = true if options[:migrating]
+          blob.update!(metadata: blob.metadata.merge(new_metadata))
         end
       end
 

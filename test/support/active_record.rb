@@ -95,3 +95,11 @@ class Robot < ActiveRecord::Base
 
   encrypts :name, :email, migrating: true
 end
+
+class Comment < ActiveRecord::Base
+  has_one_attached :image
+  has_many_attached :images
+
+  # not a field, but add lockbox_attachments to model
+  encrypts_attached :hack
+end

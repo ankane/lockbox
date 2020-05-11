@@ -276,62 +276,31 @@ def license
 end
 ```
 
-#### Migrating Existing Files
+#### Migrating Existing Files [master, experimental]
 
-Encrypt existing files without downtime. Add to your model:
+**Note:** This feature is experimental. Please try it in a non-production environment and let us know how it goes.
+
+Lockbox makes it easy to encrypt existing files without downtime.
+
+Update your model:
 
 ```ruby
 class User < ApplicationRecord
-  has_one_attached :license_v2
-  encrypts_attached :license_v2
+  encrypts_attached :license, migrating: true
 end
 ```
 
-Update your application to write to both keys:
+Migrate existing files:
 
 ```ruby
-user.update!(license: license, license_v2: license)
+Lockbox.migrate(User)
 ```
 
-Next, migrate existing files. For single attachments, use:
+Then update the model to the desired state:
 
 ```ruby
-User.with_attached_license.find_each do |user|
-  license = user.license
-  if license.attached? && !user.license_v2.attached?
-    user.license_v2.attach(
-      io: StringIO.new(license.download),
-      filename: license.filename,
-      content_type: license.content_type
-    )
-  end
-end
-```
-
-For multiple attachments, use:
-
-```ruby
-User.with_attached_licenses.find_each do |user|
-  licenses = user.licenses
-  if user.licenses_v2.size != licenses.size
-    new_licenses = []
-    licenses.each do |license|
-      new_licenses << {
-        io: StringIO.new(license.download),
-        filename: license.filename,
-        content_type: license.content_type
-      }
-    end
-    user.update!(licenses_v2: new_licenses)
-  end
-end
-```
-
-Once everything is migrated, update your application to use the new key. Then delete the unencrypted files:
-
-```ruby
-User.with_attached_license.find_each do |user|
-  user.license.purge
+class User < ApplicationRecord
+  encrypts_attached :license
 end
 ```
 
