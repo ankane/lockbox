@@ -278,7 +278,7 @@ end
 
 #### Migrating Existing Files [master, experimental]
 
-**Note:** This feature is experimental. Please try it in a non-production environment and let us know how it goes. Unlike the other migration methods, this performs encryption in-place. This means there’s not an easy way to reverse it if something goes wrong. A safer approach is to create a 2nd attachment and switch to that.
+**Note:** This feature is experimental. Please try it in a non-production environment and let us know how it goes.
 
 Lockbox makes it easy to encrypt existing files without downtime.
 
