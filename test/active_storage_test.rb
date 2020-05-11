@@ -197,7 +197,7 @@ class ActiveStorageTest < Minitest::Test
   def test_has_one_attached_with_no_encrypted_attachments
     message = "hello world"
     post = Post.create!(title: "123")
-    post.photo.attach(io: StringIO.new(message), filename: "test.txt")
+    post.photo.attach(attachment)
     assert_equal message, post.photo.download
     assert_equal message, post.photo.blob.download
   end
