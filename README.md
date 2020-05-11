@@ -647,7 +647,7 @@ Heroku [comes with libsodium](https://devcenter.heroku.com/articles/stack-packag
 
 ##### Ubuntu
 
-For Ubuntu 18.04, use:
+For Ubuntu 20.04 and 18.04, use:
 
 ```sh
 sudo apt-get install libsodium23
