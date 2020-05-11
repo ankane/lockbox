@@ -229,15 +229,15 @@ class ActiveStorageTest < Minitest::Test
   def test_migrate_many
     Comment.destroy_all
 
-    message = "hello world"
+    messages = ["Test 1", "Test 2", "Test 3"]
 
     comment = Comment.create!
-    3.times do
+    messages.each do |message|
       comment.images.attach(io: StringIO.new(message), filename: "test.txt")
     end
 
-    assert_equal message, comment.images.first.download
-    assert_equal message, comment.images.first.blob.download
+    assert_equal messages, comment.images.map(&:download).sort
+    assert_equal messages, comment.images.blobs.map(&:download).sort
     assert_nil comment.images.first.metadata["encrypted"]
 
     with_migrating(:images) do
@@ -245,14 +245,15 @@ class ActiveStorageTest < Minitest::Test
 
       comment = Comment.last
       assert_equal 3, comment.images.size
-      assert_equal message, comment.images.first.download
-      refute_equal message, comment.images.first.blob.download
-      assert comment.images.first.metadata["encrypted"]
+      assert_equal messages, comment.images.map(&:download).sort
+      refute_equal messages, comment.images.blobs.map(&:download).sort
+      assert comment.images.all? { |image| image.metadata["encrypted"] }
 
       comment = Comment.last
-      comment.images.attach(io: StringIO.new(message), filename: "test.txt")
-      assert_equal message, comment.images.last.download
-      refute_equal message, comment.images.last.blob.download
+      new_message = "Test 4"
+      comment.images.attach(io: StringIO.new(new_message), filename: "test.txt")
+      assert_equal new_message, comment.images.last.download
+      refute_equal new_message, comment.images.last.blob.download
       assert comment.images.last.metadata["encrypted"]
     end
   end
