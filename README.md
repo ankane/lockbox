@@ -334,7 +334,7 @@ class User < ApplicationRecord
   before_save :migrate_license, if: :license_changed?
 
   def migrate_license
-    self.license_v2 = self.license
+    self.license_v2 = license
   end
 end
 ```
