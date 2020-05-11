@@ -197,4 +197,49 @@ class ActiveStorageTest < Minitest::Test
       assert_equal File.binread(path), f.read
     end
   end
+
+  def test_migrate
+    Comment.destroy_all
+
+    message = "hello world"
+
+    comment = Comment.create!
+    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+
+    assert_equal message, comment.image.download
+    assert_equal message, comment.image.blob.download
+    assert_nil comment.image.metadata["encrypted"]
+
+    with_migrating(:image) do
+      Lockbox.migrate(Comment)
+
+      comment = Comment.last
+      assert_equal message, comment.image.download
+      refute_equal message, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+
+      comment = Comment.last
+      comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+      assert_equal message, comment.image.download
+      refute_equal message, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+    end
+  end
+
+  def test_migrate_no_attachment
+    Comment.destroy_all
+
+    comment = Comment.create!
+
+    with_migrating(:image) do
+      Lockbox.migrate(Comment)
+    end
+  end
+
+  def with_migrating(name)
+    Comment.instance_variable_get(:@lockbox_attachments)[name] = {migrating: true}
+    yield
+  ensure
+    Comment.instance_variable_get(:@lockbox_attachments).delete(name)
+  end
 end
