@@ -95,9 +95,6 @@ module Lockbox
   end
 
   def self.encrypts_action_text_body(**options)
-    # runs every reload
-    # may be better to wrap in ActiveSupport::Reloader.to_prepare
-    # in case this behavior changes
     ActiveSupport.on_load(:action_text_rich_text) do
       ActionText::RichText.encrypts :body, **options
     end
