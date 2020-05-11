@@ -164,7 +164,10 @@ class ModelTest < Minitest::Test
 
   def test_dirty_bad_ciphertext
     user = User.create!(email_ciphertext: "bad")
-    user.email = "test@example.org"
+
+    assert_output(nil, /Decrypting previous value failed/) do
+      user.email = "test@example.org"
+    end
 
     if mongoid?
       assert user.email_changed?
