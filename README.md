@@ -313,7 +313,7 @@ def license
 end
 ```
 
-### Migrating Existing Files
+#### Migrating Existing Files
 
 Create a new encrypted uploader:
 
