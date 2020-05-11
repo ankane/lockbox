@@ -39,18 +39,14 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_encrypt_blob
-    message = "hello world"
-    user = User.create!
-    user.avatar.attach(io: StringIO.new(message), filename: "test.txt")
-
-    user2 = User.create!
+    user = User.create!(avatar: attachment)
 
     if ActiveStorage::VERSION::MAJOR >= 6
       # blobs are just attached, not (re)encrypted
-      assert user2.avatar.attach(user.avatar.blob)
+      User.create!(avatar: user.avatar.blob)
     else
       assert_raises NotImplementedError do
-        user2.avatar.attach(user.avatar.blob)
+        User.create!(avatar: user.avatar.blob)
       end
     end
   end
@@ -374,5 +370,9 @@ class ActiveStorageTest < Minitest::Test
     yield
   ensure
     Comment.instance_variable_get(:@lockbox_attachments).delete(name)
+  end
+
+  def attachment(message = "hello world")
+    {io: StringIO.new(message), filename: "test.txt"}
   end
 end
