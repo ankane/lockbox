@@ -257,7 +257,7 @@ class ActiveStorageTest < Minitest::Test
     end
   end
 
-  def test_migrate_one_no_attachment
+  def test_migrate_one_none_attached
     Comment.destroy_all
 
     comment = Comment.create!
@@ -267,13 +267,43 @@ class ActiveStorageTest < Minitest::Test
     end
   end
 
-  def test_migrate_many_no_attachment
+  def test_migrate_many_none_attached
     Comment.destroy_all
 
     comment = Comment.create!
 
     with_migrating(:images) do
       Lockbox.migrate(Comment)
+    end
+  end
+
+  def test_migrate_relation
+    Comment.destroy_all
+
+    message = "hello world"
+
+    comment = Comment.create!
+    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+
+    comment2 = Comment.create!
+    comment2.image.attach(io: StringIO.new(message), filename: "test.txt")
+
+    assert_nil comment.image.metadata["encrypted"]
+    assert_nil comment2.image.metadata["encrypted"]
+
+    with_migrating(:image) do
+      Lockbox.migrate(Comment.where(id: comment.id))
+
+      comment.reload
+      comment2.reload
+
+      assert_equal message, comment.image.download
+      refute_equal message, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+
+      assert_equal message, comment2.image.download
+      assert_equal message, comment2.image.blob.download
+      assert_nil comment2.image.metadata["encrypted"]
     end
   end
 
