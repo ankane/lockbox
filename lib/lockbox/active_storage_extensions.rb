@@ -125,6 +125,7 @@ module Lockbox
         options = Utils.encrypted_options(record, name)
         if options
           new_metadata = {analyzed: true}
+          # only set when migrating since feature is experimental
           new_metadata[:encrypted] = true if options[:migrating]
           blob.update!(metadata: blob.metadata.merge(new_metadata))
         end
