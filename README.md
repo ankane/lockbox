@@ -317,9 +317,7 @@ end
 
 #### Migrating Existing Files
 
-Lockbox makes it easy to encrypt existing files without downtime.
-
-Create a new encrypted uploader:
+Encrypt existing files without downtime. Create a new encrypted uploader:
 
 ```ruby
 class LicenseV2Uploader < CarrierWave::Uploader::Base
