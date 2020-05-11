@@ -343,8 +343,10 @@ Migrate existing files:
 
 ```ruby
 User.find_each do |user|
-  user.migrate_license
-  user.save!
+  if user.license? && !user.license_v2?
+    user.migrate_license
+    user.save!
+  end
 end
 ```
 
