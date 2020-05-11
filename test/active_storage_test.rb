@@ -10,8 +10,8 @@ class ActiveStorageTest < Minitest::Test
 
   def test_encrypt_one
     message = "hello world"
-    user = User.create!
-    user.avatar.attach(io: StringIO.new(message), filename: "test.txt")
+    user = User.create!(avatar: attachment)
+
     assert_equal message, user.avatar.download
     refute_equal message, user.avatar.blob.download
 
@@ -24,12 +24,7 @@ class ActiveStorageTest < Minitest::Test
 
   def test_encrypt_uploaded_file
     message = "hello world"
-    user = User.create!
-
-    file = Tempfile.new
-    file.write(message)
-    file.rewind
-    user.avatar.attach(ActionDispatch::Http::UploadedFile.new(filename: "test.txt", tempfile: file))
+    user = User.create!(avatar: uploaded_file)
 
     refute_equal message, user.avatar.blob.download
     assert_equal message, user.avatar.download
@@ -67,13 +62,11 @@ class ActiveStorageTest < Minitest::Test
     assert_equal "Could not find or build blob: expected attachable, got 123", error.message
   end
 
-  def test_encrypt_create
+  def test_encrypt_attach
     message = "hello world"
 
-    file = Tempfile.new
-    file.write(message)
-    file.rewind
-    user = User.create!(avatar: ActionDispatch::Http::UploadedFile.new(filename: "test.txt", tempfile: file))
+    user = User.create!
+    user.avatar.attach(uploaded_file)
 
     refute_equal message, user.avatar.blob.download
     assert_equal message, user.avatar.download
@@ -84,9 +77,20 @@ class ActiveStorageTest < Minitest::Test
 
   def test_encrypt_many
     messages = ["hello world", "goodbye moon"]
+    user = User.create!(avatars: messages.map { |m| attachment(m) })
+
+    assert_equal messages, user.avatars.map(&:download)
+    refute_equal messages, user.avatars.map { |a| a.blob.download }
+
+    user = User.last
+    assert_equal messages, user.avatars.map(&:download)
+  end
+
+  def test_encrypt_many_attach
+    messages = ["hello world", "goodbye moon"]
     user = User.create!
     messages.each do |message|
-      user.avatars.attach(io: StringIO.new(message), filename: "#{message.gsub(" ", "_")}.txt")
+      user.avatars.attach(attachment(message))
     end
     assert_equal messages, user.avatars.map(&:download)
     refute_equal messages, user.avatars.map { |a| a.blob.download }
@@ -96,17 +100,6 @@ class ActiveStorageTest < Minitest::Test
 
     # only set when migrating for now
     # assert user.avatars.all? { |a| a.metadata["encrypted"] }
-  end
-
-  def test_encrypt_many_create
-    messages = ["hello world", "goodbye moon"]
-    avatars = messages.map { |m| {io: StringIO.new(m), filename: "#{m.gsub(" ", "_")}.txt"} }
-    user = User.create!(avatars: avatars)
-    assert_equal messages, user.avatars.map(&:download)
-    refute_equal messages, user.avatars.map { |a| a.blob.download }
-
-    user = User.last
-    assert_equal messages, user.avatars.map(&:download)
   end
 
   def test_no_encrypt_one
@@ -373,6 +366,13 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def attachment(message = "hello world")
-    {io: StringIO.new(message), filename: "test.txt"}
+    {io: StringIO.new(message), filename: "#{message.gsub(" ", "_")}.txt"}
+  end
+
+  def uploaded_file(message = "hello world")
+    file = Tempfile.new
+    file.write(message)
+    file.rewind
+    ActionDispatch::Http::UploadedFile.new(filename: "test.txt", tempfile: file)
   end
 end
