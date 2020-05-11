@@ -97,8 +97,10 @@ class Robot < ActiveRecord::Base
 end
 
 class Comment < ActiveRecord::Base
-  has_one_attached :image
-  has_many_attached :images
+  if respond_to?(:has_one_attached)
+    has_one_attached :image
+    has_many_attached :images
+  end
 
   # not a field, but add lockbox_attachments to model
   encrypts_attached :hack

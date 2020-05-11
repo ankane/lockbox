@@ -264,7 +264,7 @@ class ActiveStorageTest < Minitest::Test
     end
 
     assert_equal messages, comment.images.map(&:download).sort
-    assert_equal messages, comment.images.blobs.map(&:download).sort
+    assert_equal messages, comment.images.map { |image| image.blob.download } .sort
     assert_nil comment.images.first.metadata["encrypted"]
 
     with_migrating(:images) do
@@ -273,7 +273,7 @@ class ActiveStorageTest < Minitest::Test
       comment = Comment.last
       assert_equal 3, comment.images.size
       assert_equal messages, comment.images.map(&:download).sort
-      refute_equal messages, comment.images.blobs.map(&:download).sort
+      refute_equal messages, comment.images.map { |image| image.blob.download } .sort
       assert comment.images.all? { |image| image.metadata["encrypted"] }
 
       comment = Comment.last
