@@ -293,7 +293,7 @@ Update your application to write to both keys:
 user.update!(license: license, license_v2: license)
 ```
 
-Migrate existing files:
+Next, migrate existing files. For single attachments, use:
 
 ```ruby
 User.with_attached_license.find_each do |user|
@@ -304,6 +304,25 @@ User.with_attached_license.find_each do |user|
       filename: license.filename,
       content_type: license.content_type
     )
+  end
+end
+```
+
+For multiple attachments, use:
+
+```ruby
+User.with_attached_licenses.find_each do |user|
+  licenses = user.licenses
+  if licenses.size != user.licenses_v2.size
+    new_licenses = []
+    licenses.each do |license|
+      new_licenses << {
+        io: StringIO.new(license.download),
+        filename: license.filename,
+        content_type: license.content_type
+      }
+    end
+    user.update!(licenses_v2: new_licenses)
   end
 end
 ```
