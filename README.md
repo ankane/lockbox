@@ -151,7 +151,9 @@ Be sure to include the `inspect` at the end or it won’t be encoded properly in
 
 #### Migrating Existing Data
 
-Lockbox makes it easy to encrypt an existing column without downtime. Add a new column for the ciphertext, then add to your model:
+Lockbox makes it easy to encrypt an existing column without downtime.
+
+Add a new column for the ciphertext, then add to your model:
 
 ```ruby
 class User < ApplicationRecord
@@ -315,7 +317,9 @@ end
 
 #### Migrating Existing Files
 
-Lockbox makes it easy to encrypt existing files without downtime. Create a new encrypted uploader:
+Lockbox makes it easy to encrypt existing files without downtime.
+
+Create a new encrypted uploader:
 
 ```ruby
 class LicenseV2Uploader < CarrierWave::Uploader::Base
