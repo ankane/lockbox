@@ -291,7 +291,7 @@ end
 Migrate existing files:
 
 ```ruby
-Lockbox.migrate(User, attributes: [:license])
+Lockbox.migrate(User)
 ```
 
 Then update the model to the desired state:
