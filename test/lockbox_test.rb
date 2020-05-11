@@ -343,6 +343,12 @@ class LockboxTest < Minitest::Test
     assert_equal Encoding::UTF_8, box.decrypt_str(ciphertext).encoding
   end
 
+  def test_decrypt_not_broken
+    key = "0"*64
+    box = Lockbox.new(key: key, encode: true)
+    assert_equal "it works!", box.decrypt("4nz8vb+KROTD6l9DvxanuOqn9OJWy7LpLDTKHHoM9Ll0lx+FAg==")
+  end
+
   private
 
   def random_key
