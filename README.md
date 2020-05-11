@@ -315,6 +315,51 @@ def license
 end
 ```
 
+#### Migrating Existing Files
+
+Encrypt existing files without downtime. Create a new encrypted uploader:
+
+```ruby
+class LicenseV2Uploader < CarrierWave::Uploader::Base
+  encrypt key: Lockbox.attribute_key(table: "users", attribute: "license")
+end
+```
+
+Add a new column for the uploader, then add to your model:
+
+```ruby
+class User < ApplicationRecord
+  mount_uploader :license_v2, LicenseV2Uploader
+
+  before_save :migrate_license, if: :license_changed?
+
+  def migrate_license
+    self.license_v2 = self.license
+  end
+end
+```
+
+Migrate existing files:
+
+```ruby
+User.find_each do |user|
+  if user.license? && !user.license_v2?
+    user.migrate_license
+    user.save!
+  end
+end
+```
+
+Then update the model to the desired state:
+
+```ruby
+class User < ApplicationRecord
+  mount_uploader :license, LicenseV2Uploader, mount_on: :license_v2
+end
+```
+
+Finally, delete the unencrypted files and drop the column for the original uploader. You can also remove the `key` option from the uploader.
+
 ## Shrine
 
 Generate a key
