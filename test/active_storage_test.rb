@@ -230,8 +230,7 @@ class ActiveStorageTest < Minitest::Test
 
     message = "hello world"
 
-    comment = Comment.create!
-    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+    comment = Comment.create!(image: attachment)
 
     assert_equal message, comment.image.download
     assert_equal message, comment.image.blob.download
@@ -253,8 +252,7 @@ class ActiveStorageTest < Minitest::Test
 
     message = "hello world"
 
-    comment = Comment.create!
-    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
+    comment = Comment.create!(image: attachment)
 
     assert_equal message, comment.image.download
     assert_equal message, comment.image.blob.download
@@ -283,14 +281,11 @@ class ActiveStorageTest < Minitest::Test
 
     messages = ["Test 1", "Test 2", "Test 3"]
 
-    comment = Comment.create!
-    messages.each do |message|
-      comment.images.attach(io: StringIO.new(message), filename: "test.txt")
-    end
+    comment = Comment.create!(images: messages.map { |m| attachment(m) })
 
     assert_equal messages, comment.images.map(&:download).sort
     assert_equal messages, comment.images.map { |image| image.blob.download } .sort
-    assert_nil comment.images.first.metadata["encrypted"]
+    assert comment.images.all? { |image| image.metadata["encrypted"].nil? }
 
     with_migrating(:images) do
       Lockbox.migrate(Comment)
@@ -337,11 +332,8 @@ class ActiveStorageTest < Minitest::Test
 
     message = "hello world"
 
-    comment = Comment.create!
-    comment.image.attach(io: StringIO.new(message), filename: "test.txt")
-
-    comment2 = Comment.create!
-    comment2.image.attach(io: StringIO.new(message), filename: "test.txt")
+    comment = Comment.create!(image: attachment)
+    comment2 = Comment.create!(image: attachment)
 
     assert_nil comment.image.metadata["encrypted"]
     assert_nil comment2.image.metadata["encrypted"]
