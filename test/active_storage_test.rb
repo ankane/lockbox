@@ -9,28 +9,25 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_encrypt_one
-    message = "hello world"
     user = User.create!(avatar: attachment)
 
-    assert_equal message, user.avatar.download
-    refute_equal message, user.avatar.blob.download
+    assert_equal content, user.avatar.download
+    refute_equal content, user.avatar.blob.download
 
     user = User.last
-    assert_equal message, user.avatar.download
-
-    # only set when migrating for now
-    # assert user.avatar.metadata["encrypted"]
+    assert_equal content, user.avatar.download
+    refute_equal content, user.avatar.blob.download
   end
 
   def test_encrypt_uploaded_file
-    message = "hello world"
     user = User.create!(avatar: uploaded_file)
 
-    refute_equal message, user.avatar.blob.download
-    assert_equal message, user.avatar.download
+    assert_equal content, user.avatar.download
+    refute_equal content, user.avatar.blob.download
 
     user = User.last
-    assert_equal message, user.avatar.download
+    assert_equal content, user.avatar.download
+    refute_equal content, user.avatar.blob.download
   end
 
   def test_encrypt_blob
@@ -63,16 +60,15 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_encrypt_attach
-    message = "hello world"
-
     user = User.create!
     user.avatar.attach(uploaded_file)
 
-    refute_equal message, user.avatar.blob.download
-    assert_equal message, user.avatar.download
+    assert_equal content, user.avatar.download
+    refute_equal content, user.avatar.blob.download
 
     user = User.last
-    assert_equal message, user.avatar.download
+    assert_equal content, user.avatar.download
+    refute_equal content, user.avatar.blob.download
   end
 
   def test_encrypt_many
@@ -103,26 +99,26 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_no_encrypt_one
-    message = "hello world"
     user = User.create!(image: attachment)
 
-    assert_equal message, user.image.download
-    assert_equal message, user.image.blob.download
+    assert_equal content, user.image.download
+    assert_equal content, user.image.blob.download
 
     user = User.last
-    assert_equal message, user.image.download
+    assert_equal content, user.image.download
+    assert_equal content, user.image.blob.download
   end
 
   def test_no_encrypt_one_attach
-    message = "hello world"
     user = User.create!
     user.image.attach(attachment)
 
-    assert_equal message, user.image.download
-    assert_equal message, user.image.blob.download
+    assert_equal content, user.image.download
+    assert_equal content, user.image.blob.download
 
     user = User.last
-    assert_equal message, user.image.download
+    assert_equal content, user.image.download
+    assert_equal content, user.image.blob.download
   end
 
   def test_no_encrypt_many
@@ -195,11 +191,10 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_has_one_attached_with_no_encrypted_attachments
-    message = "hello world"
-    post = Post.create!(title: "123")
-    post.photo.attach(attachment)
-    assert_equal message, post.photo.download
-    assert_equal message, post.photo.blob.download
+    post = Post.create!(title: "123", photo: attachment)
+
+    assert_equal content, post.photo.download
+    assert_equal content, post.photo.blob.download
   end
 
   def test_open
@@ -215,32 +210,29 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_metadata
-    message = "hello world"
     user = User.create!
 
-    user.image.attach(io: StringIO.new(message), filename: "test.txt", metadata: {"hello" => true})
+    user.image.attach(attachment.merge(metadata: {"hello" => true}))
     assert user.image.metadata["hello"]
 
-    user.avatar.attach(io: StringIO.new(message), filename: "test.txt", metadata: {"hello" => true})
+    user.avatar.attach(attachment.merge(metadata: {"hello" => true}))
     assert user.avatar.metadata["hello"]
   end
 
   def test_migrating
     Comment.destroy_all
 
-    message = "hello world"
-
     comment = Comment.create!(image: attachment)
 
-    assert_equal message, comment.image.download
-    assert_equal message, comment.image.blob.download
+    assert_equal content, comment.image.download
+    assert_equal content, comment.image.blob.download
     assert_nil comment.image.metadata["encrypted"]
 
     with_migrating(:image) do
       comment = Comment.last
-      comment.image.attach(io: StringIO.new(message), filename: "test.txt")
-      assert_equal message, comment.image.download
-      refute_equal message, comment.image.blob.download
+      comment.image.attach(attachment)
+      assert_equal content, comment.image.download
+      refute_equal content, comment.image.blob.download
       assert comment.image.metadata["encrypted"]
     end
 
@@ -250,26 +242,24 @@ class ActiveStorageTest < Minitest::Test
   def test_migrate_one
     Comment.destroy_all
 
-    message = "hello world"
-
     comment = Comment.create!(image: attachment)
 
-    assert_equal message, comment.image.download
-    assert_equal message, comment.image.blob.download
+    assert_equal content, comment.image.download
+    assert_equal content, comment.image.blob.download
     assert_nil comment.image.metadata["encrypted"]
 
     with_migrating(:image) do
       Lockbox.migrate(Comment)
 
       comment = Comment.last
-      assert_equal message, comment.image.download
-      refute_equal message, comment.image.blob.download
+      assert_equal content, comment.image.download
+      refute_equal content, comment.image.blob.download
       assert comment.image.metadata["encrypted"]
 
       comment = Comment.last
-      comment.image.attach(io: StringIO.new(message), filename: "test.txt")
-      assert_equal message, comment.image.download
-      refute_equal message, comment.image.blob.download
+      comment.image.attach(attachment)
+      assert_equal content, comment.image.download
+      refute_equal content, comment.image.blob.download
       assert comment.image.metadata["encrypted"]
     end
 
@@ -363,13 +353,18 @@ class ActiveStorageTest < Minitest::Test
     Comment.instance_variable_get(:@lockbox_attachments).delete(name)
   end
 
-  def attachment(message = "hello world")
-    {io: StringIO.new(message), filename: "#{message.gsub(" ", "_")}.txt"}
+  def content
+    "hello world"
   end
 
-  def uploaded_file(message = "hello world")
+  def attachment(content = nil)
+    content ||= self.content
+    {io: StringIO.new(content), filename: "#{content.gsub(" ", "_")}.txt"}
+  end
+
+  def uploaded_file
     file = Tempfile.new
-    file.write(message)
+    file.write(content)
     file.rewind
     ActionDispatch::Http::UploadedFile.new(filename: "test.txt", tempfile: file)
   end
