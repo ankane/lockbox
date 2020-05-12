@@ -173,8 +173,7 @@ class ActiveStorageTest < Minitest::Test
     iterations = ENV["CI"] ? 1000 : 1
     iterations.times do
       path = "test/support/image.png"
-      user = User.create!
-      user.avatar.attach(io: File.open(path), filename: "image.png", content_type: "image/png")
+      user = User.create!(avatar: {io: File.open(path), filename: "image.png", content_type: "image/png"})
 
       assert_equal "image/png", user.avatar.content_type
       assert_equal "image.png", user.avatar.filename.to_s
