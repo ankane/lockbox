@@ -8,6 +8,11 @@ class ActiveStorageTest < Minitest::Test
     ActiveStorage::Blob.delete_all
   end
 
+  def teardown
+    @content = nil
+    @contents = nil
+  end
+
   def test_encrypt_one
     user = User.create!(avatar: attachment)
     assert_equal content, user.avatar.download
@@ -266,20 +271,20 @@ class ActiveStorageTest < Minitest::Test
       Lockbox.migrate(Comment)
 
       comment = Comment.last
-      assert_equal 2, comment.images.size
+      assert_equal 3, comment.images.size
       assert_equal contents, comment.images.map(&:download)
       refute_equal contents, comment.images.map { |image| image.blob.download }
       assert comment.images.all? { |image| image.metadata["encrypted"] }
 
       comment = Comment.last
-      new_message = "Test 3"
+      new_message = "Test 4"
       comment.images.attach(attachment(new_message))
       assert_equal new_message, comment.images.last.download
       refute_equal new_message, comment.images.last.blob.download
       assert comment.images.last.metadata["encrypted"]
     end
 
-    assert_equal 3, ActiveStorage::Blob.count
+    assert_equal 4, ActiveStorage::Blob.count
   end
 
   def test_migrate_one_none_attached
@@ -337,16 +342,16 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def content
-    "hello world"
+    @content ||= "Test #{rand(1000)}"
   end
 
   def contents
-    ["hello world", "goodbye moon"]
+    @contents ||= 3.times.map { "Test #{rand(1000)}" }
   end
 
   def attachment(content = nil)
     content ||= self.content
-    {io: StringIO.new(content), filename: "#{content.gsub(" ", "_")}.txt"}
+    {io: StringIO.new(content), filename: "#{content.downcase.gsub(" ", "")}.txt"}
   end
 
   def attachments
