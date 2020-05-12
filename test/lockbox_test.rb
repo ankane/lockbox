@@ -2,33 +2,33 @@ require_relative "test_helper"
 
 class LockboxTest < Minitest::Test
   def test_works
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
     message = "it works!" * 10000
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
 
     assert_equal Encoding::UTF_8, message.encoding
     assert_equal Encoding::BINARY, ciphertext.encoding
-    assert_equal Encoding::BINARY, box.decrypt(ciphertext).encoding
+    assert_equal Encoding::BINARY, lockbox.decrypt(ciphertext).encoding
   end
 
   def test_same_message_different_ciphertext
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
     message = "it works!"
-    refute_equal box.encrypt(message), box.encrypt(message)
+    refute_equal lockbox.encrypt(message), lockbox.encrypt(message)
   end
 
   def test_encrypt_nil
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
     assert_raises(TypeError) do
-      box.encrypt(nil)
+      lockbox.encrypt(nil)
     end
   end
 
   def test_decrypt_nil
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
     assert_raises(TypeError) do
-      box.decrypt(nil)
+      lockbox.decrypt(nil)
     end
   end
 
@@ -42,72 +42,72 @@ class LockboxTest < Minitest::Test
   end
 
   def test_aes_gcm_associated_data
-    box = Lockbox.new(key: random_key, algorithm: "aes-gcm")
+    lockbox = Lockbox.new(key: random_key, algorithm: "aes-gcm")
     message = "it works!"
     associated_data = "boom"
-    ciphertext = box.encrypt(message, associated_data: associated_data)
-    assert_equal message, box.decrypt(ciphertext, associated_data: associated_data)
+    ciphertext = lockbox.encrypt(message, associated_data: associated_data)
+    assert_equal message, lockbox.decrypt(ciphertext, associated_data: associated_data)
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt(ciphertext, associated_data: "bad")
+      lockbox.decrypt(ciphertext, associated_data: "bad")
     end
   end
 
   def test_xsalsa20
-    box = Lockbox.new(key: random_key, algorithm: "xsalsa20")
+    lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
     message = "it works!" * 10000
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
 
     assert_equal Encoding::UTF_8, message.encoding
     assert_equal Encoding::BINARY, ciphertext.encoding
-    assert_equal Encoding::BINARY, box.decrypt(ciphertext).encoding
+    assert_equal Encoding::BINARY, lockbox.decrypt(ciphertext).encoding
   end
 
   def test_xchacha20
-    box = Lockbox.new(key: random_key, algorithm: "xchacha20")
+    lockbox = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!" * 10000
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
 
     assert_equal Encoding::UTF_8, message.encoding
     assert_equal Encoding::BINARY, ciphertext.encoding
-    assert_equal Encoding::BINARY, box.decrypt(ciphertext).encoding
+    assert_equal Encoding::BINARY, lockbox.decrypt(ciphertext).encoding
   end
 
   def test_xchacha20_associated_data
-    box = Lockbox.new(key: random_key, algorithm: "xchacha20")
+    lockbox = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!"
     associated_data = "boom"
-    ciphertext = box.encrypt(message, associated_data: associated_data)
-    assert_equal message, box.decrypt(ciphertext, associated_data: associated_data)
+    ciphertext = lockbox.encrypt(message, associated_data: associated_data)
+    assert_equal message, lockbox.decrypt(ciphertext, associated_data: associated_data)
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt(ciphertext, associated_data: "bad")
+      lockbox.decrypt(ciphertext, associated_data: "bad")
     end
   end
 
   def test_hybrid
     key_pair = Lockbox.generate_key_pair
 
-    box = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:encryption_key])
+    lockbox = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:encryption_key])
     message = "it works!" * 10000
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
 
-    box = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:decryption_key])
-    assert_equal message, box.decrypt(ciphertext)
+    lockbox = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:decryption_key])
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_hybrid_swapped
     key_pair = Lockbox.generate_key_pair
 
-    box = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:decryption_key])
+    lockbox = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:decryption_key])
     message = "it works!" * 10000
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
 
-    box = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:encryption_key])
+    lockbox = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:encryption_key])
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt(ciphertext)
+      lockbox.decrypt(ciphertext)
     end
   end
 
@@ -119,51 +119,51 @@ class LockboxTest < Minitest::Test
   end
 
   def test_bad_ciphertext
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt("0")
+      lockbox.decrypt("0")
     end
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt("0"*16)
+      lockbox.decrypt("0"*16)
     end
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt("0"*100)
+      lockbox.decrypt("0"*100)
     end
   end
 
   def test_bad_ciphertext_xchacha20
-    box = Lockbox.new(key: random_key, algorithm: "xchacha20")
+    lockbox = Lockbox.new(key: random_key, algorithm: "xchacha20")
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt("0")
+      lockbox.decrypt("0")
     end
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt("0"*16)
+      lockbox.decrypt("0"*16)
     end
 
     assert_raises(Lockbox::DecryptionError) do
-      box.decrypt("0"*100)
+      lockbox.decrypt("0"*100)
     end
   end
 
   def test_rotation
     key = random_key
-    box = Lockbox.new(key: key)
+    lockbox = Lockbox.new(key: key)
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
     new_box = Lockbox.new(key: random_key, previous_versions: [{key: key}])
     assert_equal message, new_box.decrypt(ciphertext)
   end
 
   def test_rotation_padding_only
     key = random_key
-    box = Lockbox.new(key: key)
+    lockbox = Lockbox.new(key: key)
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
     new_box = Lockbox.new(key: key, padding: true, previous_versions: [{key: key}])
     assert_equal message, new_box.decrypt(ciphertext)
 
@@ -175,97 +175,97 @@ class LockboxTest < Minitest::Test
   end
 
   def test_inspect
-    box = Lockbox.new(key: random_key)
-    refute_includes box.inspect, "key"
-    refute_includes box.to_s, "key"
+    lockbox = Lockbox.new(key: random_key)
+    refute_includes lockbox.inspect, "key"
+    refute_includes lockbox.to_s, "key"
   end
 
   def test_xsalsa20_inspect
-    box = Lockbox.new(key: random_key, algorithm: "xsalsa20")
-    refute_includes box.inspect, "key"
-    refute_includes box.to_s, "key"
+    lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
+    refute_includes lockbox.inspect, "key"
+    refute_includes lockbox.to_s, "key"
   end
 
   def test_xchacha20_inspect
-    box = Lockbox.new(key: random_key, algorithm: "xchacha20")
-    refute_includes box.inspect, "key"
-    refute_includes box.to_s, "key"
+    lockbox = Lockbox.new(key: random_key, algorithm: "xchacha20")
+    refute_includes lockbox.inspect, "key"
+    refute_includes lockbox.to_s, "key"
   end
 
   def test_decrypt_utf8
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
     ciphertext.force_encoding(Encoding::UTF_8)
-    assert_equal message, box.decrypt(ciphertext)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_xsalsa20_decrypt_utf8
-    box = Lockbox.new(key: random_key, algorithm: "xsalsa20")
+    lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
     ciphertext.force_encoding(Encoding::UTF_8)
-    assert_equal message, box.decrypt(ciphertext)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_xchacha20_decrypt_utf8
-    box = Lockbox.new(key: random_key, algorithm: "xchacha20")
+    lockbox = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
     ciphertext.force_encoding(Encoding::UTF_8)
-    assert_equal message, box.decrypt(ciphertext)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_hex_key
-    box = Lockbox.new(key: SecureRandom.hex(32))
+    lockbox = Lockbox.new(key: SecureRandom.hex(32))
     message = "it works!"
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_uppercase_hex_key
-    box = Lockbox.new(key: SecureRandom.hex(32).upcase)
+    lockbox = Lockbox.new(key: SecureRandom.hex(32).upcase)
     message = "it works!"
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_xsalsa20_hex_key
-    box = Lockbox.new(key: SecureRandom.hex(32), algorithm: "xsalsa20")
+    lockbox = Lockbox.new(key: SecureRandom.hex(32), algorithm: "xsalsa20")
     message = "it works!"
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_xchacha20_hex_key
-    box = Lockbox.new(key: SecureRandom.hex(32), algorithm: "xchacha20")
+    lockbox = Lockbox.new(key: SecureRandom.hex(32), algorithm: "xchacha20")
     message = "it works!"
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_encrypt_file
-    box = Lockbox.new(key: SecureRandom.hex(32))
+    lockbox = Lockbox.new(key: SecureRandom.hex(32))
     message = "it works!"
 
     file = Tempfile.new
     file.write(message)
     file.rewind
 
-    ciphertext = box.encrypt(file)
-    assert_equal message, box.decrypt(ciphertext)
+    ciphertext = lockbox.encrypt(file)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_decrypt_file
-    box = Lockbox.new(key: SecureRandom.hex(32))
+    lockbox = Lockbox.new(key: SecureRandom.hex(32))
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
 
     file = Tempfile.new(encoding: Encoding::BINARY)
     file.write(ciphertext)
     file.rewind
 
-    assert_equal message, box.decrypt(file)
+    assert_equal message, lockbox.decrypt(file)
   end
 
   def test_attribute_key
@@ -274,21 +274,21 @@ class LockboxTest < Minitest::Test
   end
 
   def test_padding
-    box = Lockbox.new(key: random_key, padding: true)
+    lockbox = Lockbox.new(key: random_key, padding: true)
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
     # nonce + ciphertext + auth tag
     assert_equal 12 + 16 + 16, ciphertext.bytesize
-    assert_equal message, box.decrypt(ciphertext)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_padding_integer
-    box = Lockbox.new(key: random_key, padding: 13)
+    lockbox = Lockbox.new(key: random_key, padding: 13)
     message = "it works!"
-    ciphertext = box.encrypt(message)
+    ciphertext = lockbox.encrypt(message)
     # nonce + ciphertext + auth tag
     assert_equal 12 + 13 + 16, ciphertext.bytesize
-    assert_equal message, box.decrypt(ciphertext)
+    assert_equal message, lockbox.decrypt(ciphertext)
   end
 
   def test_padding_invalid_size
@@ -317,9 +317,9 @@ class LockboxTest < Minitest::Test
   end
 
   def test_encrypt_io
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
     file = File.open("test/support/image.png", "rb")
-    ciphertext_io = box.encrypt_io(file)
+    ciphertext_io = lockbox.encrypt_io(file)
     assert_equal "image.png", ciphertext_io.original_filename
     assert_nil ciphertext_io.content_type
 
@@ -329,24 +329,24 @@ class LockboxTest < Minitest::Test
 
     file.rewind
     ciphertext_io.rewind
-    assert_equal file.read, box.decrypt_io(ciphertext_io).read
+    assert_equal file.read, lockbox.decrypt_io(ciphertext_io).read
   end
 
   def test_decrypt_str
-    box = Lockbox.new(key: random_key)
+    lockbox = Lockbox.new(key: random_key)
     message = "it works!" * 10000
-    ciphertext = box.encrypt(message)
-    assert_equal message, box.decrypt_str(ciphertext)
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt_str(ciphertext)
 
     assert_equal Encoding::UTF_8, message.encoding
     assert_equal Encoding::BINARY, ciphertext.encoding
-    assert_equal Encoding::UTF_8, box.decrypt_str(ciphertext).encoding
+    assert_equal Encoding::UTF_8, lockbox.decrypt_str(ciphertext).encoding
   end
 
   def test_decrypt_not_broken
     key = "0"*64
-    box = Lockbox.new(key: key, encode: true)
-    assert_equal "it works!", box.decrypt("4nz8vb+KROTD6l9DvxanuOqn9OJWy7LpLDTKHHoM9Ll0lx+FAg==")
+    lockbox = Lockbox.new(key: key, encode: true)
+    assert_equal "it works!", lockbox.decrypt("4nz8vb+KROTD6l9DvxanuOqn9OJWy7LpLDTKHHoM9Ll0lx+FAg==")
   end
 
   private
