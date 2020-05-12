@@ -278,7 +278,7 @@ end
 
 #### Migrating Existing Files [experimental]
 
-**Note:** This feature is experimental. Please try it in a non-production environment and let us know how it goes.
+**Note:** This feature is experimental. Please try it in a non-production environment and [share](https://github.com/ankane/lockbox/issues/44) how it goes.
 
 Lockbox makes it easy to encrypt existing files without downtime.
 
