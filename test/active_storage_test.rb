@@ -351,7 +351,7 @@ class ActiveStorageTest < Minitest::Test
 
   def attachment(content = nil)
     content ||= self.content
-    {io: StringIO.new(content), filename: "#{content.downcase.gsub(" ", "")}.txt"}
+    {io: StringIO.new(content), filename: "#{content.downcase.gsub(" ", "-")}.txt"}
   end
 
   def attachments
@@ -362,6 +362,9 @@ class ActiveStorageTest < Minitest::Test
     file = Tempfile.new
     file.write(content)
     file.rewind
-    ActionDispatch::Http::UploadedFile.new(filename: "test.txt", tempfile: file)
+    ActionDispatch::Http::UploadedFile.new(
+      filename: "#{content.downcase.gsub(" ", "-")}.txt",
+      tempfile: file
+    )
   end
 end
