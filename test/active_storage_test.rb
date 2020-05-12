@@ -10,7 +10,6 @@ class ActiveStorageTest < Minitest::Test
 
   def test_encrypt_one
     user = User.create!(avatar: attachment)
-
     assert_equal content, user.avatar.download
     refute_equal content, user.avatar.blob.download
 
@@ -21,7 +20,6 @@ class ActiveStorageTest < Minitest::Test
 
   def test_encrypt_uploaded_file
     user = User.create!(avatar: uploaded_file)
-
     assert_equal content, user.avatar.download
     refute_equal content, user.avatar.blob.download
 
@@ -62,7 +60,6 @@ class ActiveStorageTest < Minitest::Test
   def test_encrypt_attach
     user = User.create!
     user.avatar.attach(uploaded_file)
-
     assert_equal content, user.avatar.download
     refute_equal content, user.avatar.blob.download
 
@@ -72,30 +69,26 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_encrypt_many
-    messages = ["hello world", "goodbye moon"]
-    user = User.create!(avatars: messages.map { |m| attachment(m) })
-
-    assert_equal messages, user.avatars.map(&:download)
-    refute_equal messages, user.avatars.map { |a| a.blob.download }
+    user = User.create!(avatars: attachments)
+    assert_equal contents, user.avatars.map(&:download)
+    refute_equal contents, user.avatars.map { |a| a.blob.download }
 
     user = User.last
-    assert_equal messages, user.avatars.map(&:download)
+    assert_equal contents, user.avatars.map(&:download)
+    refute_equal contents, user.avatars.map { |a| a.blob.download }
   end
 
   def test_encrypt_many_attach
-    messages = ["hello world", "goodbye moon"]
     user = User.create!
-    messages.each do |message|
-      user.avatars.attach(attachment(message))
+    attachments.each do |attachment|
+      user.avatars.attach(attachment)
     end
-    assert_equal messages, user.avatars.map(&:download)
-    refute_equal messages, user.avatars.map { |a| a.blob.download }
+    assert_equal contents, user.avatars.map(&:download)
+    refute_equal contents, user.avatars.map { |a| a.blob.download }
 
     user = User.last
-    assert_equal messages, user.avatars.map(&:download)
-
-    # only set when migrating for now
-    # assert user.avatars.all? { |a| a.metadata["encrypted"] }
+    assert_equal contents, user.avatars.map(&:download)
+    refute_equal contents, user.avatars.map { |a| a.blob.download }
   end
 
   def test_no_encrypt_one
@@ -122,14 +115,14 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_no_encrypt_many
-    messages = ["hello world", "goodbye moon"]
-    user = User.create!(images: messages.map { |m| attachment(m) })
+    user = User.create!(images: attachments)
 
-    assert_equal messages, user.images.map(&:download)
-    assert_equal messages, user.images.map { |a| a.blob.download }
+    assert_equal contents, user.images.map(&:download)
+    assert_equal contents, user.images.map { |a| a.blob.download }
 
     user = User.last
-    assert_equal messages, user.images.map(&:download)
+    assert_equal contents, user.images.map(&:download)
+    assert_equal contents, user.images.map { |a| a.blob.download }
   end
 
   def test_rotate_encryption_one
@@ -153,8 +146,7 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_rotate_encryption_many
-    messages = ["hello world", "goodbye moon"]
-    user = User.create!(avatars: messages.map { |m| attachment(m) })
+    user = User.create!(avatars: attachments)
     blobs = user.avatars.map(&:blob)
 
     user.avatars.rotate_encryption!
@@ -162,7 +154,7 @@ class ActiveStorageTest < Minitest::Test
 
     refute_equal blobs, new_blobs
     assert_equal blobs.size, new_blobs.size
-    assert_equal messages, user.avatars.map(&:download)
+    assert_equal contents, user.avatars.map(&:download)
   end
 
   def test_rotate_encryption_not_attached
@@ -357,9 +349,17 @@ class ActiveStorageTest < Minitest::Test
     "hello world"
   end
 
+  def contents
+    ["hello world", "goodbye moon"]
+  end
+
   def attachment(content = nil)
     content ||= self.content
     {io: StringIO.new(content), filename: "#{content.gsub(" ", "_")}.txt"}
+  end
+
+  def attachments
+    contents.map { |c| attachment(c) }
   end
 
   def uploaded_file
