@@ -343,6 +343,8 @@ class LockboxTest < Minitest::Test
     assert_equal Encoding::UTF_8, lockbox.decrypt_str(ciphertext).encoding
   end
 
+  # ensure we can decrypt values from previous versions of Lockbox
+  # other tests encrypt, then decrypt, so they won't catch this
   def test_decrypt_not_broken
     key = "0"*64
     lockbox = Lockbox.new(key: key, encode: true)
