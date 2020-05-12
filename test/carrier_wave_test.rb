@@ -1,39 +1,33 @@
 require_relative "test_helper"
 
 class CarrierWaveTest < Minitest::Test
+  def teardown
+    @content = nil
+  end
+
   def test_encrypt
-    message = "hello world"
-
     uploader = TextUploader.new
-    file = Tempfile.new
-    file.write(message)
-    uploader.store!(file)
+    uploader.store!(uploaded_file)
 
-    assert_equal "#{message}!!", uploader.read
+    assert_equal "#{content}!!", uploader.read
     refute_equal uploader.file.read, uploader.read
 
-    assert_equal "#{message}!!..", uploader.thumb.read
+    assert_equal "#{content}!!..", uploader.thumb.read
     refute_equal uploader.thumb.file.read, uploader.read
   end
 
   def test_no_encrypt
-    message = "hello world"
-
     uploader = ImageUploader.new
-    file = Tempfile.new
-    file.write(message)
-    uploader.store!(file)
+    uploader.store!(uploaded_file)
 
-    assert_equal message, uploader.read
+    assert_equal content, uploader.read
     assert_equal uploader.file.read, uploader.read
   end
 
   def test_rotate_encryption
-    message = "hello world"
+    file = uploaded_file
 
     uploader = TextUploader.new
-    file = Tempfile.new
-    file.write(message)
     uploader.store!(file)
 
     ciphertext = uploader.file.read
@@ -45,10 +39,10 @@ class CarrierWaveTest < Minitest::Test
     uploader.rotate_encryption!
 
     refute_equal ciphertext, uploader.file.read
-    assert_equal "#{message}!!", uploader.read
+    assert_equal "#{content}!!", uploader.read
 
     refute_equal thumb_ciphertext, uploader.thumb.file.read
-    assert_equal "#{message}!!..", uploader.thumb.read
+    assert_equal "#{content}!!..", uploader.thumb.read
 
     assert uploader.enable_processing
   end
@@ -102,5 +96,16 @@ class CarrierWaveTest < Minitest::Test
     assert_equal message, user.documents.first.read
     assert_equal "image/png", user.documents.first.content_type
     refute_equal message, user.documents.first.file.read
+  end
+
+  def content
+    @content ||= "Test #{rand(1000)}"
+  end
+
+  def uploaded_file
+    file = Tempfile.new
+    file.write(content)
+    file.rewind
+    file
   end
 end
