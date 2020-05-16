@@ -351,11 +351,18 @@ class LockboxTest < Minitest::Test
     assert_equal "it works!", lockbox.decrypt("4nz8vb+KROTD6l9DvxanuOqn9OJWy7LpLDTKHHoM9Ll0lx+FAg==")
   end
 
-  def test_bad_key
+  def test_bad_key_length
     error = assert_raises(Lockbox::Error) do
       Lockbox.new(key: SecureRandom.hex(31))
     end
     assert_equal "Key must be 32 bytes (64 hex digits)", error.message
+  end
+
+  def test_bad_key_encoding
+    error = assert_raises(Lockbox::Error) do
+      Lockbox.new(key: SecureRandom.hex(16))
+    end
+    assert_equal "Key must use binary encoding", error.message
   end
 
   private
