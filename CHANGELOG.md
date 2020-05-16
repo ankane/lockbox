@@ -1,3 +1,7 @@
+## 0.4.3 (unreleased)
+
+- Improved bad key message
+
 ## 0.4.2 (2020-05-11)
 
 - Added experimental support for migrating Active Storage files

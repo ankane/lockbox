@@ -36,8 +36,8 @@ module Lockbox
         key = [key].pack("H*")
       end
 
+      raise Lockbox::Error, "Key must be 32 bytes (64 hex digits)" if key.bytesize != size
       raise Lockbox::Error, "Key must use binary encoding" if key.encoding != Encoding::BINARY
-      raise Lockbox::Error, "Key must be 32 bytes" if key.bytesize != size
 
       key
     end
