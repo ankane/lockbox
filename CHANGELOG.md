@@ -1,6 +1,6 @@
 ## 0.4.3 (unreleased)
 
-- Improved bad key message
+- Improved error message for bad key length
 
 ## 0.4.2 (2020-05-11)
 
