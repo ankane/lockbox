@@ -351,23 +351,51 @@ class LockboxTest < Minitest::Test
     assert_equal "it works!", lockbox.decrypt("4nz8vb+KROTD6l9DvxanuOqn9OJWy7LpLDTKHHoM9Ll0lx+FAg==")
   end
 
-  def test_bad_key_length
+  def test_key_bad_length
     error = assert_raises(Lockbox::Error) do
       Lockbox.new(key: SecureRandom.hex(31))
     end
     assert_equal "Key must be 32 bytes (64 hex digits)", error.message
   end
 
-  def test_bad_key_encoding
+  def test_key_bad_encoding
     error = assert_raises(Lockbox::Error) do
       Lockbox.new(key: SecureRandom.hex(16))
     end
     assert_equal "Key must use binary encoding", error.message
   end
 
+  def test_master_key_bad_length
+    with_master_key(SecureRandom.hex(31)) do
+      error = assert_raises(Lockbox::Error) do
+        Lockbox.attribute_key(table: "users", attribute: "test")
+      end
+      assert_equal "Master key must be 32 bytes (64 hex digits)", error.message
+    end
+  end
+
+  def test_master_key_bad_encoding
+    with_master_key(SecureRandom.hex(16)) do
+      error = assert_raises(Lockbox::Error) do
+        Lockbox.attribute_key(table: "users", attribute: "test")
+      end
+      assert_equal "Master key must use binary encoding", error.message
+    end
+  end
+
   private
 
   def random_key
     Lockbox.generate_key
+  end
+
+  def with_master_key(key)
+    previous_key = Lockbox.master_key
+    begin
+      Lockbox.master_key = key
+      yield
+    ensure
+      Lockbox.master_key = previous_key
+    end
   end
 end

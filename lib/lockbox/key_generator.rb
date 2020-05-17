@@ -11,7 +11,7 @@ module Lockbox
       raise ArgumentError, "Missing attribute for key generation" if attribute.to_s.empty?
 
       c = "\xB4"*32
-      hkdf(Lockbox::Utils.decode_key(@master_key), salt: table.to_s, info: "#{c}#{attribute}", length: 32, hash: "sha384")
+      hkdf(Lockbox::Utils.decode_key(@master_key, name: "Master key"), salt: table.to_s, info: "#{c}#{attribute}", length: 32, hash: "sha384")
     end
 
     private
