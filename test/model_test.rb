@@ -207,6 +207,14 @@ class ModelTest < Minitest::Test
     assert_equal "test@example.org", user.attributes["email"]
   end
 
+  def test_attributes_not_loaded
+    skip if mongoid?
+
+    User.create!(email: "test@example.org")
+    user = User.select('id').last
+    assert_nil user.attributes['email']
+  end
+
   def test_attributes_bad_ciphertext
     skip if mongoid?
 
