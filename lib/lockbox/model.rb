@@ -90,11 +90,7 @@ module Lockbox
                   # it is possible that the encrypted attribute is not loaded, eg.
                   # if the record was fetched partially (`User.select(:id).first`).
                   # accessing a not loaded attribute raises an `ActiveModel::MissingAttributeError`.
-                  # `respond_to?` actually returns `false` in activerecord if an attribute was not
-                  # loaded, so we do not try to decrypt it in this case.
-                  next unless respond_to?(lockbox_attribute[:encrypted_attribute])
-
-                  send(lockbox_attribute[:attribute])
+                  send(lockbox_attribute[:attribute]) if has_attribute?(lockbox_attribute[:encrypted_attribute])
                 end
                 super
               end

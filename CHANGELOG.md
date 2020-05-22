@@ -1,6 +1,7 @@
 ## 0.4.3 (unreleased)
 
 - Improved error message for bad key length
+- Fixed missing attribute error
 
 ## 0.4.2 (2020-05-11)
 

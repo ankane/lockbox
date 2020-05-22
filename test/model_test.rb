@@ -213,6 +213,19 @@ class ModelTest < Minitest::Test
     User.create!(email: "test@example.org")
     user = User.select('id').last
     assert_nil user.attributes['email']
+    assert !user.has_attribute?("name")
+    assert !user.has_attribute?(:name)
+
+    # TODO try to make virtual attribute behavior consistent in 0.5.0
+    # assert_equal ["id"], user.attributes.keys
+    # assert_equal ["id"], user.attribute_names
+    # assert !user.has_attribute?("email")
+    # assert !user.has_attribute?(:email)
+
+    user = User.select("id AS email_ciphertext").last
+    assert_raises(Lockbox::DecryptionError) do
+      user.attributes
+    end
   end
 
   def test_attributes_bad_ciphertext
