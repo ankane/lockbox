@@ -217,6 +217,8 @@ class ModelTest < Minitest::Test
     assert !user.has_attribute?(:name)
 
     # TODO try to make virtual attribute behavior consistent in 0.5.0
+    # this may be difficult, as virtual attributes are set to self.class._default_attributes
+    # which gets merged with query attributes in initialize method of active_record/core.rb
     # assert_equal ["id"], user.attributes.keys
     # assert_equal ["id"], user.attribute_names
     # assert !user.has_attribute?("email")
