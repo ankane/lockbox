@@ -1,4 +1,4 @@
-## 0.4.3 (unreleased)
+## 0.4.3 (2020-05-26)
 
 - Improved error message for bad key length
 - Fixed missing attribute error
