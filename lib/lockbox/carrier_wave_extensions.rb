@@ -5,13 +5,13 @@ module Lockbox
         before :cache, :encrypt
 
         def encrypt(file)
-          @file = CarrierWave::SanitizedFile.new(with_notification("encrypt_file") { lockbox.encrypt_io(file) })
+          @file = CarrierWave::SanitizedFile.new(lockbox_notify("encrypt_file") { lockbox.encrypt_io(file) })
         end
 
         # TODO safe to memoize?
         def read
           r = super
-          with_notification("decrypt_file") { lockbox.decrypt(r) } if r
+          lockbox_notify("decrypt_file") { lockbox.decrypt(r) } if r
         end
 
         def size
@@ -58,7 +58,7 @@ module Lockbox
           end
         end
 
-        def with_notification(type)
+        def lockbox_notify(type)
           if defined?(ActiveSupport::Notifications)
             name = lockbox_name
 
