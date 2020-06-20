@@ -965,3 +965,5 @@ cd lockbox
 bundle install
 bundle exec rake test
 ```
+
+For security issues, send an email to the address on [this page](https://github.com/ankane).
