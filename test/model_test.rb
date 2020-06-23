@@ -648,7 +648,7 @@ class ModelTest < Minitest::Test
     error = assert_raises(Lockbox::Error) do
       Admin.pluck(:email)
     end
-    assert_equal "Cannot use pluck if any Lockbox options have symbol value", error.message
+    assert_equal "Not available since :key depends on record", error.message
   end
 
   private

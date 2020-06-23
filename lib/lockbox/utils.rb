@@ -4,12 +4,13 @@ module Lockbox
       options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type)
       options[:encode] = false unless options.key?(:encode)
       options.each do |k, v|
-        # TODO check if respond_to?(:call) instead
-        if v.is_a?(Proc)
-          raise Error, "Cannot use pluck if any Lockbox options have proc value" unless context
-          options[k] = context.instance_exec(&v)
+        if v.respond_to?(:call)
+          # context not present for pluck
+          # still possible to use if not dependent on context
+          options[k] = context ? context.instance_exec(&v) : v.call
         elsif v.is_a?(Symbol)
-          raise Error, "Cannot use pluck if any Lockbox options have symbol value" unless context
+          # context not present for pluck
+          raise Error, "Not available since :#{k} depends on record" unless context
           options[k] = context.send(v)
         end
       end
