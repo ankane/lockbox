@@ -1,3 +1,7 @@
+## 0.4.4 (unreleased)
+
+- Added support for `pluck`
+
 ## 0.4.3 (2020-05-26)
 
 - Improved error message for bad key length

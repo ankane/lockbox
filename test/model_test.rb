@@ -591,6 +591,27 @@ class ModelTest < Minitest::Test
     end
   end
 
+  def test_pluck
+    skip if mongoid?
+
+    User.create!(name: "Test 1", email: "test1@example.org")
+    User.create!(name: "Test 2", email: "test2@example.org")
+
+    # unencrypted
+    assert_equal ["Test 1", "Test 2"], User.order(:name).pluck(:name)
+    assert_equal ["Test 1", "Test 2"], User.order(:name).pluck(:id, :name).map(&:last)
+
+    # encrypted - can't order in SQL with encrypted columns
+    assert_equal ["test1@example.org", "test2@example.org"], User.pluck(:email).sort
+    assert_equal ["test1@example.org", "test2@example.org"], User.pluck(:id, :email).map(&:last).sort
+
+    # multiple
+    assert_equal [["Test 1", "test1@example.org"], ["Test 2", "test2@example.org"]], User.pluck(:name, :email).sort
+
+    # where
+    assert_equal ["test2@example.org"], User.where(name: "Test 2").pluck(:email)
+  end
+
   private
 
   def assert_no_plaintext_attributes

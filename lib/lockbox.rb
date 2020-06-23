@@ -5,6 +5,7 @@ require "securerandom"
 
 # modules
 require "lockbox/box"
+require "lockbox/calculations"
 require "lockbox/encryptor"
 require "lockbox/key_generator"
 require "lockbox/io"
@@ -25,6 +26,7 @@ if defined?(ActiveSupport)
   ActiveSupport.on_load(:active_record) do
     extend Lockbox::Model
     extend Lockbox::Model::Attached
+    ActiveRecord::Calculations.prepend Lockbox::Calculations
   end
 
   ActiveSupport.on_load(:mongoid) do
