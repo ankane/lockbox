@@ -16,6 +16,9 @@ module Lockbox
 
       # decrypt result
       # handle pluck to single columns and multiple
+      #
+      # we can't pass context to decrypt method
+      # so this won't work if any options are a symbol or proc
       if column_names.size == 1
         la = lockbox_columns.first.first
         result.map! { |v| model.send("decrypt_#{la[:encrypted_attribute]}", v) }
