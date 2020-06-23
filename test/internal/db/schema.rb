@@ -92,4 +92,9 @@ ActiveRecord::Schema.define do
 
   create_table :comments do |t|
   end
+
+  create_table :admins do |t|
+    t.text :name
+    t.text :email_ciphertext
+  end
 end

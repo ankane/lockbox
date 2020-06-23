@@ -633,6 +633,24 @@ class ModelTest < Minitest::Test
     assert_equal ["test2@example.org"], User.where(name: "Test 2").pluck("email")
   end
 
+  def test_symbol_options
+    email = "test@example.org"
+    admin = Admin.create!(email: email)
+    box = Lockbox.new(key: admin.record_key, encode: true)
+    assert_equal email, box.decrypt(admin.email_ciphertext)
+  end
+
+  # the record isn't loaded
+  def test_pluck_symbol_options
+    skip if mongoid?
+
+    Admin.create!(email: "test@example.org")
+    error = assert_raises(Lockbox::Error) do
+      Admin.pluck(:email)
+    end
+    assert_equal "Cannot use pluck if any Lockbox options have symbol value", error.message
+  end
+
   private
 
   def assert_no_plaintext_attributes

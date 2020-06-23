@@ -51,3 +51,16 @@ class Robot
 
   encrypts :name, :email, migrating: true
 end
+
+class Admin
+  include Mongoid::Document
+
+  field :name, type: String
+  field :email_ciphertext, type: String
+
+  encrypts :email, key: :record_key
+
+  def record_key
+    "1"*64
+  end
+end

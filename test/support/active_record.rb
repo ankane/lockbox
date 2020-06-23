@@ -105,3 +105,11 @@ class Comment < ActiveRecord::Base
   # not a field, but add lockbox_attachments to model
   encrypts_attached :hack
 end
+
+class Admin < ActiveRecord::Base
+  encrypts :email, key: :record_key
+
+  def record_key
+    "1"*64
+  end
+end
