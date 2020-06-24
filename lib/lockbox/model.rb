@@ -270,7 +270,7 @@ module Lockbox
                 # cache
                 # decrypt method does type casting
                 if respond_to?(:write_attribute_without_type_cast, true)
-                  write_attribute_without_type_cast(name, message) if !@attributes.frozen?
+                  write_attribute_without_type_cast(name.to_s, message) if !@attributes.frozen?
                 else
                   raw_write_attribute(name, message) if !@attributes.frozen?
                 end
