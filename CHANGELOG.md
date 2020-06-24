@@ -1,4 +1,4 @@
-## 0.4.4 (unreleased)
+## 0.4.4 (2020-06-23)
 
 - Added support for `pluck`
 
