@@ -66,6 +66,7 @@ module Lockbox
 
     private
 
+    # TODO use str.class.name instead of name
     def check_string(str, name)
       str = str.read if str.respond_to?(:read)
       raise TypeError, "can't convert #{name} to string" unless str.respond_to?(:to_str)
