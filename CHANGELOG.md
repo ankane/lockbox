@@ -1,3 +1,7 @@
+## 0.4.5 (unreleased)
+
+- Improved error message for non-string values
+
 ## 0.4.4 (2020-06-23)
 
 - Added support for `pluck`

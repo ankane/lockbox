@@ -32,6 +32,22 @@ class LockboxTest < Minitest::Test
     end
   end
 
+  def test_encrypt_non_string
+    lockbox = Lockbox.new(key: random_key)
+    error = assert_raises(TypeError) do
+      lockbox.encrypt(1)
+    end
+    assert_equal "can't convert Integer to String", error.message
+  end
+
+  def test_decrypt_non_string
+    lockbox = Lockbox.new(key: random_key)
+    error = assert_raises(TypeError) do
+      lockbox.decrypt(1)
+    end
+    assert_equal "can't convert Integer to String", error.message
+  end
+
   def test_default_algorithm
     key = random_key
     encrypt_box = Lockbox.new(key: key)

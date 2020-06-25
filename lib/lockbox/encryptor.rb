@@ -13,7 +13,7 @@ module Lockbox
     end
 
     def encrypt(message, **options)
-      message = check_string(message, "message")
+      message = check_string(message)
       ciphertext = @boxes.first.encrypt(message, **options)
       ciphertext = Base64.strict_encode64(ciphertext) if @encode
       ciphertext
@@ -21,7 +21,7 @@ module Lockbox
 
     def decrypt(ciphertext, **options)
       ciphertext = Base64.decode64(ciphertext) if @encode
-      ciphertext = check_string(ciphertext, "ciphertext")
+      ciphertext = check_string(ciphertext)
 
       # ensure binary
       if ciphertext.encoding != Encoding::BINARY
@@ -66,10 +66,10 @@ module Lockbox
 
     private
 
-    # TODO use str.class.name instead of name
-    def check_string(str, name)
+    def check_string(str)
       str = str.read if str.respond_to?(:read)
-      raise TypeError, "can't convert #{name} to string" unless str.respond_to?(:to_str)
+      # Ruby uses "no implicit conversion of Object into String"
+      raise TypeError, "can't convert #{str.class.name} to String" unless str.respond_to?(:to_str)
       str.to_str
     end
 
