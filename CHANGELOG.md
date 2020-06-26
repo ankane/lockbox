@@ -1,4 +1,4 @@
-## 0.4.5 (unreleased)
+## 0.4.5 (2020-06-26)
 
 - Improved error message for non-string values
 - Fixed error with migrating Action Text
