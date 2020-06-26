@@ -147,6 +147,8 @@ module Lockbox
               if attributes_to_define_after_schema_loads.key?(original_name.to_s)
                 attribute name, attributes_to_define_after_schema_loads[original_name.to_s].first
               elsif options[:migrating]
+                # we use the original attribute for serialization in the encrypt and decrypt methods
+                # so we can use a generic value here
                 attribute name, ActiveRecord::Type::Value.new
               else
                 attribute name, :string
