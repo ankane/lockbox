@@ -86,8 +86,10 @@ ActiveRecord::Schema.define do
   create_table :robots do |t|
     t.text :name
     t.text :email
+    t.text :properties
     t.text :name_ciphertext
     t.text :email_ciphertext
+    t.text :properties_ciphertext
   end
 
   create_table :comments do |t|

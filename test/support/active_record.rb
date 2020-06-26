@@ -93,7 +93,9 @@ end
 class Robot < ActiveRecord::Base
   default_scope { order(:id) }
 
-  encrypts :name, :email, migrating: true
+  serialize :properties, JSON
+
+  encrypts :name, :email, :properties, migrating: true
 end
 
 class Comment < ActiveRecord::Base

@@ -2,6 +2,7 @@
 
 - Improved error message for non-string values
 - Fixed error with migrating Action Text
+- Fixed error with migrating serialized attributes
 
 ## 0.4.4 (2020-06-23)
 

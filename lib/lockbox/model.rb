@@ -319,7 +319,8 @@ module Lockbox
                 # do nothing
                 # encrypt will convert to binary
               else
-                type = (try(:attribute_types) || {})[name.to_s]
+                # use original name for serialized attributes
+                type = (try(:attribute_types) || {})[original_name.to_s]
                 message = type.serialize(message) if type
               end
             end
@@ -361,7 +362,8 @@ module Lockbox
                 # do nothing
                 # decrypt returns binary string
               else
-                type = (try(:attribute_types) || {})[name.to_s]
+                # use original name for serialized attributes
+                type = (try(:attribute_types) || {})[original_name.to_s]
                 message = type.deserialize(message) if type
                 message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
               end

@@ -445,6 +445,18 @@ class ModelTest < Minitest::Test
     Lockbox.migrate(Post)
   end
 
+  def test_migrate_serialized
+    skip if mongoid?
+
+    10.times do |i|
+      Robot.create!(properties: ["hi", "bye"])
+    end
+    Robot.update_all(properties_ciphertext: nil)
+    Lockbox.migrate(Robot, batch_size: 5)
+    robot = Robot.last
+    assert_equal robot.properties, robot.migrated_properties
+  end
+
   def test_rotate
     10.times do |i|
       User.create!(city: "City #{i}", email: "test#{i}@example.org")
