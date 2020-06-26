@@ -98,6 +98,9 @@ module Lockbox
 
   def self.encrypts_action_text_body(**options)
     ActiveSupport.on_load(:action_text_rich_text) do
+      # set serialization directly
+      # as can't infer serialization when migrating yet
+      ActionText::RichText.serialize :migrated_body, ActionText::Content if options[:migrating]
       ActionText::RichText.encrypts :body, **options
     end
   end
