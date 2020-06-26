@@ -454,6 +454,7 @@ class ModelTest < Minitest::Test
     Robot.update_all(properties_ciphertext: nil)
     Lockbox.migrate(Robot, batch_size: 5)
     robot = Robot.last
+    # deserialization should work on migrated attributes
     assert_equal robot.properties, robot.migrated_properties
   end
 

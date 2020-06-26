@@ -146,6 +146,8 @@ module Lockbox
               # however, we can try to use the original type if its already defined
               if attributes_to_define_after_schema_loads.key?(original_name.to_s)
                 attribute name, attributes_to_define_after_schema_loads[original_name.to_s].first
+              elsif options[:migrating]
+                attribute name, ActiveRecord::Type::Value.new
               else
                 attribute name, :string
               end
