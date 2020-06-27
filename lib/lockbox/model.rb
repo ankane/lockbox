@@ -107,6 +107,49 @@ module Lockbox
                   end
                 end
               end
+
+              def update_columns(attributes)
+                return super unless attributes.is_a?(Hash)
+
+                # transform keys like Active Record
+                attributes = attributes.transform_keys do |key|
+                  n = key.to_s
+                  self.class.attribute_aliases[n] || n
+                end
+
+                lockbox_attributes = self.class.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
+                return super unless lockbox_attributes.any?
+
+                attributes_to_set = {}
+
+                lockbox_attributes.each do |key, lockbox_attribute|
+                  attribute = key.to_s
+                  # check read only
+                  verify_readonly_attribute(attribute)
+
+                  message = attributes[attribute]
+                  attributes.delete(attribute) unless lockbox_attribute[:migrating]
+                  encrypted_attribute = lockbox_attribute[:encrypted_attribute]
+                  ciphertext = self.class.send("generate_#{encrypted_attribute}", message, context: self)
+                  attributes[encrypted_attribute] = ciphertext
+                  attributes_to_set[attribute] = message
+                  attributes_to_set[lockbox_attribute[:attribute]] = message if lockbox_attribute[:migrating]
+                end
+
+                result = super(attributes)
+
+                # same logic as Active Record
+                # (although this happens before saving)
+                attributes_to_set.each do |k, v|
+                  if respond_to?(:write_attribute_without_type_cast, true)
+                    write_attribute_without_type_cast(k, v)
+                  else
+                    raw_write_attribute(k, v)
+                  end
+                end
+
+                result
+              end
             else
               def reload
                 self.class.lockbox_attributes.each do |_, v|

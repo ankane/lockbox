@@ -1,3 +1,7 @@
+## 0.4.6 (unreleased)
+
+- Added support for `update_column` and `update_columns`
+
 ## 0.4.5 (2020-06-26)
 
 - Improved error message for non-string values

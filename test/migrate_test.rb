@@ -47,17 +47,24 @@ class MigrateTest < Minitest::Test
     assert_equal "Bye", Robot.last.migrated_name
   end
 
-  def test_migrating_update_columns
+  def test_migrating_update_column
     skip if mongoid?
 
     robot = Robot.create!(name: "Hi")
     robot.update_column(:name, "Bye")
+
+    assert_equal "Bye", robot.name
+    assert_equal "Bye", robot.migrated_name
+  end
+
+  def test_migrating_update_columns
+    skip if mongoid?
+
+    robot = Robot.create!(name: "Hi")
     robot.update_columns(name: "Bye")
 
-    # does not affect update column
-    # debatable if this is the right behavior
     assert_equal "Bye", robot.name
-    assert_equal "Hi", robot.migrated_name
+    assert_equal "Bye", robot.migrated_name
   end
 
   def test_migrating_restore_reset

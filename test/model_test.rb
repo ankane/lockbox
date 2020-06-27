@@ -265,17 +265,33 @@ class ModelTest < Minitest::Test
     assert_equal original_email, user.email
   end
 
+  def test_update_column
+    skip if mongoid?
+
+    user = User.create!(name: "Test", email: "test@example.org")
+
+    user.update_column(:name, "New")
+    assert_equal "New", user.name
+    user.update_column(:email, "new@example.org")
+    assert_equal "new@example.org", user.email
+
+    user = User.last
+    assert_equal "New", user.name
+    assert_equal "new@example.org", user.email
+  end
+
   def test_update_columns
     skip if mongoid?
 
     user = User.create!(name: "Test", email: "test@example.org")
 
-    user.update_columns(name: "New")
-    # will fail
-    # debatable if this is the right behavior
-    assert_raises(ActiveRecord::StatementInvalid) do
-      user.update_columns(email: "new@example.org")
-    end
+    user.update_columns(name: "New", email: "new@example.org")
+    assert_equal "New", user.name
+    assert_equal "new@example.org", user.email
+
+    user = User.last
+    assert_equal "New", user.name
+    assert_equal "new@example.org", user.email
   end
 
   def test_nil
