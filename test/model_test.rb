@@ -85,9 +85,19 @@ class ModelTest < Minitest::Test
     assert !user.changed?
     assert_equal [], user.changed
 
+    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
+      assert !user.will_save_change_to_name?
+      assert !user.will_save_change_to_email?
+    end
+
     # update
     user.name = new_name
     user.email = new_email
+
+    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
+      assert user.will_save_change_to_name?
+      assert user.will_save_change_to_email?
+    end
 
     # ensure changed
     assert user.name_changed?
