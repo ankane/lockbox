@@ -1,4 +1,4 @@
-## 0.4.6 (unreleased)
+## 0.4.6 (2020-07-02)
 
 - Added support for `update_column` and `update_columns`
 
