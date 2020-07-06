@@ -305,8 +305,6 @@ class ModelTest < Minitest::Test
   end
 
   def test_update_attribute
-    skip if mongoid?
-
     user = User.create!(name: "Test", email: "test@example.org")
 
     user.update_attribute(:name, "New")
