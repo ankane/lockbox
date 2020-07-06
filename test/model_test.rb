@@ -304,6 +304,21 @@ class ModelTest < Minitest::Test
     assert_equal "new@example.org", user.email
   end
 
+  def test_update_attribute
+    skip if mongoid?
+
+    user = User.create!(name: "Test", email: "test@example.org")
+
+    user.update_attribute(:name, "New")
+    assert_equal "New", user.name
+    user.update_attribute(:email, "new@example.org")
+    assert_equal "new@example.org", user.email
+
+    user = User.last
+    assert_equal "New", user.name
+    assert_equal "new@example.org", user.email
+  end
+
   def test_nil
     user = User.create!(email: "test@example.org")
     user.email = nil
