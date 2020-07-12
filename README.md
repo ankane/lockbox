@@ -266,7 +266,7 @@ There are a few limitations to be aware of:
 
 - Variants and previews are not supported when encrypted
 - Metadata like image width and height are not extracted when encrypted
-- Direct uploads cannot be encrypted
+- Direct uploads cannot be encrypted with application-level encryption like Lockbox (but can use server-side encryption)
 
 To serve encrypted files, use a controller action.
 
