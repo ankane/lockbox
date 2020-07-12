@@ -788,7 +788,7 @@ Lockbox.new(padding: 32) # bytes
 
 ## Binary Columns
 
-You can use `binary` columns for the ciphertext instead of `text` columns to save space.
+You can use `binary` columns for the ciphertext instead of `text` columns.
 
 ```ruby
 class AddEmailCiphertextToUsers < ActiveRecord::Migration[6.0]
@@ -798,7 +798,7 @@ class AddEmailCiphertextToUsers < ActiveRecord::Migration[6.0]
 end
 ```
 
-You should disable Base64 encoding if you do this.
+Disable Base64 encoding to save space.
 
 ```ruby
 class User < ApplicationRecord
