@@ -773,7 +773,7 @@ lockbox.encrypt("clear").bytesize     # 44
 lockbox.encrypt("consider").bytesize  # 44
 ```
 
-The block size for padding is 16 bytes by default. If we have a status larger than 15 bytes, it will have a different length than the others.
+The block size for padding is 16 bytes by default. Lockbox uses [ISO/IEC 7816-4](https://en.wikipedia.org/wiki/Padding_(cryptography)#ISO/IEC_7816-4) padding, which requires at least one byte, so if we have a status larger than 15 bytes, it will have a different length than the others.
 
 ```ruby
 box.encrypt("length15status!").bytesize   # 44
