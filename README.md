@@ -824,6 +824,22 @@ Change the block size with:
 Lockbox.new(padding: 32) # bytes
 ```
 
+## Associated Data
+
+You can pass extra context during encryption to make sure encrypted data isn’t moved to a different context.
+
+```ruby
+lockbox = Lockbox.new(key: key)
+ciphertext = lockbox.encrypt(message, associated_data: "somecontext")
+```
+
+Without the same context, decryption will fail.
+
+```ruby
+lockbox.decrypt(ciphertext, associated_data: "somecontext")  # success
+lockbox.decrypt(ciphertext, associated_data: "othercontext") # fails
+```
+
 ## Binary Columns
 
 You can use `binary` columns for the ciphertext instead of `text` columns.
@@ -921,22 +937,6 @@ class RemovePreviousEncryptedColumns < ActiveRecord::Migration[6.0]
     remove_column :users, :encrypted_email_iv, :text
   end
 end
-```
-
-## Associated Data
-
-You can pass extra context during encryption to make sure encrypted data isn’t moved to a different context.
-
-```ruby
-lockbox = Lockbox.new(key: key)
-ciphertext = lockbox.encrypt(message, associated_data: "somecontext")
-```
-
-Without the same context, decryption will fail.
-
-```ruby
-lockbox.decrypt(ciphertext, associated_data: "somecontext")  # success
-lockbox.decrypt(ciphertext, associated_data: "othercontext") # fails
 ```
 
 ## Upgrading
