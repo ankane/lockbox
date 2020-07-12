@@ -765,7 +765,7 @@ For Action Text, use:
 
 ```ruby
 ActiveSupport.on_load(:action_text_rich_text) do
-  has_kms_key
+  ActionText::RichText.has_kms_key
 end
 
 Lockbox.encrypts_action_text_body(key: :kms_key)
