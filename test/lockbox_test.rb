@@ -80,6 +80,14 @@ class LockboxTest < Minitest::Test
     assert_equal Encoding::BINARY, lockbox.decrypt(ciphertext).encoding
   end
 
+  def test_xsalsa20_associated_data
+    lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
+    error = assert_raises(ArgumentError) do
+      lockbox.encrypt("it works!", associated_data: "boom")
+    end
+    assert_equal "Associated data not supported with this algorithm", error.message
+  end
+
   def test_xchacha20
     lockbox = Lockbox.new(key: random_key, algorithm: "xchacha20")
     message = "it works!" * 10000
