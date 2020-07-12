@@ -509,6 +509,24 @@ Lockbox.rotate(User, attributes: [:email])
 
 Once all records are rotated, you can remove `previous_versions` from the model.
 
+### Action Text
+
+Update your initializer:
+
+```ruby
+Lockbox.encrypts_action_text_body(previous_versions: [{key: previous_key}])
+```
+
+Use `master_key` instead of `key` if passing the master key.
+
+To rotate existing records, use:
+
+```ruby
+Lockbox.rotate(ActionText::RichText, attributes: [:body])
+```
+
+Once all records are rotated, you can remove `previous_versions` from the initializer.
+
 ### Active Storage
 
 Update your model:
