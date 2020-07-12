@@ -91,6 +91,12 @@ class CarrierWaveTest < Minitest::Test
     refute_equal image_content, user.documents.first.file.read
   end
 
+  def test_lockbox_options
+    assert_equal({}, TextUploader.lockbox_options)
+    assert_equal({}, AvatarUploader.lockbox_options)
+    refute ImageUploader.respond_to?(:lockbox_options)
+  end
+
   def content
     @content ||= "Test #{rand(1000)}"
   end

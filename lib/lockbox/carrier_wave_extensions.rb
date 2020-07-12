@@ -4,6 +4,10 @@ module Lockbox
       class_eval do
         before :cache, :encrypt
 
+        define_singleton_method :lockbox_options do
+          options
+        end
+
         def encrypt(file)
           @file = CarrierWave::SanitizedFile.new(lockbox_notify("encrypt_file") { lockbox.encrypt_io(file) })
         end
