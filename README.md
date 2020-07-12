@@ -753,6 +753,8 @@ end
 
 You can use a key management service to manage your keys with [KMS Encrypted](https://github.com/ankane/kms_encrypted).
 
+For Active Record and Mongoid, use:
+
 ```ruby
 class User < ApplicationRecord
   encrypts :email, key: :kms_key
@@ -767,6 +769,14 @@ ActiveSupport.on_load(:action_text_rich_text) do
 end
 
 Lockbox.encrypts_action_text_body(key: :kms_key)
+```
+
+For Active Storage, use:
+
+```ruby
+class User < ApplicationRecord
+  encrypts_attached :license, key: :kms_key
+end
 ```
 
 For CarrierWave, use:
