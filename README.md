@@ -264,6 +264,7 @@ end
 
 There are a few limitations to be aware of:
 
+- Variants and previews are not supported when encrypted
 - Metadata like image width and height are not extracted when encrypted
 - Direct uploads cannot be encrypted
 
