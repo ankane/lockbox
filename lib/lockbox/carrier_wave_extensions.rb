@@ -2,6 +2,8 @@ module Lockbox
   module CarrierWaveExtensions
     def encrypt(**options)
       class_eval do
+        # uses same hook as process (before cache)
+        # processing can be disabled, so better to keep separate
         before :cache, :encrypt
 
         define_singleton_method :lockbox_options do
