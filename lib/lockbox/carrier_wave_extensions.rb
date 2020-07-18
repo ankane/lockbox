@@ -27,6 +27,7 @@ module Lockbox
           lockbox_notify("decrypt_file") { lockbox.decrypt(r) } if r
         end
 
+        # use size of plaintext since read and content type use plaintext
         def size
           read.bytesize
         end
