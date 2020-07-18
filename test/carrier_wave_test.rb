@@ -13,7 +13,7 @@ class CarrierWaveTest < Minitest::Test
     refute_equal uploader.file.read, uploader.read
 
     assert_equal "#{content}!!..", uploader.thumb.read
-    refute_equal uploader.thumb.file.read, uploader.read
+    refute_equal uploader.thumb.file.read, uploader.thumb.read
   end
 
   def test_no_encrypt
