@@ -11,10 +11,9 @@ module Lockbox
         end
 
         def encrypt(file)
-          # safety checks
+          # safety check
           # see CarrierWave::Uploader::Cache#cache!
-          raise Lockbox::Error, "Expected file to be set" unless @file
-          raise Lockbox::Error, "Expected files to be equal" if @file != file
+          raise Lockbox::Error, "Expected files to be equal. Please report an issue." unless file && @file && file == @file
 
           # processors in CarrierWave move updated file to current_path
           # however, this causes versions to use the processed file
