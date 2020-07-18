@@ -95,6 +95,16 @@ module Lockbox
         result
       end
 
+      def variant(*args)
+        raise Lockbox::Error, "Variant not supported for encrypted files" if Utils.encrypted_options(record, name)
+        super
+      end
+
+      def preview(*args)
+        raise Lockbox::Error, "Preview not supported for encrypted files" if Utils.encrypted_options(record, name)
+        super
+      end
+
       if ActiveStorage::VERSION::MAJOR >= 6
         def open(**options)
           blob.open(**options) do |file|
@@ -116,16 +126,6 @@ module Lockbox
 
             yield file
           end
-        end
-
-        def variant(*args)
-          raise Lockbox::Error, "Variant not supported for encrypted files" if Utils.encrypted_options(record, name)
-          super
-        end
-
-        def preview(*args)
-          raise Lockbox::Error, "Preview not supported for encrypted files" if Utils.encrypted_options(record, name)
-          super
         end
       end
     end

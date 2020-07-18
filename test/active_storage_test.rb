@@ -138,7 +138,7 @@ class ActiveStorageTest < Minitest::Test
 
     user = User.last
     error = assert_raises(Lockbox::Error) do
-      user.avatar.variant(resize_to_limit: [500, 500]).processed
+      user.avatar.variant(resize: "500x500").processed
     end
     assert_equal "Variant not supported for encrypted files", error.message
   end
@@ -148,7 +148,7 @@ class ActiveStorageTest < Minitest::Test
     User.create!(image: {io: File.open(path), filename: "image.png", content_type: "image/png"})
 
     user = User.last
-    user.image.variant(resize_to_limit: [500, 500]).processed
+    user.image.variant(resize: "500x500").processed
   end
 
   # not yet supported
@@ -160,17 +160,19 @@ class ActiveStorageTest < Minitest::Test
 
     user = User.last
     error = assert_raises(Lockbox::Error) do
-      user.avatar.preview(resize_to_limit: [500, 500]).processed.blob.download
+      user.avatar.preview(resize: "500x500").processed.blob.download
     end
     assert_equal "Preview not supported for encrypted files", error.message
   end
 
   def test_no_encrypt_preview
+    skip "Requires Poppler or muPDF" unless ENV["TRAVIS"]
+
     path = "test/support/doc.pdf"
     User.create!(image: {io: File.open(path), filename: "doc.pdf", content_type: "application/pdf"})
 
     user = User.last
-    contents = user.image.preview(resize_to_limit: [500, 500]).processed.blob.download
+    contents = user.image.preview(resize: "500x500").processed.blob.download
     assert_match "%PDF-1.3", contents
   end
 
