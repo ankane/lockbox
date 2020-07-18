@@ -137,9 +137,10 @@ class ActiveStorageTest < Minitest::Test
     User.create!(avatar: {io: File.open(path), filename: "image.png", content_type: "image/png"})
 
     user = User.last
-    assert_raises do
+    error = assert_raises(Lockbox::Error) do
       user.avatar.variant(resize_to_limit: [500, 500]).processed
     end
+    assert_equal "Variant not supported for encrypted files", error.message
   end
 
   def test_no_encrypt_variant
@@ -158,8 +159,10 @@ class ActiveStorageTest < Minitest::Test
     User.create!(avatar: {io: File.open(path), filename: "doc.pdf", content_type: "application/pdf"})
 
     user = User.last
-    contents = user.avatar.preview(resize_to_limit: [500, 500]).processed.blob.download
-    refute_match "%PDF-1.3", contents
+    error = assert_raises(Lockbox::Error) do
+      user.avatar.preview(resize_to_limit: [500, 500]).processed.blob.download
+    end
+    assert_equal "Preview not supported for encrypted files", error.message
   end
 
   def test_no_encrypt_preview

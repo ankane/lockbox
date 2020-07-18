@@ -117,6 +117,16 @@ module Lockbox
             yield file
           end
         end
+
+        def variant(*args)
+          raise Lockbox::Error, "Variant not supported for encrypted files" if Utils.encrypted_options(record, name)
+          super
+        end
+
+        def preview(*args)
+          raise Lockbox::Error, "Preview not supported for encrypted files" if Utils.encrypted_options(record, name)
+          super
+        end
       end
     end
 
