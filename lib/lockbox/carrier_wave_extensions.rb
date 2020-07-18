@@ -37,6 +37,7 @@ module Lockbox
           MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
         end
 
+        # disable processing since already processed
         def rotate_encryption!
           io = Lockbox::IO.new(read)
           io.original_filename = file.filename
