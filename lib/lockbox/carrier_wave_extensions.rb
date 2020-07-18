@@ -12,6 +12,7 @@ module Lockbox
 
         def encrypt(file)
           # safety checks
+          # see CarrierWave::Uploader::Cache#cache!
           raise Lockbox::Error, "Expected file to be set" unless @file
           raise Lockbox::Error, "Expected files to be equal" if @file != file
 
