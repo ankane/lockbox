@@ -27,4 +27,13 @@ class DocumentUploader < CarrierWave::Uploader::Base
 end
 
 class ImageUploader < CarrierWave::Uploader::Base
+  process append: "!!"
+
+  version :thumb do
+    process append: ".."
+  end
+
+  def append(str)
+    File.write(current_path, File.read(current_path) + str)
+  end
 end

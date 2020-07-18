@@ -20,8 +20,11 @@ class CarrierWaveTest < Minitest::Test
     uploader = ImageUploader.new
     uploader.store!(uploaded_file)
 
-    assert_equal content, uploader.read
+    assert_equal "#{content}!!", uploader.read
     assert_equal uploader.file.read, uploader.read
+
+    assert_equal "#{content}!!..", uploader.thumb.read
+    assert_equal uploader.thumb.file.read, uploader.thumb.read
   end
 
   def test_rotate_encryption
