@@ -571,6 +571,14 @@ User.find_each do |user|
 end
 ```
 
+For multiple files, use:
+
+```ruby
+User.find_each do |user|
+  user.licenses.map(&:rotate_encryption!)
+end
+```
+
 Once all files are rotated, you can remove `previous_versions` from the model.
 
 ### Local Files & Strings
