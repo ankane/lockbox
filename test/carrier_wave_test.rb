@@ -94,6 +94,25 @@ class CarrierWaveTest < Minitest::Test
     refute_equal image_content, user.documents.first.file.read
   end
 
+  def test_mounted_rotate_encryption
+    skip if mongoid?
+
+    user = User.create!(document: image_file)
+    assert_equal image_content, user.document.read
+    assert_equal "image/png", user.document.content_type
+    refute_equal image_content, user.document.file.read
+
+    ciphertext = user.document.file.read
+    user.document.rotate_encryption!
+
+    user = User.last
+    assert_equal image_content, user.document.read
+    assert_equal "image/png", user.document.content_type
+    refute_equal image_content, user.document.file.read
+
+    refute_equal ciphertext, user.document.file.read
+  end
+
   def test_lockbox_options
     assert_equal({}, TextUploader.lockbox_options)
     assert_equal({}, AvatarUploader.lockbox_options)
