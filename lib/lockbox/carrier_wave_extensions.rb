@@ -12,7 +12,7 @@ module Lockbox
 
         def encrypt(file)
           # safety checks
-          raise Lockbox::Error, "Expected file to be defined" unless defined?(@file)
+          raise Lockbox::Error, "Expected file to be set" unless @file
           raise Lockbox::Error, "Expected files to be equal" if @file != file
 
           @file = CarrierWave::SanitizedFile.new(lockbox_notify("encrypt_file") { lockbox.encrypt_io(file) })
