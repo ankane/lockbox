@@ -60,6 +60,8 @@ module Lockbox
           end
         end
 
+        # for mounted uploaders, use mounted name
+        # for others, use uploader name
         def lockbox_name
           if mounted_as
             mounted_as.to_s
@@ -72,6 +74,8 @@ module Lockbox
           end
         end
 
+        # Active Support notifications so it's easier
+        # to see when files are encrypted and decrypted
         def lockbox_notify(type)
           if defined?(ActiveSupport::Notifications)
             name = lockbox_name
