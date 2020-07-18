@@ -190,6 +190,8 @@ end
 
 ## Action Text
 
+**Note:** Action Text uses direct uploads for files, which cannot be encrypted with application-level encryption like Lockbox. This only encrypts the database field.
+
 Create a migration with:
 
 ```ruby
