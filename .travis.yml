@@ -4,6 +4,7 @@ addons:
   apt:
     packages:
       - libsodium23
+      - poppler-utils
 jobs:
   include:
     - rvm: 2.7
