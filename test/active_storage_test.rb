@@ -130,6 +130,47 @@ class ActiveStorageTest < Minitest::Test
     assert_equal contents, user.images.map { |a| a.blob.download }
   end
 
+  # not yet supported
+  # tries to transform the encrypted file
+  def test_encrypt_variant
+    path = "test/support/image.png"
+    User.create!(avatar: {io: File.open(path), filename: "image.png", content_type: "image/png"})
+
+    user = User.last
+    assert_raises do
+      user.avatar.variant(resize_to_limit: [500, 500]).processed
+    end
+  end
+
+  def test_no_encrypt_variant
+    path = "test/support/image.png"
+    User.create!(image: {io: File.open(path), filename: "image.png", content_type: "image/png"})
+
+    user = User.last
+    user.image.variant(resize_to_limit: [500, 500]).processed
+  end
+
+  # not yet supported
+  # tries to transform the encrypted file
+  # succeeds, but unreadable
+  def test_encrypt_preview
+    path = "test/support/doc.pdf"
+    User.create!(avatar: {io: File.open(path), filename: "doc.pdf", content_type: "application/pdf"})
+
+    user = User.last
+    contents = user.avatar.preview(resize_to_limit: [500, 500]).processed.blob.download
+    refute_match "%PDF-1.3", contents
+  end
+
+  def test_no_encrypt_preview
+    path = "test/support/doc.pdf"
+    User.create!(image: {io: File.open(path), filename: "doc.pdf", content_type: "application/pdf"})
+
+    user = User.last
+    contents = user.image.preview(resize_to_limit: [500, 500]).processed.blob.download
+    assert_match "%PDF-1.3", contents
+  end
+
   def test_rotate_encryption_one
     message = "hello world"
     filename = "test.txt"
