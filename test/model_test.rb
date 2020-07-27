@@ -389,12 +389,18 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(user.email_ciphertext)
   end
 
-  def test_class_method
+  def test_generate_attribute_ciphertext
     email = "test@example.org"
     ciphertext = User.generate_email_ciphertext(email)
     key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
     box = Lockbox.new(key: key, encode: true)
     assert_equal email, box.decrypt(ciphertext)
+  end
+
+  def test_decrypt_attribute_ciphertext
+    email = "test@example.org"
+    user = User.create!(email: email)
+    assert_equal email, User.decrypt_email_ciphertext(user.email_ciphertext)
   end
 
   def test_padding
