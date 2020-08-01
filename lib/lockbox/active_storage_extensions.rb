@@ -1,6 +1,7 @@
 # Ideally encryption and decryption would happen at the blob/service level.
 # However, Active Storage < 6.1 only supports a single service (per environment).
-# This means all files need to be encrypted or none of them.
+# This means all attachments need to be encrypted or none of them,
+# which is often not practical.
 #
 # Active Storage 6.1 adds support for multiple services, which changes this.
 # We could have a Lockbox service:
