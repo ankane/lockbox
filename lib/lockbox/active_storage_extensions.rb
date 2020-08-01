@@ -1,7 +1,21 @@
-# ideally encrypt and decrypt would happen at the blob/service level
-# however, there isn't really a great place to define encryption settings there
-# instead, we encrypt and decrypt at the attachment level,
-# and we define encryption settings at the model level
+# Ideally encryption and decryption would happen at the blob/service level.
+# However, Active Storage < 6.1 only supports a single service (per environment).
+# This means all files need to be encrypted or none of them.
+#
+# Active Storage 6.1 adds support for multiple services, which changes this.
+# We could have a Lockbox service:
+#
+# lockbox:
+#   service: Lockbox
+#   backend: local    # delegate to another service, like mirror service
+#   key:     ...      # Lockbox options
+#
+# However, the checksum is computed *and stored on the blob*
+# before the file is passed to the service.
+# We don't want the MD5 checksum of the plaintext stored in the database.
+#
+# Instead, we encrypt and decrypt at the attachment level,
+# and we define encryption settings at the model level.
 module Lockbox
   module ActiveStorageExtensions
     module Attached
