@@ -16,14 +16,14 @@ module Lockbox
       end
 
       unless options[:key] || options[:encryption_key] || options[:decryption_key]
-        options[:key] = Lockbox.attribute_key(table: table, attribute: attribute, master_key: options.delete(:master_key))
+        options[:key] = Lockbox.attribute_key(table: table, attribute: attribute, master_key: options.delete(:master_key), encode: false)
       end
 
       if options[:previous_versions].is_a?(Array)
         options[:previous_versions] = options[:previous_versions].dup
         options[:previous_versions].each_with_index do |version, i|
           if !(version[:key] || version[:encryption_key] || version[:decryption_key]) && version[:master_key]
-            options[:previous_versions][i] = version.merge(key: Lockbox.attribute_key(table: table, attribute: attribute, master_key: version.delete(:master_key)))
+            options[:previous_versions][i] = version.merge(key: Lockbox.attribute_key(table: table, attribute: attribute, master_key: version.delete(:master_key), encode: false))
           end
         end
       end
