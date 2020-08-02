@@ -297,6 +297,11 @@ class LockboxTest < Minitest::Test
     assert_equal "d96ffa3fe916b3a9b57d084f5781e95748333b877e32e6399e387d3d75b238a1", key
   end
 
+  def test_attribute_key_encode_false
+    key = Lockbox.attribute_key(table: "users", attribute: "license", master_key: "0"*64, encode: false)
+    assert_equal ["d96ffa3fe916b3a9b57d084f5781e95748333b877e32e6399e387d3d75b238a1"].pack("H*"), key
+  end
+
   def test_padding
     lockbox = Lockbox.new(key: random_key, padding: true)
     message = "it works!"
