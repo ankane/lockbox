@@ -121,6 +121,8 @@ module Lockbox
     # this process to write the now stale data
     # this time window can be reduced with smaller batch sizes
     # locking individual records could eliminate this
+    # one option is: relation.in_batches { |batch| batch.lock }
+    # which runs SELECT ... FOR UPDATE in Postgres
     def migrate_records(records, fields:, blind_indexes:, restart:, rotate:)
       # do computation outside of transaction
       # especially expensive blind index computation
