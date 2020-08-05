@@ -116,11 +116,11 @@ module Lockbox
       end
     end
 
-    # as with any application-level batch update process,
     # there's a small chance for this process to read data,
     # another process to update the data, and
     # this process to write the now stale data
     # this time window can be reduced with smaller batch sizes
+    # locking individual records could eliminate this
     def migrate_records(records, fields:, blind_indexes:, restart:, rotate:)
       # do computation outside of transaction
       # especially expensive blind index computation
