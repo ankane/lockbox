@@ -368,8 +368,9 @@ class ModelTest < Minitest::Test
     agent.save!
 
     agent = Agent.last
-    assert agent.inspect
+    assert_equal "#<Agent id: #{agent.id}, name: \"Test\">", agent.inspect
     assert_nil agent.attributes["email"]
+    assert agent.attributes["email_ciphertext"]
   end
 
   def test_validations_valid
