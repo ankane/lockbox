@@ -64,3 +64,13 @@ class Admin
     "1"*64
   end
 end
+
+class Agent
+  include Mongoid::Document
+
+  field :name, type: String
+  field :email_ciphertext, type: String
+
+  key_pair = Lockbox.generate_key_pair
+  encrypts :email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key]
+end

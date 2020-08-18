@@ -115,3 +115,8 @@ class Admin < ActiveRecord::Base
     "1"*64
   end
 end
+
+class Agent < ActiveRecord::Base
+  key_pair = Lockbox.generate_key_pair
+  encrypts :email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key]
+end

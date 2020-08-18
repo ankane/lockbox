@@ -90,7 +90,7 @@ module Lockbox
                   # it is possible that the encrypted attribute is not loaded, eg.
                   # if the record was fetched partially (`User.select(:id).first`).
                   # accessing a not loaded attribute raises an `ActiveModel::MissingAttributeError`.
-                  send(lockbox_attribute[:attribute]) if has_attribute?(lockbox_attribute[:encrypted_attribute])
+                  send(lockbox_attribute[:attribute]) if has_attribute?(lockbox_attribute[:encrypted_attribute]) && (lockbox_attribute[:algorithm] != "hybrid" || lockbox_attribute[:decryption_key])
                 end
                 super
               end
@@ -263,12 +263,12 @@ module Lockbox
           define_method("#{name}=") do |message|
             # decrypt first for dirty tracking
             # don't raise error if can't decrypt previous
-            begin
-              send(name)
-            rescue Lockbox::DecryptionError
-              # this is expected for hybrid cryptography
-              warn "[lockbox] Decrypting previous value failed" unless options[:algorithm] == "hybrid"
-              nil
+            if options[:algorithm] != "hybrid" || options[:decryption_key]
+              begin
+                send(name)
+              rescue Lockbox::DecryptionError
+                warn "[lockbox] Decrypting previous value failed"
+              end
             end
 
             send("lockbox_direct_#{name}=", message)

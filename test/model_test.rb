@@ -349,6 +349,29 @@ class ModelTest < Minitest::Test
     assert_equal phone, user.phone
   end
 
+  def test_hybrid_no_decryption_key
+    Agent.delete_all
+
+    agent = Agent.create!(email: "test@example.org")
+    original_email_ciphertext = agent.email_ciphertext
+    assert_equal agent, Agent.last
+
+    agent = Agent.last
+    agent.name = "Test"
+    agent.save!
+
+    agent = Agent.last
+    assert_equal original_email_ciphertext, agent.email_ciphertext
+
+    agent = Agent.last
+    agent.email = "new@example.org"
+    agent.save!
+
+    agent = Agent.last
+    assert agent.inspect
+    assert_nil agent.attributes["email"]
+  end
+
   def test_validations_valid
     post = Post.new(title: "Hello World")
     assert post.valid?
