@@ -1,4 +1,4 @@
-## 0.4.7 (unreleased)
+## 0.4.7 (2020-08-18)
 
 - Added `lockbox_options` method to encrypted CarrierWave uploaders
 - Improved attribute loading when no decryption key specified
