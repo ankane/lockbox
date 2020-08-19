@@ -87,10 +87,13 @@ module Lockbox
                 # essentially a no-op if already loaded
                 # an exception is thrown if decryption fails
                 self.class.lockbox_attributes.each do |_, lockbox_attribute|
+                  # don't try to decrypt if no decryption key given
+                  next if lockbox_attribute[:algorithm] == "hybrid" && lockbox_attribute[:decryption_key].nil?
+
                   # it is possible that the encrypted attribute is not loaded, eg.
                   # if the record was fetched partially (`User.select(:id).first`).
                   # accessing a not loaded attribute raises an `ActiveModel::MissingAttributeError`.
-                  send(lockbox_attribute[:attribute]) if has_attribute?(lockbox_attribute[:encrypted_attribute]) && (lockbox_attribute[:algorithm] != "hybrid" || lockbox_attribute[:decryption_key])
+                  send(lockbox_attribute[:attribute]) if has_attribute?(lockbox_attribute[:encrypted_attribute])
                 end
                 super
               end
@@ -263,7 +266,8 @@ module Lockbox
           define_method("#{name}=") do |message|
             # decrypt first for dirty tracking
             # don't raise error if can't decrypt previous
-            if options[:algorithm] != "hybrid" || options[:decryption_key]
+            # don't try to decrypt if no decryption key given
+            unless options[:algorithm] == "hybrid" && options[:decryption_key].nil?
               begin
                 send(name)
               rescue Lockbox::DecryptionError
