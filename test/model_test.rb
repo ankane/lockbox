@@ -368,9 +368,14 @@ class ModelTest < Minitest::Test
     agent.save!
 
     agent = Agent.last
-    assert_equal "#<Agent id: #{agent.id}, name: \"Test\">", agent.inspect
+    assert agent.inspect
     assert_nil agent.attributes["email"]
     assert agent.attributes["email_ciphertext"]
+
+    error = assert_raises(ArgumentError) do
+      agent.email
+    end
+    assert_equal "No private key set", error.message
   end
 
   def test_validations_valid
