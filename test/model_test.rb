@@ -372,7 +372,7 @@ class ModelTest < Minitest::Test
     assert_nil agent.attributes["email"]
     assert agent.attributes["email_ciphertext"]
 
-    # TODO change to decryption error?
+    # TODO change to Lockbox::DecryptionError?
     error = assert_raises(ArgumentError) do
       agent.email
     end
