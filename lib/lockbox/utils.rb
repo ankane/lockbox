@@ -60,6 +60,8 @@ module Lockbox
         case attachable
         when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
           io = attachable
+          return attachable if io.eof?
+
           attachable = {
             io: box.encrypt_io(io),
             filename: attachable.original_filename,
@@ -67,6 +69,8 @@ module Lockbox
           }
         when Hash
           io = attachable[:io]
+          return attachable if attachable[:io].eof?
+
           attachable = attachable.dup
           attachable[:io] = box.encrypt_io(io)
         else

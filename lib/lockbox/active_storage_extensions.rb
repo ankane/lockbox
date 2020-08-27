@@ -103,7 +103,7 @@ module Lockbox
         # as earlier versions of Lockbox won't have it
         # and it's not a good practice to trust modifiable data
         encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
-        if encrypted
+        if encrypted && !result.empty?
           result = Utils.decrypt_result(record, name, options, result)
         end
 
@@ -128,7 +128,7 @@ module Lockbox
             # as earlier versions of Lockbox won't have it
             # and it's not a good practice to trust modifiable data
             encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
-            if encrypted
+            if encrypted && !file.eof?
               result = Utils.decrypt_result(record, name, options, file.read)
               file.rewind
               # truncate may not be available on all platforms
