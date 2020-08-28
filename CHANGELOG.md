@@ -1,3 +1,7 @@
+## 0.4.8 (unreleased)
+
+- Fixed error when Active Support partially loaded
+
 ## 0.4.7 (2020-08-18)
 
 - Added `lockbox_options` method to encrypted CarrierWave uploaders

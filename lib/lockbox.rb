@@ -19,10 +19,12 @@ require "lockbox/version"
 require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
 require "lockbox/railtie" if defined?(Rails)
 
-if defined?(ActiveSupport)
+if defined?(ActiveSupport::LogSubscriber)
   require "lockbox/log_subscriber"
   Lockbox::LogSubscriber.attach_to :lockbox
+end
 
+if defined?(ActiveSupport.on_load)
   ActiveSupport.on_load(:active_record) do
     extend Lockbox::Model
     extend Lockbox::Model::Attached
