@@ -745,7 +745,7 @@ This uses X25519 for key exchange and XSalsa20 for encryption.
 
 ## Key Separation
 
-The master key is used to generate unique keys for each column. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column name are both used in this process. If you need to rename a table with encrypted columns, or an encrypted column itself, get the key:
+By default, the master key is used to generate unique keys for each column. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column name are both used in this process. If you need to rename a table with encrypted columns, or an encrypted column itself, get the key:
 
 ```ruby
 Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
@@ -756,6 +756,24 @@ And set it directly before renaming:
 ```ruby
 class User < ApplicationRecord
   encrypts :email, key: ENV["USER_EMAIL_ENCRYPTION_KEY"]
+end
+```
+
+## Per-Record Keys
+
+To specify a key for each record, use a symbol
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, key: :some_method
+end
+```
+
+Or a proc
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, key: -> { code }
 end
 ```
 
