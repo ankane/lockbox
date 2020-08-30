@@ -89,6 +89,16 @@ User.create!(email: "hi@example.org")
 
 If you need to query encrypted fields, check out [Blind Index](https://github.com/ankane/blind_index).
 
+#### Multiple Fields
+
+You can specify multiple fields in single line.
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, :phone, :city
+end
+```
+
 #### Types
 
 Fields are strings by default. Specify the type of a field with:
@@ -188,6 +198,14 @@ class User < ApplicationRecord
 end
 ```
 
+#### Decryption
+
+To decrypt data outside the model, use:
+
+```ruby
+User.decrypt_email_ciphertext(user.email_ciphertext)
+```
+
 ## Action Text
 
 **Note:** Action Text uses direct uploads for files, which cannot be encrypted with application-level encryption like Lockbox. This only encrypts the database field.
@@ -221,6 +239,10 @@ Lockbox.encrypts_action_text_body
 ```
 
 And drop the unencrypted column.
+
+#### Options
+
+You can pass any Lockbox options to the `encrypts_action_text_body` method.
 
 ## Mongoid
 
