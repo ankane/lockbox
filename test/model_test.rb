@@ -419,6 +419,7 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(user.email_ciphertext)
   end
 
+  # TODO prefer encrypt_email
   def test_generate_attribute_ciphertext
     email = "test@example.org"
     ciphertext = User.generate_email_ciphertext(email)
@@ -427,6 +428,7 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(ciphertext)
   end
 
+  # TODO prefer decrypt_email
   def test_decrypt_attribute_ciphertext
     email = "test@example.org"
     user = User.create!(email: email)
