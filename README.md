@@ -773,7 +773,9 @@ Lockbox supports a few different ways to set keys for database fields and files.
 
 ### Master Key
 
-By default, the master key is used to generate unique keys for each field/uploader. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column/uploader name are both used in this process. You can get an individual key with:
+By default, the master key is used to generate unique keys for each field/uploader. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column/uploader name are both used in this process.
+
+You can get an individual key with:
 
 ```ruby
 Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
