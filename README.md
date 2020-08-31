@@ -779,11 +779,11 @@ By default, the master key is used to generate unique keys for each field/upload
 Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
 ```
 
-To rename a table with encrypted columns/uploaders, or an encrypted column itself, get the key and set it directly before renaming:
+To rename a table with encrypted columns/uploaders, or an encrypted column itself, use:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key: ENV["USER_EMAIL_ENCRYPTION_KEY"]
+  encrypts :email, key: Lockbox.attribute_key(table: "original_table", attribute: "original_attribute")
 end
 ```
 
