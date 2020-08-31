@@ -789,7 +789,7 @@ end
 
 ### Per Field/Uploader
 
-To set a key for a field/uploader, use a string:
+To set a key for an individual field/uploader, use a string:
 
 ```ruby
 class User < ApplicationRecord
