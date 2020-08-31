@@ -556,6 +556,13 @@ class ModelTest < Minitest::Test
     assert_equal email, User.decrypt_email_ciphertext(admin.email_address_ciphertext)
   end
 
+  # TODO raise ArgumentError in 0.5.0
+  def test_encrypts_no_attributes
+    assert_output(nil, /No attributes specified/) do
+      Admin.encrypts
+    end
+  end
+
   private
 
   def assert_no_plaintext_attributes
