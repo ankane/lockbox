@@ -31,6 +31,7 @@ module Lockbox
           if !(version[:key] || version[:encryption_key] || version[:decryption_key]) && version[:master_key]
             # could also use key_table and key_attribute from options
             # when specified, but keep simple for now
+            # also, this change isn't backward compatible
             key =
               Lockbox.attribute_key(
                 table: version.delete(:key_table) || table,
