@@ -820,10 +820,14 @@ To use a different key for each record, use a symbol:
 ```ruby
 class User < ApplicationRecord
   encrypts :email, key: :some_method
+end
+```
 
-  def some_method
-    # code to get key
-  end
+Or a proc:
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, key: -> { some_method }
 end
 ```
 
