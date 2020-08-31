@@ -763,9 +763,17 @@ Make sure `decryption_key` is `nil` on servers that shouldn’t decrypt.
 
 This uses X25519 for key exchange and XSalsa20 for encryption.
 
-## Key Separation
+## Key Configuration
 
-By default, the master key is used to generate unique keys for each column. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column name are both used in this process. If you need to rename a table with encrypted columns, or an encrypted column itself, get the key:
+Lockbox supports a few different ways to set keys for database fields and files.
+
+1. Master key
+2. Per field/uploader
+3. Per record
+
+### Master Key
+
+By default, the master key is used to generate unique keys for each field/uploader. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column/uploader name are both used in this process. If you need to rename a table with encrypted columns/uploaders, or an encrypted column itself, get the key:
 
 ```ruby
 Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
@@ -779,21 +787,35 @@ class User < ApplicationRecord
 end
 ```
 
-## Per-Record Keys
+### Per Field/Uploader
 
-To specify a key for each record, use a symbol
+To set a key for a field/uploader, use a string:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key: :some_method
+  encrypts :email, key: ENV["USER_EMAIL_ENCRYPTION_KEY"]
 end
 ```
 
-Or a proc
+Or a proc:
 
 ```ruby
 class User < ApplicationRecord
   encrypts :email, key: -> { code }
+end
+```
+
+### Per Record
+
+To use a different key for each record, use a symbol:
+
+```ruby
+class User < ApplicationRecord
+  encrypts :email, key: :some_method
+
+  def some_method
+    # code to get key
+  end
 end
 ```
 
