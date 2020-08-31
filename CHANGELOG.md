@@ -1,5 +1,6 @@
 ## 0.4.8 (unreleased)
 
+- Added `key_table` and `key_attribute` options
 - Fixed error when Active Support partially loaded
 
 ## 0.4.7 (2020-08-18)

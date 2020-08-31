@@ -57,12 +57,15 @@ class Admin
 
   field :name, type: String
   field :email_ciphertext, type: String
+  field :email_address_ciphertext, type: String
 
   encrypts :email, key: :record_key
 
   def record_key
     "1"*64
   end
+
+  encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext"
 end
 
 class Agent

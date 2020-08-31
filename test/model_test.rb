@@ -550,6 +550,12 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(admin.email_ciphertext)
   end
 
+  def test_key_table_key_attribute
+    email = "test@example.org"
+    admin = Admin.create!(email_address: email)
+    assert_equal email, User.decrypt_email_ciphertext(admin.email_address_ciphertext)
+  end
+
   private
 
   def assert_no_plaintext_attributes

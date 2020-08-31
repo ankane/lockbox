@@ -16,7 +16,13 @@ module Lockbox
       end
 
       unless options[:key] || options[:encryption_key] || options[:decryption_key]
-        options[:key] = Lockbox.attribute_key(table: table, attribute: attribute, master_key: options.delete(:master_key), encode: false)
+        options[:key] =
+          Lockbox.attribute_key(
+            table: options.delete(:key_table) || table,
+            attribute: options.delete(:key_attribute) || attribute,
+            master_key: options.delete(:master_key),
+            encode: false
+          )
       end
 
       if options[:previous_versions].is_a?(Array)

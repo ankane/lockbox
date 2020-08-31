@@ -98,6 +98,7 @@ ActiveRecord::Schema.define do
   create_table :admins do |t|
     t.text :name
     t.text :email_ciphertext
+    t.text :email_address_ciphertext
   end
 
   create_table :agents do |t|
