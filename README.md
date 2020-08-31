@@ -2,11 +2,9 @@
 
 :package: Modern encryption for Rails
 
-- Uses state-of-the-art algorithms
 - Works with database fields, files, and strings
+- Maximizes compatibility with existing code and libraries
 - Makes migrating existing data and key rotation easy
-
-Lockbox aims to make encryption as friendly and intuitive as possible. Encrypted fields and files behave just like unencrypted ones for maximum compatibility with 3rd party libraries and existing code.
 
 Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [how to secure emails with Devise](https://ankane.org/securing-user-emails-lockbox), and [how to secure sensitive data in Rails](https://ankane.org/sensitive-data-rails).
 
