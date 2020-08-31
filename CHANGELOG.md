@@ -1,3 +1,7 @@
+## 0.4.9 (unreleased)
+
+- Added `key_table` and `key_attribute` options to `previous_versions`
+
 ## 0.4.8 (2020-08-30)
 
 - Added `key_table` and `key_attribute` options

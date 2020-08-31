@@ -29,7 +29,16 @@ module Lockbox
         options[:previous_versions] = options[:previous_versions].dup
         options[:previous_versions].each_with_index do |version, i|
           if !(version[:key] || version[:encryption_key] || version[:decryption_key]) && version[:master_key]
-            options[:previous_versions][i] = version.merge(key: Lockbox.attribute_key(table: table, attribute: attribute, master_key: version.delete(:master_key), encode: false))
+            # could also use key_table and key_attribute from options
+            # when specified, but keep simple for now
+            key =
+              Lockbox.attribute_key(
+                table: version.delete(:key_table) || table,
+                attribute: version.delete(:key_attribute) || attribute,
+                master_key: version.delete(:master_key),
+                encode: false
+              )
+            options[:previous_versions][i] = version.merge(key: key)
           end
         end
       end
