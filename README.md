@@ -773,13 +773,13 @@ Lockbox supports a few different ways to set keys for database fields and files.
 
 ### Master Key
 
-By default, the master key is used to generate unique keys for each field/uploader. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column/uploader name are both used in this process. If you need to rename a table with encrypted columns/uploaders, or an encrypted column itself, get the key:
+By default, the master key is used to generate unique keys for each field/uploader. This technique comes from [CipherSweet](https://ciphersweet.paragonie.com/internals/key-hierarchy). The table name and column/uploader name are both used in this process. You can get an individual key with:
 
 ```ruby
 Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
 ```
 
-And set it directly before renaming:
+To rename a table with encrypted columns/uploaders, or an encrypted column itself, get the key and set it directly before renaming:
 
 ```ruby
 class User < ApplicationRecord
