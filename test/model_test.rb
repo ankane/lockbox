@@ -566,7 +566,7 @@ class ModelTest < Minitest::Test
     error = assert_raises do
       Admin.encrypts :personal_email, encrypted_attribute: "encrypted_email"
     end
-    assert_equal "Multiple attributes with same encrypted attribute: encrypted_email", error.message
+    assert_equal "Multiple encrypted attributes use the same column: encrypted_email", error.message
   end
 
   # uses key from encrypted attribute

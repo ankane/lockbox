@@ -173,7 +173,7 @@ module Lockbox
           end
 
           raise "Duplicate encrypted attribute: #{original_name}" if lockbox_attributes[original_name]
-          raise "Multiple attributes with same encrypted attribute: #{encrypted_attribute}" if lockbox_attributes.any? { |_, v| v[:encrypted_attribute] == encrypted_attribute }
+          raise "Multiple encrypted attributes use the same column: #{encrypted_attribute}" if lockbox_attributes.any? { |_, v| v[:encrypted_attribute] == encrypted_attribute }
           @lockbox_attributes[original_name] = options
 
           if activerecord
