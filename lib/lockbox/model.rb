@@ -32,11 +32,15 @@ module Lockbox
 
       raise ArgumentError, "Cannot use key_attribute with multiple attributes" if options[:key_attribute] && attributes.size > 1
 
-      attributes.each do |name|
-        # add default options
-        encrypted_attribute = "#{name}_ciphertext"
+      original_options = options.dup
 
-        options = options.dup
+      attributes.each do |name|
+        # per attribute options
+        # TODO use a different name
+        options = original_options.dup
+
+        # add default options
+        encrypted_attribute = options.delete(:encrypted_attribute) || "#{name}_ciphertext"
 
         # migrating
         original_name = name.to_sym
@@ -169,6 +173,7 @@ module Lockbox
           end
 
           raise "Duplicate encrypted attribute: #{original_name}" if lockbox_attributes[original_name]
+          raise "Multiple attributes with same encrypted attribute: #{encrypted_attribute}" if lockbox_attributes.any? { |_, v| v[:encrypted_attribute] == encrypted_attribute }
           @lockbox_attributes[original_name] = options
 
           if activerecord

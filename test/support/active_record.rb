@@ -116,6 +116,7 @@ class Admin < ActiveRecord::Base
   end
 
   encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext"
+  encrypts :work_email, encrypted_attribute: "encrypted_email"
 end
 
 class Agent < ActiveRecord::Base

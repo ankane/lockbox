@@ -99,6 +99,7 @@ ActiveRecord::Schema.define do
     t.text :name
     t.text :email_ciphertext
     t.text :email_address_ciphertext
+    t.text :encrypted_email
   end
 
   create_table :agents do |t|

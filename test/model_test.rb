@@ -556,6 +556,28 @@ class ModelTest < Minitest::Test
     assert_equal email, User.decrypt_email_ciphertext(admin.email_address_ciphertext)
   end
 
+  def test_encrypted_attribute
+    email = "test@example.org"
+    admin = Admin.create!(work_email: email)
+    assert admin.encrypted_email
+  end
+
+  def test_encrypted_attribute_duplicate
+    error = assert_raises do
+      Admin.encrypts :personal_email, encrypted_attribute: "encrypted_email"
+    end
+    assert_equal "Multiple attributes with same encrypted attribute: encrypted_email", error.message
+  end
+
+  # uses key from encrypted attribute
+  def test_encrypted_attribute_key
+    email = "test@example.org"
+    admin = Admin.create!(work_email: email)
+    key = Lockbox.attribute_key(table: "admins", attribute: "encrypted_email")
+    box = Lockbox.new(key: key, encode: true)
+    assert_equal email, box.decrypt(admin.encrypted_email)
+  end
+
   # TODO raise ArgumentError in 0.5.0
   def test_encrypts_no_attributes
     assert_output(nil, /No attributes specified/) do

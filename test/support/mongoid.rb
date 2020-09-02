@@ -58,6 +58,7 @@ class Admin
   field :name, type: String
   field :email_ciphertext, type: String
   field :email_address_ciphertext, type: String
+  field :encrypted_email, type: String
 
   encrypts :email, key: :record_key
 
@@ -66,6 +67,7 @@ class Admin
   end
 
   encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext"
+  encrypts :work_email, encrypted_attribute: "encrypted_email"
 end
 
 class Agent
