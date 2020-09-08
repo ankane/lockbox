@@ -48,6 +48,20 @@ class LockboxTest < Minitest::Test
     assert_equal "can't convert Integer to String", error.message
   end
 
+  def test_encrypt_empty_string
+    lockbox = Lockbox.new(key: random_key)
+    error = assert_raises(ArgumentError) do
+      lockbox.encrypt("")
+    end
+    assert_equal "data must not be empty", error.message
+  end
+
+  def test_encrypt_empty_string_xsalsa20
+    lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
+    ciphertext = lockbox.encrypt("")
+    assert_equal "", lockbox.decrypt(ciphertext)
+  end
+
   def test_default_algorithm
     key = random_key
     encrypt_box = Lockbox.new(key: key)
