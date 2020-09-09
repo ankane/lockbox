@@ -51,12 +51,14 @@ class LockboxTest < Minitest::Test
   def test_encrypt_empty_string
     lockbox = Lockbox.new(key: random_key)
     ciphertext = lockbox.encrypt("")
+    assert_equal 12 + 16, ciphertext.bytesize
     assert_equal "", lockbox.decrypt(ciphertext)
   end
 
   def test_encrypt_empty_string_xsalsa20
     lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
     ciphertext = lockbox.encrypt("")
+    assert_equal 24 + 16, ciphertext.bytesize
     assert_equal "", lockbox.decrypt(ciphertext)
   end
 
