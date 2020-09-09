@@ -33,6 +33,26 @@ class ActiveStorageTest < Minitest::Test
     refute_equal content, user.avatar.blob.download
   end
 
+  def test_encrypt_blank_one
+    user = User.create!(avatar: attachment(""))
+    assert_equal "", user.avatar.download
+    refute_equal "", user.avatar.blob.download
+
+    user = User.last
+    assert_equal "", user.avatar.download
+    refute_equal "", user.avatar.blob.download
+  end
+
+  def test_encrypt_blank_uploaded_file
+    user = User.create!(avatar: uploaded_file(""))
+    assert_equal "", user.avatar.download
+    refute_equal "", user.avatar.blob.download
+
+    user = User.last
+    assert_equal "", user.avatar.download
+    refute_equal "", user.avatar.blob.download
+  end
+
   def test_encrypt_blob
     user = User.create!(avatar: attachment)
 
@@ -247,6 +267,15 @@ class ActiveStorageTest < Minitest::Test
     end
   end
 
+  def test_open_blank
+    skip if ActiveStorage::VERSION::MAJOR < 6
+
+    user = User.create!(avatar: attachment(""))
+    user.avatar.open do |f|
+      assert_equal "", f.read
+    end
+  end
+
   def test_metadata
     user = User.create!
 
@@ -403,7 +432,8 @@ class ActiveStorageTest < Minitest::Test
     contents.map { |c| attachment(c) }
   end
 
-  def uploaded_file
+  def uploaded_file(content = nil)
+    content ||= self.content
     file = Tempfile.new
     file.write(content)
     file.rewind
