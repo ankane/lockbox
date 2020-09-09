@@ -270,8 +270,7 @@ module Lockbox
           end
 
           define_method("#{name}?") do
-            send(name) # writes attribute when not already set
-            super()
+            send(name).present?
           end
 
           define_method("#{name}=") do |message|

@@ -342,6 +342,7 @@ class ModelTest < Minitest::Test
     user = User.create!(name: "Test", email: "test@example.org")
     assert user.name?
     assert user.email?
+
     user = User.last
     assert user.name?
     assert user.email?
@@ -349,6 +350,10 @@ class ModelTest < Minitest::Test
     user2 = User.create!(name: "", email: "")
     assert !user2.name?
     assert !user2.email?
+
+    user3 = User.create!(name: nil, email: nil)
+    assert !user3.name?
+    assert !user3.email?
   end
 
   def test_hybrid
