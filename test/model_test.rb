@@ -326,7 +326,16 @@ class ModelTest < Minitest::Test
   def test_empty_string
     user = User.create!(email: "test@example.org")
     user.email = ""
-    assert_equal "", user.email_ciphertext
+    refute_equal "", user.email_ciphertext
+    user.save!
+
+    user = User.last
+    assert_equal "", user.email
+  end
+
+  def test_empty_string_decrypts
+    user = User.create!(email_ciphertext: "")
+    assert_equal "", user.email
   end
 
   def test_attribute_present

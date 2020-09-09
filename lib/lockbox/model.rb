@@ -270,7 +270,8 @@ module Lockbox
           end
 
           define_method("#{name}?") do
-            send("#{encrypted_attribute}?")
+            send(name) # writes attribute when not already set
+            super()
           end
 
           define_method("#{name}=") do |message|
@@ -386,7 +387,7 @@ module Lockbox
               end
             end
 
-            if message.nil? || (message == "" && !options[:padding])
+            if message.nil?
               message
             else
               Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
