@@ -50,10 +50,8 @@ class LockboxTest < Minitest::Test
 
   def test_encrypt_empty_string
     lockbox = Lockbox.new(key: random_key)
-    error = assert_raises(ArgumentError) do
-      lockbox.encrypt("")
-    end
-    assert_equal "data must not be empty", error.message
+    ciphertext = lockbox.encrypt("")
+    assert_equal "", lockbox.decrypt(ciphertext)
   end
 
   def test_encrypt_empty_string_xsalsa20
