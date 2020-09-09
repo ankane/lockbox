@@ -333,7 +333,7 @@ class ModelTest < Minitest::Test
     assert_equal "", user.email
   end
 
-  def test_empty_string_decrypts
+  def test_empty_string_legacy
     user = User.create!(email_ciphertext: "")
     assert_equal "", user.email
   end
