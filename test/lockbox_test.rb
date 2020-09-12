@@ -48,11 +48,17 @@ class LockboxTest < Minitest::Test
     assert_equal "can't convert Integer to String", error.message
   end
 
-  def test_encrypt_empty_string
+  def test_encrypt_empty_string_aes_gcm
     lockbox = Lockbox.new(key: random_key)
     ciphertext = lockbox.encrypt("")
     assert_equal 12 + 16, ciphertext.bytesize
     assert_equal "", lockbox.decrypt(ciphertext)
+  end
+
+  def test_encrypt_empty_string_aes_gcm_low_level
+    aes_gcm = Lockbox::AES_GCM.new("\x0".b * 32)
+    ciphertext = aes_gcm.encrypt("\x0".b * 12, "", nil)
+    assert_equal "530f8afbc74536b9a963b4f1c4cb738b", Lockbox.to_hex(ciphertext)
   end
 
   def test_encrypt_empty_string_xsalsa20
