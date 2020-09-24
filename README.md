@@ -109,6 +109,7 @@ class User < ApplicationRecord
   encrypts :active, type: :boolean
   encrypts :salary, type: :integer
   encrypts :latitude, type: :float
+  encrypts :longitude, type: :decimal # [master]
   encrypts :video, type: :binary
   encrypts :properties, type: :json
   encrypts :settings, type: :hash

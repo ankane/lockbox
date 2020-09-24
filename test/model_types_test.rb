@@ -184,6 +184,11 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :latitude, Float::NAN, expected: Float::NAN, format: [Float::NAN].pack("G")
   end
 
+  def test_type_decimal
+    longitude = BigDecimal("123456789.123456789123456789")
+    assert_attribute :longitude, longitude, format: "123456789.123456789123456789"
+  end
+
   def test_type_binary
     video = SecureRandom.random_bytes(512)
     assert_attribute :video, video, format: video
@@ -440,8 +445,8 @@ class ModelTypesTest < Minitest::Test
     end
 
     user = User.last
-    # SQLite does not support NaN
-    assert_equal expected, user.send(attribute) unless expected.try(:nan?) && !ENV["ADAPTER"]
+    # SQLite does not support NaN, and only stores 15 digits for decimal columns
+    assert_equal expected, user.send(attribute) unless (expected.try(:nan?) || expected.is_a?(BigDecimal)) && !ENV["ADAPTER"]
     assert_equal expected, user.send(attribute2)
 
     # encoding

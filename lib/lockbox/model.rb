@@ -19,10 +19,12 @@ module Lockbox
       #   options[:type] = :integer
       # when Float
       #   options[:type] = :float
+      # when BigDecimal
+      #   options[:type] = :decimal
       # end
 
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
-      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash, :array].include?(options[:type])
+      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :decimal, :binary, :json, :hash, :array].include?(options[:type])
 
       activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
       raise ArgumentError, "Type not supported yet with Mongoid" if options[:type] && !activerecord
@@ -376,6 +378,9 @@ module Lockbox
                 message = ActiveRecord::Type::Float.new.serialize(message)
                 # double precision, big endian
                 message = [message].pack("G") unless message.nil?
+              when :decimal
+                message = ActiveRecord::Type::Decimal.new.serialize(message)
+                message = message.to_s("F") unless message.nil?
               when :string, :binary
                 # do nothing
                 # encrypt will convert to binary
@@ -417,6 +422,8 @@ module Lockbox
                 message = ActiveRecord::Type::Integer.new(limit: 8).deserialize(message.unpack("q>").first)
               when :float
                 message = ActiveRecord::Type::Float.new.deserialize(message.unpack("G").first)
+              when :decimal
+                message = ActiveRecord::Type::Decimal.new.deserialize(message)
               when :string
                 message.force_encoding(Encoding::UTF_8)
               when :binary

@@ -58,6 +58,8 @@ ActiveRecord::Schema.define do
     t.text :sign_in_count2_ciphertext
     t.float :latitude
     t.text :latitude2_ciphertext
+    t.decimal :longitude
+    t.text :longitude2_ciphertext
     t.binary :video
     t.text :video2_ciphertext
     t.column :data, :json

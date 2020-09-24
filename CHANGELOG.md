@@ -3,6 +3,7 @@
 - Added `key_table` and `key_attribute` options to `previous_versions`
 - Added `encrypted_attribute` option
 - Added support for encrypting empty string
+- Added support for `decimal` type
 
 ## 0.4.8 (2020-08-30)
 
