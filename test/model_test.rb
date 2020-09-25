@@ -252,9 +252,21 @@ class ModelTest < Minitest::Test
 
   def test_inspect
     user = User.create!(email: "test@example.org")
+    refute_includes user.inspect, "email"
+  end
+
+  def test_serializable_hash
+    user = User.create!(email: "test@example.org")
     assert_nil user.serializable_hash["email"]
     assert_nil user.serializable_hash["email_ciphertext"]
-    refute_includes user.inspect, "email"
+  end
+
+  def test_to_json
+    user = User.create!(email: "test@example.org")
+    assert_nil user.as_json["email"]
+    assert_nil user.as_json["email_ciphertext"]
+    refute_includes user.to_json, "email"
+    assert "test@example.org", user.as_json(methods: :email)
   end
 
   def test_reload
