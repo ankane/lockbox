@@ -86,6 +86,11 @@ module Lockbox
                 serializable_hash.map do |k,v|
                   "#{k}: #{respond_to?(:attribute_for_inspect) ? attribute_for_inspect(k) : v.inspect}"
                 end
+
+              self.class.lockbox_attributes.map do |_, lockbox_attribute|
+                inspection << "#{lockbox_attribute[:attribute]}: [FILTERED]" if has_attribute?(lockbox_attribute[:encrypted_attribute])
+              end
+
               "#<#{self.class} #{inspection.join(", ")}>"
             end
 
