@@ -255,6 +255,8 @@ class ModelTest < Minitest::Test
     assert_includes user.inspect, "email: [FILTERED]"
     refute_includes user.inspect, "test@example.org"
 
+    return if mongoid?
+
     user = User.select(:id).last
     refute_includes user.inspect, "email"
     refute_includes user.inspect, "test@example.org"
