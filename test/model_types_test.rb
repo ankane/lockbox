@@ -212,6 +212,7 @@ class ModelTypesTest < Minitest::Test
   def test_type_decimal_infinity
     skip if mysql?
     assert_attribute :longitude, BigDecimal("Infinity"), expected: BigDecimal("Infinity"), format: "Infinity"
+    assert_attribute :longitude, BigDecimal("+Infinity"), expected: BigDecimal("Infinity"), format: "Infinity"
     assert_attribute :longitude, Float::INFINITY, expected: BigDecimal("Infinity"), format: "Infinity"
     assert_attribute :longitude, BigDecimal("-Infinity"), expected: BigDecimal("-Infinity"), format: "-Infinity"
     assert_attribute :longitude, -Float::INFINITY, expected: BigDecimal("-Infinity"), format: "-Infinity"
