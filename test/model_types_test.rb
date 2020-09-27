@@ -189,6 +189,21 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :longitude, longitude, format: "123456789.123456789123456789"
   end
 
+  def test_type_decimal_integer
+    longitude = BigDecimal("123")
+    assert_attribute :longitude, longitude, format: "123.0"
+  end
+
+  def test_type_decimal_trailing_zeros
+    longitude = BigDecimal("123.00000")
+    assert_attribute :longitude, longitude, format: "123.0"
+  end
+
+  def test_type_decimal_bytesize
+    assert_bytesize :longitude, 0.1, 0.2, size: 3
+    assert_bytesize :longitude, 0.11, 0.22, size: 4
+  end
+
   def test_type_binary
     video = SecureRandom.random_bytes(512)
     assert_attribute :video, video, format: video
