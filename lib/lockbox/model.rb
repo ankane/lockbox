@@ -381,6 +381,8 @@ module Lockbox
               when :decimal
                 message = ActiveRecord::Type::Decimal.new.serialize(message)
                 unless message.nil?
+                  # Postgres stores 4 decimal digits in 2 bytes
+                  # but just convert to string for simplicity
                   if ActiveRecord::VERSION::MAJOR >= 6
                     message = message.to_s("F")
                   else
