@@ -453,8 +453,10 @@ class ModelTypesTest < Minitest::Test
     assert_nil user.send(encrypted_attribute) if expected.nil?
 
     # class - SQLite does not support NaN
-    assert_equal expected.class, user.send(attribute).class unless expected.try(:nan?)
-    assert_equal expected.class, user.send(attribute2).class
+    unless ActiveRecord::VERSION::STRING.to_f < 5.1 && expected.is_a?(ActiveSupport::TimeWithZone)
+      assert_equal expected.class, user.send(attribute).class unless expected.try(:nan?)
+      assert_equal expected.class, user.send(attribute2).class
+    end
 
     # encoding
     if expected.is_a?(String)
@@ -474,8 +476,10 @@ class ModelTypesTest < Minitest::Test
     assert_equal expected, user.send(attribute2)
 
     # class - SQLite does not support NaN
-    assert_equal expected.class, user.send(attribute).class unless expected.try(:nan?)
-    assert_equal expected.class, user.send(attribute2).class
+    unless ActiveRecord::VERSION::STRING.to_f < 5.1 && expected.is_a?(ActiveSupport::TimeWithZone)
+      assert_equal expected.class, user.send(attribute).class unless expected.try(:nan?)
+      assert_equal expected.class, user.send(attribute2).class
+    end
 
     # encoding
     if expected.is_a?(String)
