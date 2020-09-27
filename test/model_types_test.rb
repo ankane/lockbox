@@ -204,6 +204,11 @@ class ModelTypesTest < Minitest::Test
     assert_bytesize :longitude, 0.11, 0.22, size: 4
   end
 
+  def test_type_decimal_invalid
+    assert_attribute :longitude, "invalid", expected: 0.0
+    assert_attribute :longitude, "1.2invalid", expected: 1.2
+  end
+
   def test_type_binary
     video = SecureRandom.random_bytes(512)
     assert_attribute :video, video, format: video
