@@ -209,6 +209,20 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :longitude, "1.2invalid", expected: BigDecimal("1.2")
   end
 
+  def test_type_decimal_infinity
+    skip if mysql?
+    assert_attribute :longitude, BigDecimal("Infinity"), expected: BigDecimal("Infinity"), format: "Infinity"
+    assert_attribute :longitude, Float::INFINITY, expected: BigDecimal("Infinity"), format: "Infinity"
+    assert_attribute :longitude, BigDecimal("-Infinity"), expected: BigDecimal("-Infinity"), format: "-Infinity"
+    assert_attribute :longitude, -Float::INFINITY, expected: BigDecimal("-Infinity"), format: "-Infinity"
+  end
+
+  def test_type_decimal_nan
+    skip if mysql?
+    assert_attribute :longitude, BigDecimal("NaN"), expected: BigDecimal("NaN"), format: "NaN"
+    assert_attribute :longitude, Float::NAN, expected: BigDecimal("NaN"), format: "NaN"
+  end
+
   def test_type_binary
     video = SecureRandom.random_bytes(512)
     assert_attribute :video, video, format: video
