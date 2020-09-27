@@ -380,7 +380,13 @@ module Lockbox
                 message = [message].pack("G") unless message.nil?
               when :decimal
                 message = ActiveRecord::Type::Decimal.new.serialize(message)
-                message = message.to_s("F") unless message.nil?
+                unless message.nil?
+                  if ActiveRecord::VERSION::MAJOR >= 6
+                    message = message.to_s("F")
+                  else
+                    message = message.to_s
+                  end
+                end
               when :string, :binary
                 # do nothing
                 # encrypt will convert to binary
