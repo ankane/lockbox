@@ -85,7 +85,7 @@ class ModelTypesTest < Minitest::Test
     skip if mysql?
 
     opens_at = Time.current.round(6).utc.change(year: 2000, month: 1, day: 1)
-    assert_attribute :opens_at, opens_at, format: opens_at.utc.strftime("%H:%M:%S.%N")
+    assert_attribute :opens_at, opens_at, format: opens_at.utc.strftime("%H:%M:%S.%N"), expected: opens_at.in_time_zone("Etc/UTC")
   end
 
   def test_type_time_bytesize
@@ -205,8 +205,8 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_decimal_invalid
-    assert_attribute :longitude, "invalid", expected: 0.0
-    assert_attribute :longitude, "1.2invalid", expected: 1.2
+    assert_attribute :longitude, "invalid", expected: BigDecimal("0.0")
+    assert_attribute :longitude, "1.2invalid", expected: BigDecimal("1.2")
   end
 
   def test_type_binary
@@ -421,7 +421,7 @@ class ModelTypesTest < Minitest::Test
 
   def test_store
     credentials = {a: 1, b: "hi"}.as_json
-    assert_attribute :credentials, credentials, format: credentials.to_json
+    assert_attribute :credentials, credentials, format: credentials.to_json, expected: ActiveSupport::HashWithIndifferentAccess.new(credentials)
     assert_attribute :username, "hello", check_nil: false
   end
 
@@ -452,6 +452,10 @@ class ModelTypesTest < Minitest::Test
     assert_equal expected, user.send(attribute2)
     assert_nil user.send(encrypted_attribute) if expected.nil?
 
+    # class - SQLite does not support NaN
+    assert_equal expected.class, user.send(attribute).class unless expected.try(:nan?)
+    assert_equal expected.class, user.send(attribute2).class
+
     # encoding
     if expected.is_a?(String)
       assert_equal expected.encoding, user.send(attribute).encoding
@@ -468,6 +472,10 @@ class ModelTypesTest < Minitest::Test
     # SQLite does not support NaN, and only stores 15 digits for decimal columns
     assert_equal expected, user.send(attribute) unless (expected.try(:nan?) || expected.is_a?(BigDecimal)) && !ENV["ADAPTER"]
     assert_equal expected, user.send(attribute2)
+
+    # class - SQLite does not support NaN
+    assert_equal expected.class, user.send(attribute).class unless expected.try(:nan?)
+    assert_equal expected.class, user.send(attribute2).class
 
     # encoding
     if expected.is_a?(String)
