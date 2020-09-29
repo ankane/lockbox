@@ -273,6 +273,7 @@ class ModelTest < Minitest::Test
     assert_nil user.as_json["email"]
     assert_nil user.as_json["email_ciphertext"]
     refute_includes user.to_json, "email"
+    refute_includes user.to_json, "test@example.org"
     assert "test@example.org", user.as_json(methods: :email)
   end
 
