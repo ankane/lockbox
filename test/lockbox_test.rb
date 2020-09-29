@@ -61,6 +61,12 @@ class LockboxTest < Minitest::Test
     assert_equal "530f8afbc74536b9a963b4f1c4cb738b", Lockbox.to_hex(ciphertext)
   end
 
+  def test_encrypt_empty_string_aes_gcm_low_level_different_nonce
+    aes_gcm = Lockbox::AES_GCM.new("\x0".b * 32)
+    ciphertext = aes_gcm.encrypt("\xff".b * 12, "", nil)
+    assert_equal "51d37f94ccb639299b7ac25fe0bfd765", Lockbox.to_hex(ciphertext)
+  end
+
   def test_encrypt_empty_string_xsalsa20
     lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
     ciphertext = lockbox.encrypt("")
