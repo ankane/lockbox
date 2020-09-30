@@ -4,15 +4,7 @@ module Lockbox
       options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type)
       options[:encode] = false unless options.key?(:encode)
       options.each do |k, v|
-        if v.respond_to?(:call)
-          # context not present for pluck
-          # still possible to use if not dependent on context
-          options[k] = context ? context.instance_exec(&v) : v.call
-        elsif v.is_a?(Symbol)
-          # context not present for pluck
-          raise Error, "Not available since :#{k} depends on record" unless context
-          options[k] = context.send(v)
-        end
+        options[k] = value_in_context(context, k, v)
       end
 
       unless options[:key] || options[:encryption_key] || options[:decryption_key]
@@ -41,10 +33,27 @@ module Lockbox
               )
             options[:previous_versions][i] = version.merge(key: key)
           end
+          options[:previous_versions][i].each do |k, v|
+            options[:previous_versions][i][k] = value_in_context(context, k, v)
+          end
         end
       end
 
       Lockbox.new(**options)
+    end
+
+    def self.value_in_context(context, key, value)
+      if value.respond_to?(:call)
+        # context not present for pluck
+        # still possible to use if not dependent on context
+        context ? context.instance_exec(&value) : value.call
+      elsif value.is_a?(Symbol)
+        # context not present for pluck
+        raise Error, "Not available since :#{key} depends on record" unless context
+        context.send(value)
+      else
+        value
+      end
     end
 
     def self.encrypted_options(record, name)
