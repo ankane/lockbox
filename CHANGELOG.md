@@ -1,4 +1,4 @@
-## 0.4.9 (unreleased)
+## 0.4.9 (2020-10-01)
 
 - Added `key_table` and `key_attribute` options to `previous_versions`
 - Added `encrypted_attribute` option
