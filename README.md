@@ -413,6 +413,36 @@ Finally, delete the unencrypted files and drop the column for the original uploa
 
 ## Shrine
 
+#### Models
+
+For models, include the attachment as normal:
+
+```ruby
+class User < ApplicationRecord
+  include LicenseUploader::Attachment(:license)
+end
+```
+
+And encrypt in a controller (or background job, etc) with:
+
+```ruby
+license = params.require(:user).fetch(:license)
+lockbox = Lockbox.new(key: Lockbox.attribute_key(table: "users", attribute: "license"))
+user.license = lockbox.encrypt_io(license)
+```
+
+To serve encrypted files, use a controller action.
+
+```ruby
+def license
+  user = User.find(params[:id])
+  lockbox = Lockbox.new(key: Lockbox.attribute_key(table: "users", attribute: "license"))
+  send_data lockbox.decrypt(user.license.read), type: user.license.mime_type
+end
+```
+
+#### Non-Models
+
 Generate a key
 
 ```ruby
@@ -435,30 +465,6 @@ And decrypt them after reading
 
 ```ruby
 lockbox.decrypt(uploaded_file.read)
-```
-
-For models, include the attachment as normal:
-
-```ruby
-class User < ApplicationRecord
-  include LicenseUploader::Attachment(:license)
-end
-```
-
-And encrypt in a controller (or background job, etc) with:
-
-```ruby
-license = params.require(:user).fetch(:license)
-user.license = lockbox.encrypt_io(license)
-```
-
-To serve encrypted files, use a controller action.
-
-```ruby
-def license
-  user = User.find(params[:id])
-  send_data lockbox.decrypt(user.license.read), type: user.license.mime_type
-end
 ```
 
 ## Local Files
