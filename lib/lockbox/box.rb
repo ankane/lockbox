@@ -39,7 +39,8 @@ module Lockbox
       message = Lockbox.pad(message, size: @padding) if @padding
       case @algorithm
       when "hybrid"
-        raise ArgumentError, "No public key set" unless @encryption_box
+        # TODO public key -> encryption key
+        raise ArgumentError, "No public key set" unless defined?(@encryption_box)
         raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
         nonce = generate_nonce(@encryption_box)
         ciphertext = @encryption_box.encrypt(nonce, message)
@@ -58,7 +59,8 @@ module Lockbox
       message =
         case @algorithm
         when "hybrid"
-          raise ArgumentError, "No private key set" unless @decryption_box
+          # TODO private key -> decryption key
+          raise ArgumentError, "No private key set" unless defined?(@decryption_box)
           raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
           nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
           @decryption_box.decrypt(nonce, ciphertext)
