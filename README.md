@@ -415,7 +415,7 @@ Finally, delete the unencrypted files and drop the column for the original uploa
 
 #### Models
 
-For models, include the attachment as normal:
+Include the attachment as normal:
 
 ```ruby
 class User < ApplicationRecord
