@@ -480,12 +480,12 @@ class ModelTypesTest < Minitest::Test
 
   def assert_bytesize(*args, size: nil)
     sizes = bytesizes(*args)
-    assert_equal *sizes
+    assert_equal(*sizes)
     assert_equal size, sizes[0] - 12 - 16 if size
   end
 
   def refute_bytesize(*args)
-    refute_equal *bytesizes(*args)
+    refute_equal(*bytesizes(*args))
   end
 
   def bytesizes(attribute, value1, value2)

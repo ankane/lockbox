@@ -8,7 +8,7 @@ if Rails.version >= "6.0"
   Lockbox.encrypts_action_text_body
 end
 
-Combustion.initialize! *components do
+Combustion.initialize!(*components) do
   if ActiveRecord::VERSION::MAJOR < 6 && config.active_record.sqlite3.respond_to?(:represent_boolean_as_integer)
     config.active_record.sqlite3.represent_boolean_as_integer = true
   end

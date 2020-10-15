@@ -364,7 +364,7 @@ class ActiveStorageTest < Minitest::Test
   def test_migrate_one_none_attached
     Comment.destroy_all
 
-    comment = Comment.create!
+    Comment.create!
 
     with_migrating(:image) do
       Lockbox.migrate(Comment)
@@ -374,7 +374,7 @@ class ActiveStorageTest < Minitest::Test
   def test_migrate_many_none_attached
     Comment.destroy_all
 
-    comment = Comment.create!
+    Comment.create!
 
     with_migrating(:images) do
       Lockbox.migrate(Comment)
