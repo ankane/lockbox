@@ -437,7 +437,15 @@ And decrypt them after reading
 lockbox.decrypt(uploaded_file.read)
 ```
 
-For models, encrypt with:
+For models, include the attachment as normal:
+
+```ruby
+class User < ApplicationRecord
+  include LicenseUploader::Attachment(:license)
+end
+```
+
+And encrypt in a controller (or background job, etc) with:
 
 ```ruby
 license = params.require(:user).fetch(:license)
