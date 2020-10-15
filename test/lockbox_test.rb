@@ -161,6 +161,24 @@ class LockboxTest < Minitest::Test
     end
   end
 
+  def test_hybrid_no_encryption_key
+    key_pair = Lockbox.generate_key_pair
+    lockbox = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:decryption_key])
+    error = assert_raises(ArgumentError) do
+      lockbox.encrypt("it works!")
+    end
+    assert_equal "No public key set", error.message
+  end
+
+  def test_hybrid_no_decryption_key
+    key_pair = Lockbox.generate_key_pair
+    lockbox = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:encryption_key])
+    error = assert_raises(ArgumentError) do
+      lockbox.decrypt("it works!")
+    end
+    assert_equal "No private key set", error.message
+  end
+
   def test_bad_algorithm
     error = assert_raises(ArgumentError) do
       Lockbox.new(key: random_key, algorithm: "bad")
