@@ -12,5 +12,7 @@ else
   Shrine.plugin :activerecord
 end
 
+Shrine.plugin :determine_mime_type
+
 class PhotoUploader < Shrine
 end
