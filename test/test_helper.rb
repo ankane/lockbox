@@ -7,11 +7,12 @@ require "minitest/pride"
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
-require_relative "support/carrierwave"
-
 def mongoid?
   defined?(Mongoid)
 end
+
+require_relative "support/carrierwave"
+require_relative "support/shrine"
 
 if mongoid?
   require_relative "support/mongoid"

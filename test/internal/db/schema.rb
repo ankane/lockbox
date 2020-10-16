@@ -77,6 +77,7 @@ ActiveRecord::Schema.define do
     t.binary :ssn_ciphertext
     t.text :state
     t.text :state_ciphertext
+    t.text :photo_data
   end
 
   create_table :posts do |t|

@@ -79,6 +79,8 @@ class User < ActiveRecord::Base
   encrypts :state
 
   has_rich_text :content if respond_to?(:has_rich_text)
+
+  include PhotoUploader::Attachment(:photo)
 end
 
 class Post < ActiveRecord::Base

@@ -24,6 +24,9 @@ class User
   encrypts :city, padding: true
   encrypts :ssn, encode: false
   encrypts :state
+
+  include PhotoUploader::Attachment(:photo)
+  field :photo_data, type: String
 end
 
 class Guard
