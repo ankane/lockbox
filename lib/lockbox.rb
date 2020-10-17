@@ -3,10 +3,15 @@ require "base64"
 require "openssl"
 require "securerandom"
 
+# algorithms
+require "lockbox/aes_gcm"
+require "lockbox/curve25519_xsalsa20"
+require "lockbox/xchacha20"
+require "lockbox/xsalsa20"
+
 # modules
 require "lockbox/box"
 require "lockbox/calculations"
-require "lockbox/curve25519_xsalsa20"
 require "lockbox/encryptor"
 require "lockbox/key_generator"
 require "lockbox/io"
