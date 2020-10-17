@@ -15,7 +15,13 @@ class ShrineTest < Minitest::Test
 
   def test_model
     lockbox = Lockbox.new(key: Lockbox.generate_key)
+
     user = User.create!(photo: lockbox.encrypt_io(image_file))
+    data = lockbox.decrypt(user.photo.read)
+    assert_equal image_content, data
+    assert_equal "image/png", Shrine.mime_type(StringIO.new(data))
+
+    user = User.last
     data = lockbox.decrypt(user.photo.read)
     assert_equal image_content, data
     assert_equal "image/png", Shrine.mime_type(StringIO.new(data))
