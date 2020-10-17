@@ -680,12 +680,6 @@ You can also use XSalsa20, which uses an extended nonce so you don’t have to w
 brew install libsodium
 ```
 
-And add to your Gemfile:
-
-```ruby
-gem 'rbnacl'
-```
-
 Then add to your model:
 
 
@@ -758,7 +752,7 @@ Add a step to `.circleci/config.yml`:
 
 [Hybrid cryptography](https://en.wikipedia.org/wiki/Hybrid_cryptosystem) allows servers to encrypt data without being able to decrypt it.
 
-Follow the instructions above for installing Libsodium and including `rbnacl` in your Gemfile.
+Follow the instructions above for installing Libsodium.
 
 Generate a key pair with:
 
