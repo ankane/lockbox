@@ -1,19 +1,17 @@
 module Lockbox
   class Curve25519XSalsa20
     def initialize(pk, sk)
-      Utils.check_key(pk, size: self.class.public_key_bytes, name: "Public key") if pk
-      Utils.check_key(sk, size: self.class.secret_key_bytes, name: "Secret key") if sk
+      Utils.check_key(pk, size: self.class.public_key_bytes, name: "Public key")
+      Utils.check_key(sk, size: self.class.secret_key_bytes, name: "Secret key")
 
       @pk = pk
       @sk = sk
     end
 
     def encrypt(nonce, message)
-      raise "Missing public key" unless @pk
     end
 
     def decrypt(nonce, ciphertext)
-      raise "Missing secret key" unless @sk
     end
 
     def nonce_bytes
