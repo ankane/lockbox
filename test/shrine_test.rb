@@ -1,6 +1,10 @@
 require_relative "test_helper"
 
 class ShrineTest < Minitest::Test
+  def setup
+    @image_file = nil
+  end
+
   def test_works
     lockbox = Lockbox.new(key: Lockbox.generate_key)
     uploaded_file = PhotoUploader.upload(lockbox.encrypt_io(image_file), :store)
@@ -22,6 +26,6 @@ class ShrineTest < Minitest::Test
   end
 
   def image_file
-    File.open("test/support/image.png", "rb")
+    @image_file ||= File.open("test/support/image.png", "rb")
   end
 end
