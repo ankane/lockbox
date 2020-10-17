@@ -12,7 +12,6 @@ task default: :test
 task :benchmark do
   require "benchmark/ips"
   require "lockbox"
-  require "rbnacl"
 
   key = Lockbox.generate_key
   value = "secret" * 5

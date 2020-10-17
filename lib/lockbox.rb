@@ -6,6 +6,7 @@ require "securerandom"
 # modules
 require "lockbox/box"
 require "lockbox/calculations"
+require "lockbox/curve25519_xsalsa20"
 require "lockbox/encryptor"
 require "lockbox/key_generator"
 require "lockbox/io"
@@ -42,14 +43,23 @@ module Lockbox
   class PaddingError < Error; end
 
   autoload :Audit, "lockbox/audit"
+  autoload :Libsodium, "lockbox/libsodium"
 
   extend Padding
 
   class << self
-    attr_accessor :default_options
+    attr_accessor :default_options, :libsodium_lib
     attr_writer :master_key
   end
   self.default_options = {}
+  self.libsodium_lib =
+    if Gem.win_platform?
+      ["libsodium.dll", "sodium.dll"]
+    elsif RbConfig::CONFIG["host_os"] =~ /darwin/i
+      ["libsodium.dylib"]
+    else
+      ["libsodium.so", "libsodium.so.23", "libsodium.so.18"]
+    end
 
   def self.master_key
     @master_key ||= ENV["LOCKBOX_MASTER_KEY"]
@@ -68,16 +78,15 @@ module Lockbox
   end
 
   def self.generate_key_pair
-    require "rbnacl"
     # encryption and decryption servers exchange public keys
     # this produces smaller ciphertext than sealed box
-    alice = RbNaCl::PrivateKey.generate
-    bob = RbNaCl::PrivateKey.generate
+    alice = Curve25519XSalsa20.generate_key_pair
+    bob = Curve25519XSalsa20.generate_key_pair
     # alice is sending message to bob
     # use bob first in both cases to prevent keys being swappable
     {
-      encryption_key: to_hex(bob.public_key.to_bytes + alice.to_bytes),
-      decryption_key: to_hex(bob.to_bytes + alice.public_key.to_bytes)
+      encryption_key: to_hex(bob[:pk] + alice[:sk]),
+      decryption_key: to_hex(bob[:sk] + alice[:pk])
     }
   end
 
