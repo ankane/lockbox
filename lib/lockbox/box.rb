@@ -16,17 +16,14 @@ module Lockbox
         @box = AES_GCM.new(key)
       when "xchacha20"
         raise ArgumentError, "Missing key" unless key
-        require "rbnacl"
-        @box = RbNaCl::AEAD::XChaCha20Poly1305IETF.new(key)
+        @box = XChaCha20.new(key)
       when "xsalsa20"
         raise ArgumentError, "Missing key" unless key
-        require "rbnacl"
-        @box = RbNaCl::SecretBoxes::XSalsa20Poly1305.new(key)
+        @box = XSalsa20.new(key)
       when "hybrid"
         raise ArgumentError, "Missing key" unless encryption_key || decryption_key
-        require "rbnacl"
-        @encryption_box = RbNaCl::Boxes::Curve25519XSalsa20Poly1305.new(encryption_key.slice(0, 32), encryption_key.slice(32..-1)) if encryption_key
-        @decryption_box = RbNaCl::Boxes::Curve25519XSalsa20Poly1305.new(decryption_key.slice(32..-1), decryption_key.slice(0, 32)) if decryption_key
+        @encryption_box = Curve25519XSalsa20.new(encryption_key.slice(0, 32), encryption_key.slice(32..-1)) if encryption_key
+        @decryption_box = Curve25519XSalsa20.new(decryption_key.slice(32..-1), decryption_key.slice(0, 32)) if decryption_key
       else
         raise ArgumentError, "Unknown algorithm: #{algorithm}"
       end

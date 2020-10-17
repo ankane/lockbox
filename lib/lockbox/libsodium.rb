@@ -18,9 +18,13 @@ module Lockbox
       end
     end
 
+    # curve25519xsalsa20
     extern "size_t crypto_box_curve25519xsalsa20poly1305_publickeybytes(void)"
     extern "size_t crypto_box_curve25519xsalsa20poly1305_secretkeybytes(void)"
     extern "int crypto_box_curve25519xsalsa20poly1305_keypair(unsigned char *pk, unsigned char *sk)"
+    extern "size_t crypto_box_curve25519xsalsa20poly1305_noncebytes(void)"
+
+    # utils
     extern "void sodium_memzero(void * pnt, size_t len)"
   end
 end

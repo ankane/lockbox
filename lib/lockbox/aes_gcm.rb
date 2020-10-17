@@ -1,8 +1,7 @@
 module Lockbox
   class AES_GCM
     def initialize(key)
-      raise ArgumentError, "Key must be 32 bytes" unless key && key.bytesize == 32
-      raise ArgumentError, "Key must be binary" unless key.encoding == Encoding::BINARY
+      Utils.check_key(key, size: 32)
 
       @key = key
     end
