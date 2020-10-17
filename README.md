@@ -5,7 +5,7 @@
 - Works with database fields, files, and strings
 - Maximizes compatibility with existing code and libraries
 - Makes migrating existing data and key rotation easy
-- Zero dependencies and many integrations
+- Has zero dependencies and many integrations
 
 Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [how to secure emails with Devise](https://ankane.org/securing-user-emails-lockbox), and [how to secure sensitive data in Rails](https://ankane.org/sensitive-data-rails).
 
