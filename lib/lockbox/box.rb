@@ -12,7 +12,6 @@ module Lockbox
       case algorithm
       when "aes-gcm"
         raise ArgumentError, "Missing key" unless key
-        require "lockbox/aes_gcm"
         @box = AES_GCM.new(key)
       when "xchacha20"
         raise ArgumentError, "Missing key" unless key

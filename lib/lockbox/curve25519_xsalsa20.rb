@@ -9,9 +9,11 @@ module Lockbox
     end
 
     def encrypt(nonce, message)
+      ""
     end
 
     def decrypt(nonce, ciphertext)
+      ""
     end
 
     def nonce_bytes
