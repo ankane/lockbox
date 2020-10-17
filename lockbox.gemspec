@@ -3,7 +3,7 @@ require_relative "lib/lockbox/version"
 Gem::Specification.new do |spec|
   spec.name          = "lockbox"
   spec.version       = Lockbox::VERSION
-  spec.summary       = "Modern encryption for Rails"
+  spec.summary       = "Modern encryption for Ruby and Rails"
   spec.homepage      = "https://github.com/ankane/lockbox"
   spec.license       = "MIT"
 
