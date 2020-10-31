@@ -26,9 +26,9 @@ module Lockbox
       end
 
       if options[:previous_versions].is_a?(Array)
-        options[:previous_versions] = options[:previous_versions].dup
+        options[:previous_versions] = options[:previous_versions].map(&:dup)
         options[:previous_versions].each_with_index do |version, i|
-          if !(version[:key] || version[:encryption_key] || version[:decryption_key]) && version[:master_key]
+          if !(version[:key] || version[:encryption_key] || version[:decryption_key]) && (version[:master_key] || version[:key_table] || version[:key_attribute])
             # could also use key_table and key_attribute from options
             # when specified, but keep simple for now
             # also, this change isn't backward compatible

@@ -576,6 +576,14 @@ class ModelTest < Minitest::Test
     assert_equal email, User.decrypt_email_ciphertext(admin.email_address_ciphertext)
   end
 
+  def test_key_table_key_attribute_previous_versions
+    email = "test@example.org"
+    key = Lockbox.attribute_key(table: "people", attribute: "email_ciphertext")
+    box = Lockbox.new(key: key, encode: true)
+    admin = Admin.create!(email_address_ciphertext: box.encrypt(email))
+    assert_equal email, Admin.decrypt_email_address_ciphertext(admin.email_address_ciphertext)
+  end
+
   def test_encrypted_attribute
     email = "test@example.org"
     admin = Admin.create!(work_email: email)
