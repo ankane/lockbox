@@ -1,6 +1,7 @@
 module Lockbox
   class Utils
     def self.build_box(context, options, table, attribute)
+      # dup options (with except) since keys are sometimes changed or deleted
       options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type)
       options[:encode] = false unless options.key?(:encode)
       options.each do |k, v|
@@ -26,6 +27,8 @@ module Lockbox
       end
 
       if options[:previous_versions].is_a?(Array)
+        # dup previous versions array (with map) since elements are updated
+        # dup each version (with dup) since keys are sometimes deleted
         options[:previous_versions] = options[:previous_versions].map(&:dup)
         options[:previous_versions].each_with_index do |version, i|
           if !(version[:key] || version[:encryption_key] || version[:decryption_key]) && (version[:master_key] || version[:key_table] || version[:key_attribute])
