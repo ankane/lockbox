@@ -69,7 +69,7 @@ class Admin
     "1"*64
   end
 
-  encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext"
+  encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext", previous_versions: [{key_table: "people", key_attribute: "email_ciphertext"}]
   encrypts :work_email, encrypted_attribute: "encrypted_email"
 end
 
