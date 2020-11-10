@@ -670,6 +670,8 @@ This is the default algorithm. It’s:
 - an IETF standard
 - fast thanks to a [dedicated instruction set](https://en.wikipedia.org/wiki/AES_instruction_set)
 
+Lockbox uses 256-bit keys.
+
 **For users who do a lot of encryptions:** You should rotate an individual key after 2 billion encryptions to minimize the chance of a [nonce collision](https://www.cryptologie.net/article/402/is-symmetric-security-solved/), which will expose the key. Each database field and file uploader use a different key (derived from the master key) to extend this window.
 
 ### XSalsa20
