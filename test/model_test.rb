@@ -576,7 +576,24 @@ class ModelTest < Minitest::Test
     assert_equal email, User.decrypt_email_ciphertext(admin.email_address_ciphertext)
   end
 
-  def test_key_table_key_attribute_previous_versions
+  def test_previous_versions_key
+    email = "test@example.org"
+    key = User.lockbox_attributes[:email][:previous_versions][0].fetch(:key)
+    box = Lockbox.new(key: key, encode: true)
+    user = User.create!(email_ciphertext: box.encrypt(email))
+    assert_equal email, User.last.email
+  end
+
+  def test_previous_versions_master_key
+    email = "test@example.org"
+    master_key = User.lockbox_attributes[:email][:previous_versions][1].fetch(:master_key)
+    key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext", master_key: master_key)
+    box = Lockbox.new(key: key, encode: true)
+    user = User.create!(email_ciphertext: box.encrypt(email))
+    assert_equal email, User.last.email
+  end
+
+  def test_previous_versions_key_table_key_attribute
     email = "test@example.org"
     key = Lockbox.attribute_key(table: "people", attribute: "email_ciphertext")
     box = Lockbox.new(key: key, encode: true)
