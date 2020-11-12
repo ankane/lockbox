@@ -43,11 +43,10 @@ module Lockbox
       cipher.auth_data = associated_data || ""
 
       begin
-        if ciphertext.to_s.empty?
-          cipher.final
-        else
-          cipher.update(ciphertext) + cipher.final
-        end
+        message = String.new
+        message << cipher.update(ciphertext) unless ciphertext.to_s.empty?
+        message << cipher.final
+        message
       rescue OpenSSL::Cipher::CipherError
         fail_decryption
       end
