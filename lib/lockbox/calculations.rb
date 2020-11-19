@@ -3,7 +3,10 @@ module Lockbox
     def pluck(*column_names)
       return super unless model.respond_to?(:lockbox_attributes)
 
-      lockbox_columns = column_names.map.with_index { |c, i| [model.lockbox_attributes[c.to_sym], i] }.select(&:first)
+      lockbox_columns = column_names.map
+                                    .with_index { |c, i| [model.lockbox_attributes[c.to_sym], i] }
+                                    .select(&:first)
+                                    .reject { |la, _i| la.fetch(:migrating, false) }
       return super unless lockbox_columns.any?
 
       # replace column with ciphertext column

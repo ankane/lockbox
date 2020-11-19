@@ -5,6 +5,7 @@ class PluckTest < Minitest::Test
     skip if mongoid?
 
     User.delete_all
+    Robot.delete_all
   end
 
   def test_symbol
@@ -51,5 +52,27 @@ class PluckTest < Minitest::Test
       Admin.pluck(:email)
     end
     assert_equal "Not available since :key depends on record", error.message
+  end
+
+  def test_migrating
+    Robot.create!(name: "Test 1", email: "test1@example.org")
+    Robot.create!(name: "Test 2", email: "test2@example.org")
+
+    # migrated
+    assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:name)
+    assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:id, :name).map(&:last)
+    assert_equal [["Test 1", "test1@example.org"], ["Test 2", "test2@example.org"]], Robot.order(:id).pluck(:name, :email)
+
+    # half migrated
+    Robot.update_all(name_ciphertext: nil)
+    assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:name)
+    assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:id, :name).map(&:last)
+    assert_equal [["Test 1", "test1@example.org"], ["Test 2", "test2@example.org"]], Robot.order(:id).pluck(:name, :email)
+
+    # not migrated
+    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil)
+    assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:name)
+    assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:id, :name).map(&:last)
+    assert_equal [["Test 1", "test1@example.org"], ["Test 2", "test2@example.org"]], Robot.order(:id).pluck(:name, :email)
   end
 end
