@@ -27,8 +27,7 @@ module Lockbox
       activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
       raise ArgumentError, "Type not supported yet with Mongoid" if options[:type] && !activerecord
 
-      # TODO raise ArgumentError in 0.5.0
-      warn "[lockbox] WARNING: No attributes specified" if attributes.empty?
+      raise ArgumentError, "No attributes specified" if attributes.empty?
 
       raise ArgumentError, "Cannot use key_attribute with multiple attributes" if options[:key_attribute] && attributes.size > 1
 

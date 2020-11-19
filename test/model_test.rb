@@ -623,11 +623,11 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(admin.encrypted_email)
   end
 
-  # TODO raise ArgumentError in 0.5.0
   def test_encrypts_no_attributes
-    assert_output(nil, /No attributes specified/) do
+    error = assert_raises(ArgumentError) do
       Admin.encrypts
     end
+    assert_equal "No attributes specified", error.message
   end
 
   private

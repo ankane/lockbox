@@ -1,4 +1,4 @@
-## 0.4.10 (unreleased)
+## 0.5.0 (unreleased)
 
 - Fixed error with `key_table` and `key_attribute` options with `previous_versions`
 
