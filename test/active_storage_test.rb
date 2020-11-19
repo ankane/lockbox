@@ -60,9 +60,10 @@ class ActiveStorageTest < Minitest::Test
       # blobs are just attached, not (re)encrypted
       User.create!(avatar: user.avatar.blob)
     else
-      assert_raises NotImplementedError do
+      error = assert_raises(ArgumentError) do
         User.create!(avatar: user.avatar.blob)
       end
+      assert_match "Could not find or build blob: expected attachable", error.message
     end
   end
 
@@ -75,8 +76,7 @@ class ActiveStorageTest < Minitest::Test
       assert_equal "Could not find or build blob: expected attachable, got 123", error.message
     end
 
-    # TODO raise ArgumentError
-    error = assert_raises(NotImplementedError) do
+    error = assert_raises(ArgumentError) do
       User.create!(avatar: 123)
     end
     assert_equal "Could not find or build blob: expected attachable, got 123", error.message

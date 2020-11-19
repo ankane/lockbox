@@ -89,8 +89,7 @@ module Lockbox
           attachable = attachable.dup
           attachable[:io] = box.encrypt_io(io)
         else
-          # TODO raise ArgumentError
-          raise NotImplementedError, "Could not find or build blob: expected attachable, got #{attachable.inspect}"
+          raise ArgumentError, "Could not find or build blob: expected attachable, got #{attachable.inspect}"
         end
 
         # don't analyze encrypted data
