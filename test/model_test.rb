@@ -226,7 +226,7 @@ class ModelTest < Minitest::Test
     assert !user.has_attribute?("name")
     assert !user.has_attribute?(:name)
 
-    # TODO try to make virtual attribute behavior consistent in 0.5.0
+    # TODO try to make virtual attribute behavior consistent in 0.6.0
     # this may be difficult, as virtual attributes are set to self.class._default_attributes
     # which gets merged with query attributes in initialize method of active_record/core.rb
     # assert_equal ["id"], user.attributes.keys
@@ -396,7 +396,7 @@ class ModelTest < Minitest::Test
     error = assert_raises(ArgumentError) do
       agent.email
     end
-    assert_equal "No private key set", error.message
+    assert_equal "No decryption key set", error.message
   end
 
   def test_validations_valid

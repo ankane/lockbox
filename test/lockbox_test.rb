@@ -167,7 +167,7 @@ class LockboxTest < Minitest::Test
     error = assert_raises(ArgumentError) do
       lockbox.encrypt("it works!")
     end
-    assert_equal "No public key set", error.message
+    assert_equal "No encryption key set", error.message
   end
 
   def test_hybrid_no_decryption_key
@@ -176,7 +176,7 @@ class LockboxTest < Minitest::Test
     error = assert_raises(ArgumentError) do
       lockbox.decrypt("it works!")
     end
-    assert_equal "No private key set", error.message
+    assert_equal "No decryption key set", error.message
   end
 
   def test_bad_algorithm
