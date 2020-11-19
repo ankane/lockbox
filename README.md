@@ -725,6 +725,22 @@ For Ubuntu 16.04, use:
 sudo apt-get install libsodium18
 ```
 
+##### GitHub Actions
+
+For Ubuntu 20.04 and 18.04, use:
+
+```yml
+    - name: Install Libsodium
+      run: sudo apt-get install libsodium23
+```
+
+For Ubuntu 16.04, use:
+
+```yml
+    - name: Install Libsodium
+      run: sudo apt-get install libsodium18
+```
+
 ##### Travis CI
 
 On Bionic, add to `.travis.yml`:
@@ -752,8 +768,7 @@ Add a step to `.circleci/config.yml`:
 ```yml
 - run:
     name: install Libsodium
-    command: |
-      sudo apt-get install -y libsodium18
+    command: sudo apt-get install -y libsodium18
 ```
 
 ## Hybrid Cryptography
