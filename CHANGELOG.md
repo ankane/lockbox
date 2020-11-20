@@ -1,5 +1,7 @@
 ## 0.5.0 (unreleased)
 
+- Improved error messages for hybrid cryptography
+- Changed warning to error when no attributes specified
 - Fixed error with `key_table` and `key_attribute` options with `previous_versions`
 
 ## 0.4.9 (2020-10-01)
