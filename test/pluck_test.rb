@@ -55,8 +55,8 @@ class PluckTest < Minitest::Test
   end
 
   def test_migrating
-    Robot.create!(name: "Test 1", email: "test1@example.org")
-    Robot.create!(name: "Test 2", email: "test2@example.org")
+    Robot.create!(name: "Test 1")
+    Robot.create!(name: "Test 2")
 
     Robot.update_all(name_ciphertext: nil)
     assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:name)
