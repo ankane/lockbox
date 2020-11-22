@@ -2,6 +2,7 @@
 
 - Improved error messages for hybrid cryptography
 - Changed warning to error when no attributes specified
+- Fixed issue with `pluck` when migrating
 - Fixed error with `key_table` and `key_attribute` options with `previous_versions`
 
 ## 0.4.9 (2020-10-01)
