@@ -4,6 +4,7 @@ require "openssl"
 require "securerandom"
 
 # modules
+require "lockbox/aes_gcm"
 require "lockbox/box"
 require "lockbox/calculations"
 require "lockbox/encryptor"
