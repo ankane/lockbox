@@ -1,4 +1,4 @@
-## 0.5.0 (unreleased)
+## 0.5.0 (2020-11-22)
 
 - Improved error messages for hybrid cryptography
 - Changed warning to error when no attributes specified
