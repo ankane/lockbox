@@ -81,6 +81,7 @@ module Lockbox
 
             # use same approach as devise
             # TODO use filter_attributes for Active Record 6+ instead
+            # however, currently won't work with devise since it overrides inspect
             def inspect
               inspection =
                 serializable_hash.map do |k,v|
