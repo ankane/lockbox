@@ -201,7 +201,7 @@ end
 
 If tracking changes to model attributes, be sure to remove or redact virtual attributes, ciphertext attributes, and blind indexes.
 
-##### PaperTrail
+PaperTrail
 
 ```ruby
 class User < ApplicationRecord
@@ -209,7 +209,7 @@ class User < ApplicationRecord
 end
 ```
 
-##### Audited
+Audited
 
 ```ruby
 class User < ApplicationRecord
