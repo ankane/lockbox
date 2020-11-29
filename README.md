@@ -197,6 +197,26 @@ class User < ApplicationRecord
 end
 ```
 
+#### Model Changes
+
+If tracking changes to model attributes, be sure to remove or redact virtual attributes, ciphertext attributes, and blind indexes.
+
+##### PaperTrail
+
+```ruby
+class User < ApplicationRecord
+  has_paper_trail skip: [:email, :email_ciphertext, :email_bidx]
+end
+```
+
+##### Audited
+
+```ruby
+class User < ApplicationRecord
+  audited except: [:email, :email_ciphertext, :email_bidx]
+end
+```
+
 #### Decryption
 
 To decrypt data outside the model, use:
@@ -658,26 +678,6 @@ LockboxAudit.last(100)
 ```
 
 **Note:** This approach is not intended to be used in the event of a breach or insider attack, as it’s trivial for someone with access to your infrastructure to bypass.
-
-## Model Changes
-
-If tracking changes to model attributes, be sure to remove or redact virtual attributes (`email`), ciphertext attributes (`email_ciphertext`), and blind indexes (`email_bidx`).
-
-### PaperTrail
-
-```ruby
-class User < ApplicationRecord
-  has_paper_trail skip: [:email, :email_ciphertext, :email_bidx]
-end
-```
-
-### Audited
-
-```ruby
-class User < ApplicationRecord
-  audited except: [:email, :email_ciphertext, :email_bidx]
-end
-```
 
 ## Algorithms
 
