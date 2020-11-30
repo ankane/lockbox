@@ -751,14 +751,14 @@ For Ubuntu 20.04 and 18.04, use:
 
 ```yml
     - name: Install Libsodium
-      run: sudo apt-get install libsodium23
+      run: sudo apt-get update && sudo apt-get install libsodium23
 ```
 
 For Ubuntu 16.04, use:
 
 ```yml
     - name: Install Libsodium
-      run: sudo apt-get install libsodium18
+      run: sudo apt-get update && sudo apt-get install libsodium18
 ```
 
 ##### Travis CI
