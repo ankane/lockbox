@@ -199,9 +199,7 @@ end
 
 #### Model Changes
 
-If tracking changes to model attributes, always remove or redact virtual attributes. Optionally, also remove or redact ciphertext attributes and blind indexes.
-
-Ideally, libraries would take into account Active Record’s `filter_attributes` if someone wants to submit a PR to them.
+If tracking changes to model attributes, always remove or redact Lockbox’s virtual attributes. Optionally, also remove or redact ciphertext attributes and blind indexes.
 
 PaperTrail
 
@@ -226,6 +224,8 @@ class User < ApplicationRecord
   audited except: [:email, :email_ciphertext, :email_bidx]
 end
 ```
+
+Ideally, libraries would take into account Active Record’s `filter_attributes` if someone wants to submit a PR to them.
 
 #### Decryption
 
