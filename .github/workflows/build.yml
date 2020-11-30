@@ -32,5 +32,5 @@ jobs:
         bundler-cache: true
     - if: ${{ matrix.mongodb }}
       uses: ankane/setup-mongodb@v1
-    - run: sudo apt install libsodium23 poppler-utils
+    - run: sudo apt-get update && apt-get install libsodium23 poppler-utils
     - run: bundle exec rake test
