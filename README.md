@@ -199,7 +199,7 @@ end
 
 #### Model Changes
 
-If tracking changes to model attributes, always remove or redact Lockbox’s virtual attributes. Optionally, also remove or redact ciphertext attributes and blind indexes.
+If tracking changes to model attributes, always remove or redact encrypted attributes.
 
 PaperTrail
 
@@ -208,8 +208,8 @@ class User < ApplicationRecord
   # for an encrypted history (still tracks ciphertext changes)
   has_paper_trail skip: [:email]
 
-  # for no history
-  has_paper_trail skip: [:email, :email_ciphertext, :email_bidx]
+  # for no history (add blind indexes as well)
+  has_paper_trail skip: [:email, :email_ciphertext]
 end
 ```
 
@@ -220,8 +220,8 @@ class User < ApplicationRecord
   # for an encrypted history (still tracks ciphertext changes)
   audited except: [:email]
 
-  # for no history
-  audited except: [:email, :email_ciphertext, :email_bidx]
+  # for no history (add blind indexes as well)
+  audited except: [:email, :email_ciphertext]
 end
 ```
 
