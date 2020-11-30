@@ -99,7 +99,7 @@ class MigrateTest < Minitest::Test
     skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
 
     assert_includes Robot.filter_attributes, "migrated_email"
-    assert_includes Robot.filter_attributes, "email_ciphertext"
+    refute_includes Robot.filter_attributes, "email_ciphertext"
 
     # user likely wants original attribute in filter_attributes as well
     # but should already be there if it's sensitive

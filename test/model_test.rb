@@ -281,7 +281,7 @@ class ModelTest < Minitest::Test
     skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
 
     assert_includes User.filter_attributes, "email"
-    assert_includes User.filter_attributes, "email_ciphertext"
+    refute_includes User.filter_attributes, "email_ciphertext"
   end
 
   def test_reload

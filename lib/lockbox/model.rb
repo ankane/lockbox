@@ -56,7 +56,8 @@ module Lockbox
 
         class_eval do
           if activerecord && ActiveRecord::VERSION::MAJOR >= 6
-            self.filter_attributes += [options[:attribute], options[:encrypted_attribute]]
+            # only add virtual attribute
+            self.filter_attributes += [options[:attribute]]
           end
 
           @lockbox_attributes ||= {}
