@@ -199,7 +199,7 @@ end
 
 #### Model Changes
 
-If tracking changes to model attributes, always remove or redact encrypted attributes.
+If tracking changes to model attributes, be sure to remove or redact encrypted attributes.
 
 PaperTrail
 
@@ -225,7 +225,7 @@ class User < ApplicationRecord
 end
 ```
 
-Ideally, libraries would take into account Active Record’s `filter_attributes` if someone wants to submit a PR to them.
+Ideally, libraries would take into account Active Record’s `filter_attributes` if someone wants to submit PRs to them.
 
 #### Decryption
 
