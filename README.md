@@ -201,6 +201,8 @@ end
 
 If tracking changes to model attributes, be sure to remove or redact virtual attributes, ciphertext attributes, and blind indexes.
 
+Ideally, these libraries would automatically take into account Active Record’s `filter_attributes` if someone wants to submit a PR to them.
+
 PaperTrail
 
 ```ruby
