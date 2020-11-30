@@ -207,7 +207,7 @@ PaperTrail
 
 ```ruby
 class User < ApplicationRecord
-  # still tracks changes to ciphertext so you have encrypted history
+  # still tracks changes to ciphertext so you have an encrypted history
   has_paper_trail skip: [:email]
 
   # doesn't track changes
@@ -219,7 +219,7 @@ Audited
 
 ```ruby
 class User < ApplicationRecord
-  # still tracks changes to ciphertext so you have encrypted history
+  # still tracks changes to ciphertext so you have an encrypted history
   audited except: [:email]
 
   # doesn't track changes
