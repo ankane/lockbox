@@ -94,4 +94,16 @@ class MigrateTest < Minitest::Test
     # deserialization should work on migrated attributes
     assert_equal robot.properties, robot.migrated_properties
   end
+
+  def test_filter_attributes
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    assert_includes Robot.filter_attributes, "migrated_email"
+    assert_includes Robot.filter_attributes, "email_ciphertext"
+
+    # user likely wants original attribute in filter_attributes as well
+    # but should already be there if it's sensitive
+    # and the attribute isn't managed by Lockbox yet
+    refute_includes Robot.filter_attributes, "email"
+  end
 end

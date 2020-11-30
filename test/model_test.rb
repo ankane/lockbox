@@ -277,6 +277,13 @@ class ModelTest < Minitest::Test
     assert "test@example.org", user.as_json(methods: :email)
   end
 
+  def test_filter_attributes
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    assert_includes User.filter_attributes, "email"
+    assert_includes User.filter_attributes, "email_ciphertext"
+  end
+
   def test_reload
     original_email = "test@example.org"
     new_email = "new@example.org"

@@ -55,6 +55,10 @@ module Lockbox
         decrypt_method_name = "decrypt_#{encrypted_attribute}"
 
         class_eval do
+          if activerecord && ActiveRecord::VERSION::MAJOR >= 6
+            self.filter_attributes += [options[:attribute], options[:encrypted_attribute]]
+          end
+
           @lockbox_attributes ||= {}
 
           if @lockbox_attributes.empty?
