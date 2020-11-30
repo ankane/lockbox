@@ -199,7 +199,7 @@ end
 
 #### Model Changes
 
-If tracking changes to model attributes, be sure to remove or redact virtual attributes, ciphertext attributes, and blind indexes.
+If tracking changes to model attributes, always remove or redact virtual attributes. If you don’t want to track changes for an attribute, also remove or redact the ciphertext attribute and blind indexes.
 
 Ideally, libraries would take into account Active Record’s `filter_attributes` if someone wants to submit a PR to them.
 
@@ -207,6 +207,10 @@ PaperTrail
 
 ```ruby
 class User < ApplicationRecord
+  # still tracks changes to ciphertext so you have encrypted history
+  has_paper_trail skip: [:email]
+
+  # doesn't track changes
   has_paper_trail skip: [:email, :email_ciphertext, :email_bidx]
 end
 ```
@@ -215,6 +219,10 @@ Audited
 
 ```ruby
 class User < ApplicationRecord
+  # still tracks changes to ciphertext so you have encrypted history
+  audited except: [:email]
+
+  # doesn't track changes
   audited except: [:email, :email_ciphertext, :email_bidx]
 end
 ```
