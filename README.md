@@ -225,8 +225,6 @@ class User < ApplicationRecord
 end
 ```
 
-Ideally, libraries would take into account Active Record’s `filter_attributes` if someone wants to submit PRs to them.
-
 #### Decryption
 
 To decrypt data outside the model, use:
