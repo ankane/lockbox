@@ -250,6 +250,25 @@ class ModelTest < Minitest::Test
     end
   end
 
+  def test_keyed_getter
+    user = User.create!(email: "test@example.org")
+    assert_equal "test@example.org", user[:email]
+
+    user = User.last
+    # TODO fix
+    # assert_equal "test@example.org", user[:email]
+  end
+
+  def test_keyed_setter
+    user = User.create!
+    user[:email] = "test@example.org"
+    user.save!
+
+    user = User.last
+    # TODO fix
+    # assert_equal "test@example.org", user.email
+  end
+
   def test_inspect
     user = User.create!(email: "test@example.org")
     assert_includes user.inspect, "email: [FILTERED]"
