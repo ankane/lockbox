@@ -251,20 +251,24 @@ class ModelTest < Minitest::Test
   end
 
   def test_keyed_getter
-    user = User.create!(email: "test@example.org")
+    user = User.create!(name: "Test", email: "test@example.org")
+    assert_equal "Test", user[:name]
     assert_equal "test@example.org", user[:email]
 
     user = User.last
+    assert_equal "Test", user[:name]
     # TODO fix
     # assert_equal "test@example.org", user[:email]
   end
 
   def test_keyed_setter
     user = User.create!
+    user[:name] = "Test"
     user[:email] = "test@example.org"
     user.save!
 
     user = User.last
+    assert_equal "Test", user.name
     # TODO fix
     # assert_equal "test@example.org", user.email
   end
