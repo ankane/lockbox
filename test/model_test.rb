@@ -251,6 +251,8 @@ class ModelTest < Minitest::Test
   end
 
   def test_keyed_getter
+    skip if mongoid?
+
     user = User.create!(name: "Test", email: "test@example.org")
     assert_equal "Test", user[:name]
     assert_equal "test@example.org", user[:email]
@@ -262,6 +264,8 @@ class ModelTest < Minitest::Test
   end
 
   def test_keyed_setter
+    skip if mongoid?
+
     user = User.create!
     user[:name] = "Test"
     user[:email] = "test@example.org"
