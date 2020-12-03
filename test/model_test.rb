@@ -294,6 +294,16 @@ class ModelTest < Minitest::Test
     refute_includes user.inspect, "test@example.org"
   end
 
+  def test_inspect_select_ciphertext
+    return if mongoid?
+
+    User.create!(email: "test@example.org")
+    user = User.select(:id, :email_ciphertext).last
+    assert_includes user.inspect, "email: [FILTERED]"
+    refute_includes user.inspect, "email_ciphertext"
+    refute_includes user.inspect, "test@example.org"
+  end
+
   def test_inspect_filter_attributes
     skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
 
