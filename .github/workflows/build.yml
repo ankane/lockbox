@@ -10,6 +10,8 @@ jobs:
         include:
         - ruby: 2.7
           gemfile: Gemfile
+        - ruby: 2.7
+          gemfile: gemfiles/rails61.gemfile
         - ruby: 2.6
           gemfile: gemfiles/rails52.gemfile
         - ruby: 2.5
