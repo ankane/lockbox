@@ -32,9 +32,14 @@ module Lockbox
           read.bytesize
         end
 
-        # based on CarrierWave::SanitizedFile#mime_magic_content_type
         def content_type
-          MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
+          if CarrierWave::VERSION.to_i >= 2
+            # based on CarrierWave::SanitizedFile#mime_magic_content_type
+            MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
+          else
+            # uses filename
+            super
+          end
         end
 
         # disable processing since already processed
@@ -97,9 +102,11 @@ module Lockbox
   end
 end
 
-# TODO add warning and eventually raise error when below min version
 if CarrierWave::VERSION.to_i > 2
   raise "CarrierWave version (#{CarrierWave::VERSION}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
+elsif CarrierWave::VERSION.to_i < 1
+  # TODO raise error in 0.7.0
+  warn "CarrierWave version (#{CarrierWave::VERSION}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
 end
 
 CarrierWave::Uploader::Base.extend(Lockbox::CarrierWaveExtensions)

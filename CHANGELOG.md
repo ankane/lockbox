@@ -1,6 +1,7 @@
 ## 0.6.1 (unreleased)
 
 - Fixed in place changes for Active Record 6.1
+- Fixed error with `content_type` method for CarrierWave < 2
 
 ## 0.6.0 (2020-12-03)
 
