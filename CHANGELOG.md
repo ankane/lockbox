@@ -1,5 +1,6 @@
 ## 0.5.1 (unreleased)
 
+- Added `encrypted` flag to Active Storage metadata
 - Added encrypted columns to `filter_attributes`
 - Improved `inspect` method
 

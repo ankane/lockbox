@@ -21,6 +21,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal content, user.avatar.download
     refute_equal content, user.avatar.blob.download
+    assert user.avatar.metadata["encrypted"]
   end
 
   def test_encrypt_uploaded_file
@@ -31,6 +32,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal content, user.avatar.download
     refute_equal content, user.avatar.blob.download
+    assert user.avatar.metadata["encrypted"]
   end
 
   def test_encrypt_blank_one
@@ -101,6 +103,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal contents, user.avatars.map(&:download)
     refute_equal contents, user.avatars.map { |a| a.blob.download }
+    assert user.avatars.all? { |a| a.metadata["encrypted"] }
   end
 
   def test_encrypt_many_attach
@@ -114,6 +117,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal contents, user.avatars.map(&:download)
     refute_equal contents, user.avatars.map { |a| a.blob.download }
+    assert user.avatars.all? { |a| a.metadata["encrypted"] }
   end
 
   def test_no_encrypt_one

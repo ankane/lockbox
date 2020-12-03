@@ -93,8 +93,7 @@ module Lockbox
         end
 
         # don't analyze encrypted data
-        metadata = {"analyzed" => true}
-        metadata["encrypted"] = true if options[:migrating]
+        metadata = {"analyzed" => true, "encrypted" => true}
         attachable[:metadata] = (attachable[:metadata] || {}).merge(metadata)
       end
 
