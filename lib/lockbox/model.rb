@@ -55,6 +55,8 @@ module Lockbox
         decrypt_method_name = "decrypt_#{encrypted_attribute}"
 
         class_eval do
+          # Lockbox uses custom inspect
+          # but this could be useful for other gems
           if activerecord && ActiveRecord::VERSION::MAJOR >= 6
             # only add virtual attribute
             # need to use regexp since strings do partial matching
