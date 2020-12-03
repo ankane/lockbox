@@ -1,4 +1,4 @@
-## 0.5.1 (unreleased)
+## 0.6.0 (2020-12-03)
 
 - Added `encrypted` flag to Active Storage metadata
 - Added encrypted columns to `filter_attributes`
