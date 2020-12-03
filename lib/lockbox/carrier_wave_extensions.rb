@@ -97,4 +97,8 @@ module Lockbox
   end
 end
 
+if CarrierWave::VERSION.to_i > 2
+  raise "CarrierWave version not supported in this version of Lockbox: #{CarrierWave::VERSION}"
+end
+
 CarrierWave::Uploader::Base.extend(Lockbox::CarrierWaveExtensions)
