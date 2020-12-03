@@ -1,6 +1,7 @@
 ## 0.5.1 (unreleased)
 
 - Added encrypted columns to `filter_attributes`
+- Improved `inspect` method
 
 ## 0.5.0 (2020-11-22)
 

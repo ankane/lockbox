@@ -280,13 +280,29 @@ class ModelTest < Minitest::Test
   def test_inspect
     user = User.create!(email: "test@example.org")
     assert_includes user.inspect, "email: [FILTERED]"
+    refute_includes user.inspect, "email_ciphertext"
     refute_includes user.inspect, "test@example.org"
 
     return if mongoid?
 
     user = User.select(:id).last
     refute_includes user.inspect, "email"
+    refute_includes user.inspect, "email_ciphertext"
     refute_includes user.inspect, "test@example.org"
+  end
+
+  def test_inspect_filter_attributes
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    previous_value = User.filter_attributes
+    begin
+      User.filter_attributes = ["name"]
+      user = User.create!(name: "Test")
+      assert_includes user.inspect, "name: [FILTERED]"
+      refute_includes user.inspect, "Test"
+    ensure
+      User.filter_attributes = previous_value
+    end
   end
 
   def test_serializable_hash

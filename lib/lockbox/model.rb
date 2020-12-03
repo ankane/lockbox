@@ -84,17 +84,37 @@ module Lockbox
               super(options)
             end
 
-            # use same approach as devise
-            # TODO use filter_attributes for Active Record 6+ instead
-            # however, currently won't work with devise since it overrides inspect
+            # maintain order
+            # replace ciphertext attributes w/ virtual attributes (filtered)
             def inspect
-              inspection =
-                serializable_hash.map do |k,v|
-                  "#{k}: #{respond_to?(:attribute_for_inspect) ? attribute_for_inspect(k) : v.inspect}"
+              lockbox_attributes = {}
+              lockbox_encrypted_attributes = {}
+              self.class.lockbox_attributes.each do |_, lockbox_attribute|
+                lockbox_attributes[lockbox_attribute[:attribute]] = true
+                lockbox_encrypted_attributes[lockbox_attribute[:encrypted_attribute]] = lockbox_attribute[:attribute]
+              end
+
+              inspection = []
+              values = serializable_hash
+              self.class.attribute_names.each do |k|
+                next if !has_attribute?(k) || lockbox_attributes[k]
+
+                # check for lockbox attribute
+                if lockbox_encrypted_attributes[k]
+                  k = lockbox_encrypted_attributes[k]
+                  v = "[FILTERED]"
+                elsif values.key?(k)
+                  v = respond_to?(:attribute_for_inspect) ? attribute_for_inspect(k) : values[k].inspect
+
+                  # fix for https://github.com/rails/rails/issues/40725
+                  if respond_to?(:inspection_filter, true) && v != "nil"
+                    v = inspection_filter.filter_param(k, v)
+                  end
+                else
+                  next
                 end
 
-              self.class.lockbox_attributes.map do |_, lockbox_attribute|
-                inspection << "#{lockbox_attribute[:attribute]}: [FILTERED]" if has_attribute?(lockbox_attribute[:encrypted_attribute])
+                inspection << "#{k}: #{v}"
               end
 
               "#<#{self.class} #{inspection.join(", ")}>"
