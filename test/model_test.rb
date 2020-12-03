@@ -300,6 +300,10 @@ class ModelTest < Minitest::Test
       user = User.create!(name: "Test")
       assert_includes user.inspect, "name: [FILTERED]"
       refute_includes user.inspect, "Test"
+
+      # Active Record still shows nil for filtered attributes
+      user = User.create!(name: nil)
+      assert_includes user.inspect, "name: nil"
     ensure
       User.filter_attributes = previous_value
     end
