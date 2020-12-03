@@ -97,8 +97,9 @@ module Lockbox
   end
 end
 
+# TODO add warning and eventually raise error when below min version
 if CarrierWave::VERSION.to_i > 2
-  raise "CarrierWave version not supported in this version of Lockbox: #{CarrierWave::VERSION}"
+  raise "CarrierWave version (#{CarrierWave::VERSION}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
 end
 
 CarrierWave::Uploader::Base.extend(Lockbox::CarrierWaveExtensions)
