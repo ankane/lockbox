@@ -287,7 +287,12 @@ class ModelTest < Minitest::Test
   # follow same behavior as filter_attributes
   def test_inspect_nil
     user = User.new
-    assert_includes user.inspect, "email: nil"
+
+    if mongoid?
+      refute_includes user.inspect, "email"
+    else
+      assert_includes user.inspect, "email: nil"
+    end
     refute_includes user.inspect, "email_ciphertext"
     refute_includes user.inspect, "test@example.org"
   end
