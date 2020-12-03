@@ -69,6 +69,24 @@ class ActiveStorageTest < Minitest::Test
     end
   end
 
+  def test_encrypt_unencrypted_blob
+    unencrypted_blob = User.create!(image: attachment).image.blob
+
+    if ActiveStorage::VERSION::MAJOR >= 6
+      # attaches but fails to decrypt
+      user = User.create!(avatar: unencrypted_blob)
+      assert_raises(Lockbox::DecryptionError) do
+        user.avatar.download
+      end
+    else
+      # fails to attach
+      error = assert_raises(ArgumentError) do
+        User.create!(avatar: unencrypted_blob)
+      end
+      assert_match "Could not find or build blob: expected attachable", error.message
+    end
+  end
+
   def test_encrypt_unsupported
     # silently fails with Active Storage 5.2
     if ActiveStorage::VERSION::MAJOR >= 6

@@ -89,6 +89,10 @@ module Lockbox
     module CreateOne
       def initialize(name, record, attachable)
         # this won't encrypt existing blobs
+        # ideally we'd check metadata for the encrypted flag
+        # and disallow unencrypted blobs
+        # since they'll raise an error on decryption
+        # but earlier versions of Lockbox won't have it
         attachable = Lockbox::Utils.encrypt_attachable(record, name, attachable) if Lockbox::Utils.encrypted?(record, name) && !attachable.is_a?(ActiveStorage::Blob)
         super(name, record, attachable)
       end
