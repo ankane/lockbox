@@ -106,8 +106,9 @@ module Lockbox
 
                 # check for lockbox attribute
                 if lockbox_encrypted_attributes[k]
+                  # check if ciphertext attribute nil to avoid loading attribute
+                  v = send(k).nil? ? "nil" : "[FILTERED]"
                   k = lockbox_encrypted_attributes[k]
-                  v = "[FILTERED]"
                 elsif values.key?(k)
                   v = respond_to?(:attribute_for_inspect) ? attribute_for_inspect(k) : values[k].inspect
 
