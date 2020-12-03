@@ -95,6 +95,7 @@ module Lockbox
               end
 
               inspection = []
+              # use serializable_hash like Devise
               values = serializable_hash
               self.class.attribute_names.each do |k|
                 next if !has_attribute?(k) || lockbox_attributes[k]
