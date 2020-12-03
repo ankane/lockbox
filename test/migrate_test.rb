@@ -107,12 +107,12 @@ class MigrateTest < Minitest::Test
   def test_filter_attributes
     skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
 
-    assert_includes Robot.filter_attributes, "migrated_email"
-    refute_includes Robot.filter_attributes, "email_ciphertext"
+    assert_includes Robot.filter_attributes, /\Amigrated_email\z/
+    refute_includes Robot.filter_attributes, /\Aemail_ciphertext/
 
     # user likely wants original attribute in filter_attributes as well
     # but should already be there if it's sensitive
     # and the attribute isn't managed by Lockbox yet
-    refute_includes Robot.filter_attributes, "email"
+    refute_includes Robot.filter_attributes, /\Aemail\z/
   end
 end

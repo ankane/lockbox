@@ -57,7 +57,9 @@ module Lockbox
         class_eval do
           if activerecord && ActiveRecord::VERSION::MAJOR >= 6
             # only add virtual attribute
-            self.filter_attributes += [options[:attribute]]
+            # need to use regexp since strings do partial matching
+            # also, need to use += instead of <<
+            self.filter_attributes += [/\A#{Regexp.escape(options[:attribute])}\z/]
           end
 
           @lockbox_attributes ||= {}
