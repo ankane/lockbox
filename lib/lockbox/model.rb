@@ -247,6 +247,18 @@ module Lockbox
               else
                 attribute name, :string
               end
+            else
+              # hack for Active Record 6.1
+              # to set string type after serialize
+              # otherwise, type gets set to ActiveModel::Type::Value
+              # which always returns false for changed_in_place?
+              # earlier versions of Active Record take the previous code path
+              if ActiveRecord::VERSION::STRING.to_f >= 6.1 && attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
+                attribute_type = attributes_to_define_after_schema_loads[name.to_s].first.call
+                if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.nil?
+                  attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
+                end
+              end
             end
 
             define_method("#{name}_was") do

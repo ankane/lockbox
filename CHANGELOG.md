@@ -1,3 +1,7 @@
+## 0.6.1 (unreleased)
+
+- Fixed in place changes for Active Record 6.1
+
 ## 0.6.0 (2020-12-03)
 
 - Added `encrypted` flag to Active Storage metadata
