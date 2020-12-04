@@ -1,4 +1,4 @@
-## 0.6.1 (unreleased)
+## 0.6.1 (2020-12-03)
 
 - Added integration with Rails credentials
 - Fixed in place changes for Active Record 6.1
