@@ -35,10 +35,17 @@ Set the following environment variable with your key (you can use this one in de
 LOCKBOX_MASTER_KEY=0000000000000000000000000000000000000000000000000000000000000000
 ```
 
+or add it to your credentials for each environment (`rails credentials:edit --environment <env>` for Rails 6+)
+
+```yml
+lockbox:
+  master_key: "0000000000000000000000000000000000000000000000000000000000000000"
+```
+
 or create `config/initializers/lockbox.rb` with something like
 
 ```ruby
-Lockbox.master_key = Rails.application.credentials.lockbox_master_key
+Lockbox.master_key = Rails.application.credentials.lockbox[:master_key]
 ```
 
 Then follow the instructions below for the data you want to encrypt.

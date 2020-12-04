@@ -1,5 +1,6 @@
 ## 0.6.1 (unreleased)
 
+- Added integration with Rails credentials
 - Fixed in place changes for Active Record 6.1
 - Fixed error with `content_type` method for CarrierWave < 2
 

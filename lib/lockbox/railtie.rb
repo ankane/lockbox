@@ -1,6 +1,10 @@
 module Lockbox
   class Railtie < Rails::Railtie
     initializer "lockbox" do |app|
+      if defined?(Rails.application.credentials)
+        Lockbox.master_key ||= Rails.application.credentials.dig(:lockbox, :master_key)
+      end
+
       require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
 
       if defined?(ActiveStorage)
