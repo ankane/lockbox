@@ -27,7 +27,7 @@ Generate a key
 Lockbox.generate_key
 ```
 
-Store the key with your other secrets. This is typically Rails credentials or an environment variable ([dotenv](https://github.com/bkeepers/dotenv) is great for this). Be sure to use different keys in development and production. Keys don’t need to be hex-encoded, but it’s often easier to store them this way.
+Store the key with your other secrets. This is typically Rails credentials or an environment variable ([dotenv](https://github.com/bkeepers/dotenv) is great for this). Be sure to use different keys in development and production.
 
 Set the following environment variable with your key (you can use this one in development)
 
