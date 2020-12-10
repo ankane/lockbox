@@ -1,3 +1,7 @@
+## 0.6.2 (unreleased)
+
+- Fixed error when `lockbox` key in Rails credentials has a string value
+
 ## 0.6.1 (2020-12-03)
 
 - Added integration with Rails credentials
