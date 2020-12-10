@@ -26,6 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pg"
   spec.add_development_dependency "mysql2"
   spec.add_development_dependency "shrine"
-  spec.add_development_dependency "shrine-mongoid"
   spec.add_development_dependency "benchmark-ips"
 end
