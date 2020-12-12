@@ -49,7 +49,7 @@ module Lockbox
     end
 
     def encrypt(value)
-      value.nil? || value.empty? ? value : @lockbox.encrypt(value)
+      value.nil? ? value : @lockbox.encrypt(value)
     end
 
     def decrypt(value)
