@@ -9,7 +9,7 @@ module Lockbox
     def_delegators :@redis, :flushall
 
     # TODO add option to blind index keys
-    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, key_key: nil, **options)
+    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)
       @lockbox = Lockbox.new(
         key: key,
         algorithm: algorithm,
@@ -19,15 +19,14 @@ module Lockbox
         previous_versions: previous_versions
       )
       @redis = ::Redis.new(**options)
-      @key_key = key_key
     end
 
     def set(key, value, **options)
-      @redis.set(transform_key(key), encrypt(value), **options)
+      @redis.set(key, encrypt(value), **options)
     end
 
     def get(key)
-      decrypt(@redis.get(transform_key(key)))
+      decrypt(@redis.get(key))
     end
 
     def mset(*args)
@@ -39,18 +38,10 @@ module Lockbox
     end
 
     def getset(key, value)
-      decrypt(@redis.getset(transform_key(key), encrypt(value)))
+      decrypt(@redis.getset(key, encrypt(value)))
     end
 
     private
-
-    def transform_key(key)
-      if @key_key
-        BlindIndex.generate_bidx(key, key: @key_key)
-      else
-        key
-      end
-    end
 
     def encrypt(value)
       value.nil? ? value : @lockbox.encrypt(value)

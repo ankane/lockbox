@@ -41,10 +41,6 @@ class RedisTest < Minitest::Test
   end
 
   def encrypted_redis
-    @encrypted_redis ||= Lockbox::Redis.new(
-      key: Lockbox.generate_key,
-      # key_key: BlindIndex.generate_key,
-      logger: $logger
-    )
+    @encrypted_redis ||= Lockbox::Redis.new(key: Lockbox.generate_key, logger: $logger)
   end
 end
