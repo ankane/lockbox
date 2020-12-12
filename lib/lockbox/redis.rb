@@ -27,6 +27,14 @@ module Lockbox
       value.nil? ? value : @lockbox.decrypt(value)
     end
 
+    def mset(*args)
+      @redis.mset(args.map.with_index { |v, i| i % 2 == 1 ? @lockbox.encrypt(v) : v })
+    end
+
+    def mget(*keys, &blk)
+      @redis.mget(*keys, &blk).map { |v| v.nil? ? v : @lockbox.decrypt(v) }
+    end
+
     private
 
     def transform_key(key)
