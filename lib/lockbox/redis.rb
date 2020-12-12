@@ -1,9 +1,13 @@
+require "forwardable"
 require "redis"
 
 module Lockbox
   # don't extend Redis at the moment
   # so we can confirm operations are safe before adding
   class Redis
+    extend Forwardable
+    def_delegators :@redis, :flushall
+
     # TODO add option to blind index keys
     def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, key_key: nil, **options)
       @lockbox = Lockbox.new(
