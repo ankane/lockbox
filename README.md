@@ -556,7 +556,7 @@ Generate a key
 key = Lockbox.generate_key
 ```
 
-Create a Memcached client
+Create a Dalli client
 
 ```ruby
 dalli = Lockbox::Dalli.new(key: key)
