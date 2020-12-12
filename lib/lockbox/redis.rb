@@ -5,7 +5,7 @@ module Lockbox
   # so we can confirm operations are safe before adding
   class Redis
     # TODO add option to blind index keys
-    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, blind_index_key: nil, **options)
+    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, key_key: nil, **options)
       @lockbox = Lockbox.new(
         key: key,
         algorithm: algorithm,
@@ -15,7 +15,7 @@ module Lockbox
         previous_versions: previous_versions
       )
       @redis = ::Redis.new(**options)
-      @blind_index_key = blind_index_key
+      @key_key = key_key
     end
 
     def set(key, value, **options)
@@ -41,8 +41,8 @@ module Lockbox
     private
 
     def transform_key(key)
-      if @blind_index_key
-        BlindIndex.generate_bidx(key, key: @blind_index_key)
+      if @key_key
+        BlindIndex.generate_bidx(key, key: @key_key)
       else
         key
       end
