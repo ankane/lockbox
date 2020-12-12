@@ -37,6 +37,10 @@ class RedisTest < Minitest::Test
     assert_equal "", redis.get("k3")
   end
 
+  def test_flushall
+    encrypted_redis.flushall
+  end
+
   def redis
     @redis ||= Redis.new(logger: $logger)
   end

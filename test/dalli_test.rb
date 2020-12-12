@@ -22,6 +22,11 @@ class DalliTest < Minitest::Test
     assert_nil dalli.get("k3")
   end
 
+  def test_flush
+    encrypted_dalli.flush
+    encrypted_dalli.flush_all
+  end
+
   def dalli
     @dalli ||= Dalli::Client.new
   end

@@ -6,7 +6,7 @@ module Lockbox
   # so we can confirm operations are safe before adding
   class Dalli
     extend Forwardable
-    def_delegators :@dalli, :flush_all
+    def_delegators :@dalli, :flush, :flush_all
 
     # TODO add option to blind index keys
     def initialize(*args, key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)
