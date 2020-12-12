@@ -34,6 +34,7 @@ class RedisTest < Minitest::Test
     assert_equal ["v1", "v2", "", nil], encrypted_redis.mget("k1", "k2", "k3", "missing")
     refute_equal "v1", redis.get("k1")
     refute_equal "v2", redis.get("k2")
+    assert_equal "", redis.get("k3")
   end
 
   def redis

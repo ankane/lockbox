@@ -11,6 +11,17 @@ class DalliTest < Minitest::Test
     refute_equal "world", dalli.get("hello")
   end
 
+  def test_get_multi
+    encrypted_dalli.set("k1", "v1")
+    encrypted_dalli.set("k2", "v2")
+    encrypted_dalli.set("k3", nil)
+    expected = {"k1" => "v1", "k2" => "v2", "k3" => nil}
+    assert_equal expected, encrypted_dalli.get_multi("k1", "k2", "k3", "missing")
+    refute_equal "v1", dalli.get("k1")
+    refute_equal "v2", dalli.get("k2")
+    assert_nil dalli.get("k3")
+  end
+
   def dalli
     @dalli ||= Dalli::Client.new
   end
