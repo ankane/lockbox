@@ -28,4 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "shrine"
   spec.add_development_dependency "benchmark-ips"
   spec.add_development_dependency "redis"
+  spec.add_development_dependency "dalli"
 end

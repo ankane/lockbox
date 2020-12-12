@@ -63,10 +63,14 @@ Then follow the instructions below for the data you want to encrypt.
 - [Shrine](#shrine)
 - [Local Files](#local-files)
 
+#### Cache Stores
+
+- [Redis](#redis)
+- [Dalli](#dalli)
+
 #### Other
 
 - [Strings](#strings)
-- [Redis](#redis)
 
 ## Active Record
 
@@ -530,6 +534,34 @@ Decrypt
 lockbox.decrypt(ciphertext)
 ```
 
+## Redis [master]
+
+Generate a key
+
+```ruby
+key = Lockbox.generate_key
+```
+
+Create a Redis client
+
+```ruby
+redis = Lockbox::Redis.new(key: key)
+```
+
+## Dalli [master]
+
+Generate a key
+
+```ruby
+key = Lockbox.generate_key
+```
+
+Create a Memcached client
+
+```ruby
+dalli = Lockbox::Dalli.new(key: key)
+```
+
 ## Strings
 
 Generate a key
@@ -557,20 +589,6 @@ lockbox.decrypt(ciphertext)
 ```
 
 Use `decrypt_str` get the value as UTF-8
-
-## Redis [master]
-
-Generate a key
-
-```ruby
-key = Lockbox.generate_key
-```
-
-Create a Redis client
-
-```ruby
-redis = Lockbox::Redis.new(key: key)
-```
 
 ## Key Rotation
 

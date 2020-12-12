@@ -5,6 +5,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "redis"
+require "dalli"
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
@@ -24,3 +25,5 @@ else
 end
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
+
+Dalli.logger = $logger
