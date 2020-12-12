@@ -37,6 +37,14 @@ class RedisTest < Minitest::Test
     assert_equal "", redis.get("k3")
   end
 
+  def test_del
+    encrypted_redis.set("hello", "world")
+    assert_equal "world", encrypted_redis.get("hello")
+    encrypted_redis.del("hello")
+    assert_nil encrypted_redis.get("hello")
+    assert_nil redis.get("hello")
+  end
+
   def test_flushall
     encrypted_redis.flushall
   end

@@ -22,6 +22,14 @@ class DalliTest < Minitest::Test
     assert_nil dalli.get("k3")
   end
 
+  def test_delete
+    encrypted_dalli.set("hello", "world")
+    assert_equal "world", encrypted_dalli.get("hello")
+    encrypted_dalli.delete("hello")
+    assert_nil encrypted_dalli.get("hello")
+    assert_nil dalli.get("hello")
+  end
+
   def test_flush
     encrypted_dalli.flush
     encrypted_dalli.flush_all
