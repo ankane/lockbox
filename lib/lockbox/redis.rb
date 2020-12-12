@@ -19,20 +19,19 @@ module Lockbox
     end
 
     def set(key, value, **options)
-      @redis.set(transform_key(key), @lockbox.encrypt(value), **options)
+      @redis.set(transform_key(key), encrypt(value), **options)
     end
 
     def get(key)
-      value = @redis.get(transform_key(key))
-      value.nil? ? value : @lockbox.decrypt(value)
+      decrypt(@redis.get(transform_key(key)))
     end
 
     def mset(*args)
-      @redis.mset(args.map.with_index { |v, i| i % 2 == 1 ? @lockbox.encrypt(v) : v })
+      @redis.mset(args.map.with_index { |v, i| i % 2 == 1 ? encrypt(v) : v })
     end
 
     def mget(*keys, &blk)
-      @redis.mget(*keys, &blk).map { |v| v.nil? ? v : @lockbox.decrypt(v) }
+      @redis.mget(*keys, &blk).map { |v| decrypt(v) }
     end
 
     private
@@ -43,6 +42,14 @@ module Lockbox
       else
         key
       end
+    end
+
+    def encrypt(value)
+      value.nil? || value.empty? ? value : @lockbox.encrypt(value)
+    end
+
+    def decrypt(value)
+      value.nil? || value.empty? ? value : @lockbox.decrypt(value)
     end
   end
 end
