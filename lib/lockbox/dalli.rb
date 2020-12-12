@@ -30,7 +30,7 @@ module Lockbox
     end
 
     def get_multi(*keys)
-      @dalli.get_multi(*keys).map { |k, v| [k, decrypt(v)] }.to_h
+      @dalli.get_multi(*keys).transform_values { |v| decrypt(v) }
     end
 
     private
