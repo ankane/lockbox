@@ -48,6 +48,7 @@ module Lockbox
   class PaddingError < Error; end
 
   autoload :Audit, "lockbox/audit"
+  autoload :Redis, "lockbox/redis"
 
   extend Padding
 
