@@ -66,6 +66,7 @@ Then follow the instructions below for the data you want to encrypt.
 #### Other
 
 - [Strings](#strings)
+- [Redis](#redis)
 
 ## Active Record
 
@@ -556,6 +557,20 @@ lockbox.decrypt(ciphertext)
 ```
 
 Use `decrypt_str` get the value as UTF-8
+
+## Redis [master]
+
+Generate a key
+
+```ruby
+key = Lockbox.generate_key
+```
+
+Create a Redis client
+
+```ruby
+redis = Lockbox::Redis.new(key: key)
+```
 
 ## Key Rotation
 
