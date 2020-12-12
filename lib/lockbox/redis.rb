@@ -34,6 +34,10 @@ module Lockbox
       @redis.mget(*keys, &blk).map { |v| decrypt(v) }
     end
 
+    def getset(key, value)
+      decrypt(@redis.getset(transform_key(key), encrypt(value)))
+    end
+
     private
 
     def transform_key(key)
