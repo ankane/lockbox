@@ -34,6 +34,14 @@ module Lockbox
       @dalli.get_multi(*keys).transform_values { |v| decrypt(v) }
     end
 
+    def add(key, value, *args)
+      @dalli.add(key, encrypt(value), *args)
+    end
+
+    def replace(key, value, *args)
+      @dalli.replace(key, encrypt(value), *args)
+    end
+
     private
 
     def encrypt(value)
