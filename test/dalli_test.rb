@@ -36,10 +36,10 @@ class DalliTest < Minitest::Test
   end
 
   def dalli
-    @dalli ||= Dalli::Client.new
+    @dalli ||= Dalli::Client.new("localhost:11211")
   end
 
   def encrypted_dalli
-    @encrypted_dalli ||= Lockbox::Dalli.new(key: Lockbox.generate_key)
+    @encrypted_dalli ||= Lockbox::Dalli.new("localhost:11211", key: Lockbox.generate_key)
   end
 end
