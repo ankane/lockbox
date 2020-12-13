@@ -8,7 +8,7 @@ module Lockbox
     extend Forwardable
     def_delegators :@redis, :del, :flushall, :keys, :dbsize, :info
 
-    # TODO add option to blind keys
+    # TODO add option to use aes-siv for keys and set values
     def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)
       @lockbox = Lockbox.new(
         key: key,

@@ -9,7 +9,7 @@ module Lockbox
     def_delegators :@dalli, :delete, :flush, :flush_all, :touch, :stats, :reset_stats, :alive!, :version, :reset, :close
 
     # need to use servers = nil instead of *args for Ruby < 2.7
-    # TODO add option to blind keys
+    # TODO add option to use aes-siv for keys and set values
     def initialize(servers = nil, key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)
       @lockbox = Lockbox.new(
         key: key,
