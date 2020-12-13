@@ -6,7 +6,7 @@ module Lockbox
   # so we can confirm operations are safe before adding
   class Redis
     extend Forwardable
-    def_delegators :@redis, :del, :flushall
+    def_delegators :@redis, :del, :flushall, :keys, :dbsize, :info
 
     # TODO add option to blind keys
     def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)

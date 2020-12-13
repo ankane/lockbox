@@ -6,7 +6,7 @@ module Lockbox
   # so we can confirm operations are safe before adding
   class Dalli
     extend Forwardable
-    def_delegators :@dalli, :delete, :flush, :flush_all
+    def_delegators :@dalli, :delete, :flush, :flush_all, :touch, :stats, :reset_stats, :alive!, :version, :reset, :close
 
     # need to use servers = nil instead of *args for Ruby < 2.7
     # TODO add option to blind keys
