@@ -2,7 +2,7 @@ require "forwardable"
 require "dalli"
 
 module Lockbox
-  # don't extend Redis at the moment
+  # don't extend Dalli::Client at the moment
   # so we can confirm operations are safe before adding
   class Dalli
     extend Forwardable
