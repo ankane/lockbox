@@ -37,6 +37,13 @@ class RedisTest < Minitest::Test
     assert_equal "", redis.get("k3")
   end
 
+  def test_rpush
+    encrypted_redis.rpush("mylist", "v1")
+    encrypted_redis.rpush("mylist", "v2")
+    assert_equal "v1", encrypted_redis.lindex("mylist", 0)
+    refute_equal "v1", redis.lindex("mylist", 0)
+  end
+
   def test_del
     encrypted_redis.set("hello", "world")
     assert_equal "world", encrypted_redis.get("hello")

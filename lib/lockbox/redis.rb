@@ -41,6 +41,14 @@ module Lockbox
       decrypt(@redis.getset(key, encrypt(value)))
     end
 
+    def rpush(key, value)
+      @redis.rpush(key, encrypt(value))
+    end
+
+    def lindex(key, index)
+      decrypt(@redis.lindex(key, index))
+    end
+
     private
 
     def encrypt(value)
