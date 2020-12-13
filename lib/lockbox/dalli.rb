@@ -9,7 +9,7 @@ module Lockbox
     def_delegators :@dalli, :delete, :flush, :flush_all
 
     # TODO add option to blind index keys
-    def initialize(*args, key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)
+    def initialize(servers = nil, key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)
       @lockbox = Lockbox.new(
         key: key,
         algorithm: algorithm,
@@ -18,7 +18,7 @@ module Lockbox
         padding: padding,
         previous_versions: previous_versions
       )
-      @dalli = ::Dalli::Client.new(*args, **options)
+      @dalli = ::Dalli::Client.new(servers, options)
     end
 
     def set(key, value, *args)

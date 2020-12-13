@@ -34,9 +34,5 @@ jobs:
         bundler-cache: true
     - if: ${{ matrix.mongodb }}
       uses: ankane/setup-mongodb@v1
-    - run: |
-        sudo apt-get update && sudo apt-get install libsodium23 poppler-utils redis memcached
-        sleep 5
-        sudo systemctl status redis
-        sudo systemctl status memcached
+    - run: sudo apt-get update && sudo apt-get install libsodium23 poppler-utils redis memcached
     - run: bundle exec rake test
