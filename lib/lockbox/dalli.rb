@@ -8,7 +8,8 @@ module Lockbox
     extend Forwardable
     def_delegators :@dalli, :delete, :flush, :flush_all
 
-    # TODO add option to blind index keys
+    # need to use servers = nil instead of *args for Ruby < 2.7
+    # TODO add option to blind keys
     def initialize(servers = nil, key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, previous_versions: nil, **options)
       @lockbox = Lockbox.new(
         key: key,
