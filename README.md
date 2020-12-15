@@ -548,6 +548,11 @@ Create a Redis client
 redis = Lockbox::Redis.new(key: key)
 ```
 
+Only values (not keys or hash fields) are encrypted. Supported methods are:
+
+- Strings: `set`, `setex`, `setnx`, `mset`, `get`, `mget`, `getset`
+- Hashes: `hset`, mhset`, hget`, `mhget`, `hvals`
+
 ## Dalli [master]
 
 Generate a key
