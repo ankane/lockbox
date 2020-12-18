@@ -162,10 +162,14 @@ module Lockbox
       if records.any?
         with_transaction do
           records.each do |record|
-            record.save!(validate: false)
+            migrate_record(record)
           end
         end
       end
+    end
+
+    def migrate_record(record)
+      record.save!(validate: false)
     end
 
     def base_relation
