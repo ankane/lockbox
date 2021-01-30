@@ -42,7 +42,7 @@ lockbox:
   master_key: "0000000000000000000000000000000000000000000000000000000000000000"
 ```
 
-or create `config/initializers/lockbox.rb` with something like
+and then set the key in an initializer `config/initializers/lockbox.rb` with something like
 
 ```ruby
 Lockbox.master_key = Rails.application.credentials.lockbox[:master_key]
