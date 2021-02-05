@@ -403,16 +403,16 @@ class ModelTypesTest < Minitest::Test
     skip unless inet_supported?
 
     ip = IPAddr.new("127.0.0.1")
-    assert_attribute :ip, ip, expected: ip, format: [0, 32, ip.hton].pack("cca16")
-    assert_attribute :ip, ip.to_s, expected: ip, format: [0, 32, ip.hton].pack("cca16")
+    assert_attribute :ip, ip, expected: ip, format: [0, 32, ip.hton, "\x00"*12].pack("cca4a12")
+    assert_attribute :ip, ip.to_s, expected: ip, format: [0, 32, ip.hton, "\x00"*12].pack("cca4a12")
   end
 
   def test_type_inet_ipv4_prefix
     skip unless inet_supported?
 
     ip = IPAddr.new("127.0.0.0/24")
-    assert_attribute :ip, ip, expected: ip, format: [0, 24, ip.hton].pack("cca16")
-    assert_attribute :ip, "127.0.0.0/24", expected: ip, format: [0, 24, ip.hton].pack("cca16")
+    assert_attribute :ip, ip, expected: ip, format: [0, 24, ip.hton, "\x00"*12].pack("cca4a12")
+    assert_attribute :ip, "127.0.0.0/24", expected: ip, format: [0, 24, ip.hton, "\x00"*12].pack("cca4a12")
   end
 
   def test_type_inet_ipv6
