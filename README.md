@@ -1087,12 +1087,29 @@ end
 
 ## Upgrading
 
+### 0.6.0
+
+0.6.0 adds `encrypted: true` to Active Storage metadata for new files. This field is informational, but if you prefer to add it to existing files, use:
+
+```ruby
+User.with_attached_license.find_each do |user|
+  next unless user.license.attached?
+
+  metadata = user.license.metadata
+  unless metadata["encrypted"]
+    user.license.blob.update!(metadata: metadata.merge("encrypted" => true))
+  end
+end
+```
+
 ### 0.3.6
 
 0.3.6 makes content type detection more reliable for Active Storage. You can check and update the content type of existing files with:
 
 ```ruby
-User.find_each do |user|
+User.with_attached_license.find_each do |user|
+  next unless user.license.attached?
+
   license = user.license
   content_type = Marcel::MimeType.for(license.download, name: license.filename.to_s)
   if content_type != license.content_type
