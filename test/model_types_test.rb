@@ -400,7 +400,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_inet_ipv4
-    skip unless postgresql?
+    skip unless inet_supported?
 
     ip = IPAddr.new("127.0.0.1")
     assert_attribute :ip, ip, expected: ip, format: [0, 32, ip.hton].pack("cca16")
@@ -408,7 +408,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_inet_ipv4_prefix
-    skip unless postgresql?
+    skip unless inet_supported?
 
     ip = IPAddr.new("127.0.0.0/24")
     assert_attribute :ip, ip, expected: ip, format: [0, 24, ip.hton].pack("cca16")
@@ -416,7 +416,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_inet_ipv6
-    skip unless postgresql?
+    skip unless inet_supported?
 
     ip = IPAddr.new("::")
     assert_attribute :ip, ip, expected: ip, format: [1, 128, ip.hton].pack("cca16")
@@ -424,7 +424,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_inet_bytesize
-    skip unless postgresql?
+    skip unless inet_supported?
 
     assert_bytesize :ip, "127.0.0.1", "255.255.255.255", size: 18
     assert_bytesize :ip, "::", "2001:db8::8a2e:370:7334", size: 18
@@ -432,7 +432,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_inet_invalid
-    skip unless postgresql?
+    skip unless inet_supported?
 
     assert_attribute :ip, "invalid", expected: nil
   end
@@ -547,5 +547,11 @@ class ModelTypesTest < Minitest::Test
 
   def postgresql?
     ENV["ADAPTER"] == "postgresql"
+  end
+
+  def inet_supported?
+    # no NoMethodError for prefix method
+    # but it exists in Ruby 2.4 docs
+    postgresql? && RUBY_VERSION.to_f > 2.4
   end
 end
