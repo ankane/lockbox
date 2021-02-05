@@ -73,6 +73,11 @@ class User < ActiveRecord::Base
   encrypts :data2, type: :json
   encrypts :info2, type: :hash
   encrypts :coordinates2, type: :array
+
+  if ENV["ADAPTER"] == "postgresql"
+    encrypts :ip2, type: :inet
+  end
+
   encrypts :city, padding: true
   encrypts :ssn, encode: false
 

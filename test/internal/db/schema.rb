@@ -71,6 +71,12 @@ ActiveRecord::Schema.define do
     t.text :configuration2_ciphertext
     t.text :coordinates
     t.text :coordinates2_ciphertext
+
+    if ENV["ADAPTER"] == "postgresql"
+      t.inet :ip
+      t.text :ip2_ciphertext
+    end
+
     t.text :config
     t.text :config2_ciphertext
     t.text :conf_ciphertext

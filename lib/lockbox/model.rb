@@ -22,7 +22,8 @@ module Lockbox
       # end
 
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
-      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash, :array].include?(options[:type])
+      valid_types = [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash, :array, :inet]
+      raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || valid_types.include?(options[:type])
 
       activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
       raise ArgumentError, "Type not supported yet with Mongoid" if options[:type] && !activerecord
@@ -426,6 +427,14 @@ module Lockbox
                 message = ActiveRecord::Type::Float.new.serialize(message)
                 # double precision, big endian
                 message = [message].pack("G") unless message.nil?
+              when :inet
+                unless message.nil?
+                  ip = message.is_a?(IPAddr) ? message : (IPAddr.new(message) rescue nil)
+                  # same format as Postgres, with ipv4 padded to 16 bytes
+                  # family, netmask, ip
+                  # return nil for invalid IP like Active Record
+                  message = ip ? [ip.ipv4? ? 0 : 1, ip.prefix, ip.hton].pack("CCa16") : nil
+                end
               when :string, :binary
                 # do nothing
                 # encrypt will convert to binary
@@ -472,6 +481,11 @@ module Lockbox
               when :binary
                 # do nothing
                 # decrypt returns binary string
+              when :inet
+                family, prefix, addr = message.unpack("CCa16")
+                len = family == 0 ? 4 : 16
+                message = IPAddr.new_ntoh(addr.first(len))
+                message.prefix = prefix
               else
                 # use original name for serialized attributes
                 type = (try(:attribute_types) || {})[original_name.to_s]

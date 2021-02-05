@@ -121,6 +121,7 @@ class User < ApplicationRecord
   encrypts :properties, type: :json
   encrypts :settings, type: :hash
   encrypts :messages, type: :array
+  encrypts :ip, type: :inet # [master]
 end
 ```
 

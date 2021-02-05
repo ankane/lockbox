@@ -1,5 +1,6 @@
 ## 0.6.2 (unreleased)
 
+- Added `inet` type
 - Fixed error when `lockbox` key in Rails credentials has a string value
 - Fixed deprecation warning with Active Record 6.1
 

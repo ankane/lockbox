@@ -394,6 +394,44 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
+  def test_type_inet_ipv4
+    skip unless postgresql?
+
+    ip = IPAddr.new("127.0.0.1")
+    assert_attribute :ip, ip, expected: ip, format: [0, 32, ip.hton].pack("cca16")
+    assert_attribute :ip, ip.to_s, expected: ip, format: [0, 32, ip.hton].pack("cca16")
+  end
+
+  def test_type_inet_ipv4_prefix
+    skip unless postgresql?
+
+    ip = IPAddr.new("127.0.0.0/24")
+    assert_attribute :ip, ip, expected: ip, format: [0, 24, ip.hton].pack("cca16")
+    assert_attribute :ip, "127.0.0.0/24", expected: ip, format: [0, 24, ip.hton].pack("cca16")
+  end
+
+  def test_type_inet_ipv6
+    skip unless postgresql?
+
+    ip = IPAddr.new("::")
+    assert_attribute :ip, ip, expected: ip, format: [1, 128, ip.hton].pack("cca16")
+    assert_attribute :ip, ip.to_s, expected: ip, format: [1, 128, ip.hton].pack("cca16")
+  end
+
+  def test_type_inet_bytesize
+    skip unless postgresql?
+
+    assert_bytesize :ip, "127.0.0.1", "255.255.255.255", size: 18
+    assert_bytesize :ip, "::", "2001:db8::8a2e:370:7334", size: 18
+    assert_bytesize :ip, "127.0.0.0/24", "255.255.255.255", size: 18
+  end
+
+  def test_type_inet_invalid
+    skip unless postgresql?
+
+    assert_attribute :ip, "invalid", expected: nil
+  end
+
   def test_store
     credentials = {a: 1, b: "hi"}.as_json
     assert_attribute :credentials, credentials, format: credentials.to_json
