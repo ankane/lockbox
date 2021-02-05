@@ -36,3 +36,17 @@ jobs:
       uses: ankane/setup-mongodb@v1
     - run: sudo apt-get update && sudo apt-get install libsodium23 poppler-utils
     - run: bundle exec rake test
+
+    - if : ${{ !matrix.mongodb }}
+      uses: ankane/setup-postgres@v1
+    - if : ${{ !matrix.mongodb }}
+      run: |
+        createdb lockbox_test
+        ADAPTER=postgresql bundle exec rake test
+
+    - if : ${{ !matrix.mongodb }}
+      uses: ankane/setup-mysql@v1
+    - if : ${{ !matrix.mongodb }}
+      run: |
+        mysqladmin create lockbox_test
+        ADAPTER=mysql2 bundle exec rake test
