@@ -427,7 +427,7 @@ class ModelTypesTest < Minitest::Test
     skip unless inet_supported?
 
     assert_bytesize :ip, "127.0.0.1", "255.255.255.255", size: 18
-    assert_bytesize :ip, "::", "2001:db8::8a2e:370:7334", size: 18
+    assert_bytesize :ip, "::", "2606:4700:4700::64", size: 18
     assert_bytesize :ip, "127.0.0.0/24", "255.255.255.255", size: 18
   end
 
