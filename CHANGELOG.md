@@ -1,9 +1,35 @@
-## 0.4.9 (unreleased)
+## 0.6.2 (unreleased)
+
+- Added `decimal` type
+- Added `inet` type
+- Fixed error when `lockbox` key in Rails credentials has a string value
+- Fixed deprecation warning with Active Record 6.1
+
+## 0.6.1 (2020-12-03)
+
+- Added integration with Rails credentials
+- Fixed in place changes for Active Record 6.1
+- Fixed error with `content_type` method for CarrierWave < 2
+
+## 0.6.0 (2020-12-03)
+
+- Added `encrypted` flag to Active Storage metadata
+- Added encrypted columns to `filter_attributes`
+- Improved `inspect` method
+
+## 0.5.0 (2020-11-22)
+
+- Improved error messages for hybrid cryptography
+- Changed warning to error when no attributes specified
+- Fixed issue with `pluck` when migrating
+- Fixed error with `key_table` and `key_attribute` options with `previous_versions`
+
+## 0.4.9 (2020-10-01)
 
 - Added `key_table` and `key_attribute` options to `previous_versions`
 - Added `encrypted_attribute` option
 - Added support for encrypting empty string
-- Added support for `decimal` type
+- Improved `inspect` for models with encrypted attributes
 
 ## 0.4.8 (2020-08-30)
 

@@ -61,6 +61,12 @@ class LockboxTest < Minitest::Test
     assert_equal "530f8afbc74536b9a963b4f1c4cb738b", Lockbox.to_hex(ciphertext)
   end
 
+  def test_encrypt_empty_string_aes_gcm_low_level_different_nonce
+    aes_gcm = Lockbox::AES_GCM.new("\x0".b * 32)
+    ciphertext = aes_gcm.encrypt("\xff".b * 12, "", nil)
+    assert_equal "51d37f94ccb639299b7ac25fe0bfd765", Lockbox.to_hex(ciphertext)
+  end
+
   def test_encrypt_empty_string_xsalsa20
     lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
     ciphertext = lockbox.encrypt("")
@@ -153,6 +159,24 @@ class LockboxTest < Minitest::Test
     assert_raises(Lockbox::DecryptionError) do
       lockbox.decrypt(ciphertext)
     end
+  end
+
+  def test_hybrid_no_encryption_key
+    key_pair = Lockbox.generate_key_pair
+    lockbox = Lockbox.new(algorithm: "hybrid", decryption_key: key_pair[:decryption_key])
+    error = assert_raises(ArgumentError) do
+      lockbox.encrypt("it works!")
+    end
+    assert_equal "No encryption key set", error.message
+  end
+
+  def test_hybrid_no_decryption_key
+    key_pair = Lockbox.generate_key_pair
+    lockbox = Lockbox.new(algorithm: "hybrid", encryption_key: key_pair[:encryption_key])
+    error = assert_raises(ArgumentError) do
+      lockbox.decrypt("it works!")
+    end
+    assert_equal "No decryption key set", error.message
   end
 
   def test_bad_algorithm

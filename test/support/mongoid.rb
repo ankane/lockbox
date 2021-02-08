@@ -16,7 +16,7 @@ class User
   field :state, type: String
   field :state_ciphertext, type: String
 
-  encrypts :email, previous_versions: [{key: Lockbox.generate_key}]
+  encrypts :email, previous_versions: [{key: Lockbox.generate_key}, {master_key: Lockbox.generate_key}]
 
   key_pair = Lockbox.generate_key_pair
   encrypts :phone, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: key_pair[:decryption_key]
@@ -24,6 +24,9 @@ class User
   encrypts :city, padding: true
   encrypts :ssn, encode: false
   encrypts :state
+
+  include PhotoUploader::Attachment(:photo)
+  field :photo_data, type: String
 end
 
 class Guard
@@ -66,7 +69,7 @@ class Admin
     "1"*64
   end
 
-  encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext"
+  encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext", previous_versions: [{key_table: "people", key_attribute: "email_ciphertext"}]
   encrypts :work_email, encrypted_attribute: "encrypted_email"
 end
 

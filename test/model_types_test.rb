@@ -14,7 +14,12 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_string_non_utf8
-    if postgresql? || mysql?
+    if mysql? && ActiveRecord::VERSION::STRING >= "6.1"
+      error = assert_raises(ArgumentError) do
+        assert_attribute :country, "Hi \255", format: "Hi \255"
+      end
+      assert_includes error.message, "invalid byte sequence in UTF-8"
+    elsif postgresql? || mysql?
       error = assert_raises(ActiveRecord::StatementInvalid) do
         assert_attribute :country, "Hi \255", format: "Hi \255"
       end
@@ -434,6 +439,44 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
+  def test_type_inet_ipv4
+    skip unless inet_supported?
+
+    ip = IPAddr.new("127.0.0.1")
+    assert_attribute :ip, ip, expected: ip, format: [0, 32, ip.hton, "\x00"*12].pack("cca4a12")
+    assert_attribute :ip, ip.to_s, expected: ip, format: [0, 32, ip.hton, "\x00"*12].pack("cca4a12")
+  end
+
+  def test_type_inet_ipv4_prefix
+    skip unless inet_supported?
+
+    ip = IPAddr.new("127.0.0.0/24")
+    assert_attribute :ip, ip, expected: ip, format: [0, 24, ip.hton, "\x00"*12].pack("cca4a12")
+    assert_attribute :ip, "127.0.0.0/24", expected: ip, format: [0, 24, ip.hton, "\x00"*12].pack("cca4a12")
+  end
+
+  def test_type_inet_ipv6
+    skip unless inet_supported?
+
+    ip = IPAddr.new("::")
+    assert_attribute :ip, ip, expected: ip, format: [1, 128, ip.hton].pack("cca16")
+    assert_attribute :ip, ip.to_s, expected: ip, format: [1, 128, ip.hton].pack("cca16")
+  end
+
+  def test_type_inet_bytesize
+    skip unless inet_supported?
+
+    assert_bytesize :ip, "127.0.0.1", "255.255.255.255", size: 18
+    assert_bytesize :ip, "::", "2606:4700:4700::64", size: 18
+    assert_bytesize :ip, "127.0.0.0/24", "255.255.255.255", size: 18
+  end
+
+  def test_type_inet_invalid
+    skip unless inet_supported?
+
+    assert_attribute :ip, "invalid", expected: nil
+  end
+
   def test_store
     credentials = {a: 1, b: "hi"}.as_json
     assert_attribute :credentials, credentials, format: credentials.to_json, expected: ActiveSupport::HashWithIndifferentAccess.new(credentials)
@@ -532,12 +575,12 @@ class ModelTypesTest < Minitest::Test
 
   def assert_bytesize(*args, size: nil)
     sizes = bytesizes(*args)
-    assert_equal *sizes
+    assert_equal(*sizes)
     assert_equal size, sizes[0] - 12 - 16 if size
   end
 
   def refute_bytesize(*args)
-    refute_equal *bytesizes(*args)
+    refute_equal(*bytesizes(*args))
   end
 
   def bytesizes(attribute, value1, value2)
@@ -556,5 +599,11 @@ class ModelTypesTest < Minitest::Test
 
   def postgresql?
     ENV["ADAPTER"] == "postgresql"
+  end
+
+  def inet_supported?
+    # no NoMethodError for prefix method
+    # but it exists in Ruby 2.4 docs
+    postgresql? && RUBY_VERSION.to_f > 2.4
   end
 end

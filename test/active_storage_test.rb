@@ -21,6 +21,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal content, user.avatar.download
     refute_equal content, user.avatar.blob.download
+    assert user.avatar.metadata["encrypted"]
   end
 
   def test_encrypt_uploaded_file
@@ -31,6 +32,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal content, user.avatar.download
     refute_equal content, user.avatar.blob.download
+    assert user.avatar.metadata["encrypted"]
   end
 
   def test_encrypt_blank_one
@@ -60,9 +62,28 @@ class ActiveStorageTest < Minitest::Test
       # blobs are just attached, not (re)encrypted
       User.create!(avatar: user.avatar.blob)
     else
-      assert_raises NotImplementedError do
+      error = assert_raises(ArgumentError) do
         User.create!(avatar: user.avatar.blob)
       end
+      assert_match "Could not find or build blob: expected attachable", error.message
+    end
+  end
+
+  def test_encrypt_unencrypted_blob
+    unencrypted_blob = User.create!(image: attachment).image.blob
+
+    if ActiveStorage::VERSION::MAJOR >= 6
+      # attaches but fails to decrypt
+      user = User.create!(avatar: unencrypted_blob)
+      assert_raises(Lockbox::DecryptionError) do
+        user.avatar.download
+      end
+    else
+      # fails to attach
+      error = assert_raises(ArgumentError) do
+        User.create!(avatar: unencrypted_blob)
+      end
+      assert_match "Could not find or build blob: expected attachable", error.message
     end
   end
 
@@ -75,8 +96,7 @@ class ActiveStorageTest < Minitest::Test
       assert_equal "Could not find or build blob: expected attachable, got 123", error.message
     end
 
-    # TODO raise ArgumentError
-    error = assert_raises(NotImplementedError) do
+    error = assert_raises(ArgumentError) do
       User.create!(avatar: 123)
     end
     assert_equal "Could not find or build blob: expected attachable, got 123", error.message
@@ -101,6 +121,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal contents, user.avatars.map(&:download)
     refute_equal contents, user.avatars.map { |a| a.blob.download }
+    assert user.avatars.all? { |a| a.metadata["encrypted"] }
   end
 
   def test_encrypt_many_attach
@@ -114,6 +135,7 @@ class ActiveStorageTest < Minitest::Test
     user = User.last
     assert_equal contents, user.avatars.map(&:download)
     refute_equal contents, user.avatars.map { |a| a.blob.download }
+    assert user.avatars.all? { |a| a.metadata["encrypted"] }
   end
 
   def test_no_encrypt_one
@@ -364,7 +386,7 @@ class ActiveStorageTest < Minitest::Test
   def test_migrate_one_none_attached
     Comment.destroy_all
 
-    comment = Comment.create!
+    Comment.create!
 
     with_migrating(:image) do
       Lockbox.migrate(Comment)
@@ -374,11 +396,62 @@ class ActiveStorageTest < Minitest::Test
   def test_migrate_many_none_attached
     Comment.destroy_all
 
-    comment = Comment.create!
+    Comment.create!
 
     with_migrating(:images) do
       Lockbox.migrate(Comment)
     end
+  end
+
+  def test_migrate_one_rotate_encryption
+    Comment.destroy_all
+
+    comment = Comment.create!(image: attachment)
+
+    assert_equal content, comment.image.download
+    assert_equal content, comment.image.blob.download
+    assert_nil comment.image.metadata["encrypted"]
+
+    with_migrating(:image) do
+      comment.image.rotate_encryption!
+
+      assert_equal content, comment.image.download
+      refute_equal content, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+
+      comment = Comment.last
+      assert_equal content, comment.image.download
+      refute_equal content, comment.image.blob.download
+      assert comment.image.metadata["encrypted"]
+    end
+
+    assert_equal 1, ActiveStorage::Blob.count
+  end
+
+  def test_migrate_many_rotate_encryption
+    Comment.destroy_all
+
+    comment = Comment.create!(images: attachments)
+    assert_equal contents, comment.images.map(&:download)
+    assert_equal contents, comment.images.map { |image| image.blob.download }
+    assert comment.images.all? { |image| image.metadata["encrypted"].nil? }
+
+    with_migrating(:images) do
+      comment.images.rotate_encryption!
+
+      assert_equal 3, comment.images.size
+      assert_equal contents, comment.images.map(&:download)
+      refute_equal contents, comment.images.map { |image| image.blob.download }
+      assert comment.images.all? { |image| image.metadata["encrypted"] }
+
+      comment = Comment.last
+      assert_equal 3, comment.images.size
+      assert_equal contents, comment.images.map(&:download)
+      refute_equal contents, comment.images.map { |image| image.blob.download }
+      assert comment.images.all? { |image| image.metadata["encrypted"] }
+    end
+
+    assert_equal 3, ActiveStorage::Blob.count
   end
 
   def test_migrate_relation

@@ -226,7 +226,7 @@ class ModelTest < Minitest::Test
     assert !user.has_attribute?("name")
     assert !user.has_attribute?(:name)
 
-    # TODO try to make virtual attribute behavior consistent in 0.5.0
+    # TODO try to make virtual attribute behavior consistent in 0.7.0
     # this may be difficult, as virtual attributes are set to self.class._default_attributes
     # which gets merged with query attributes in initialize method of active_record/core.rb
     # assert_equal ["id"], user.attributes.keys
@@ -250,11 +250,111 @@ class ModelTest < Minitest::Test
     end
   end
 
+  def test_keyed_getter
+    skip if mongoid?
+
+    user = User.create!(name: "Test", email: "test@example.org")
+    assert_equal "Test", user[:name]
+    assert_equal "test@example.org", user[:email]
+
+    user = User.last
+    assert_equal "Test", user[:name]
+    # TODO fix
+    # assert_equal "test@example.org", user[:email]
+  end
+
+  def test_keyed_setter
+    skip if mongoid?
+
+    user = User.create!
+    user[:name] = "Test"
+    user[:email] = "test@example.org"
+    user.save!
+
+    user = User.last
+    assert_equal "Test", user.name
+    # TODO fix
+    # assert_equal "test@example.org", user.email
+  end
+
   def test_inspect
+    user = User.create!(email: "test@example.org")
+    assert_includes user.inspect, "email: [FILTERED]"
+    refute_includes user.inspect, "email_ciphertext"
+    refute_includes user.inspect, "test@example.org"
+  end
+
+  # follow same behavior as filter_attributes
+  def test_inspect_nil
+    user = User.new
+
+    if mongoid?
+      refute_includes user.inspect, "email"
+    else
+      assert_includes user.inspect, "email: nil"
+    end
+    refute_includes user.inspect, "email_ciphertext"
+    refute_includes user.inspect, "test@example.org"
+  end
+
+  def test_inspect_select
+    return if mongoid?
+
+    User.create!(email: "test@example.org")
+    user = User.select(:id).last
+    refute_includes user.inspect, "email"
+    refute_includes user.inspect, "email_ciphertext"
+    refute_includes user.inspect, "test@example.org"
+  end
+
+  def test_inspect_select_ciphertext
+    return if mongoid?
+
+    User.create!(email: "test@example.org")
+    user = User.select(:id, :email_ciphertext).last
+    assert_includes user.inspect, "email: [FILTERED]"
+    refute_includes user.inspect, "email_ciphertext"
+    refute_includes user.inspect, "test@example.org"
+  end
+
+  def test_inspect_filter_attributes
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    previous_value = User.filter_attributes
+    begin
+      User.filter_attributes = ["name"]
+      user = User.create!(name: "Test")
+      assert_includes user.inspect, "name: [FILTERED]"
+      refute_includes user.inspect, "Test"
+
+      # Active Record still shows nil for filtered attributes
+      user = User.create!(name: nil)
+      assert_includes user.inspect, "name: nil"
+    ensure
+      User.filter_attributes = previous_value
+    end
+  end
+
+  def test_serializable_hash
     user = User.create!(email: "test@example.org")
     assert_nil user.serializable_hash["email"]
     assert_nil user.serializable_hash["email_ciphertext"]
-    refute_includes user.inspect, "email"
+  end
+
+  def test_to_json
+    user = User.create!(email: "test@example.org")
+    assert_nil user.as_json["email"]
+    assert_nil user.as_json["email_ciphertext"]
+    refute_includes user.to_json, "email"
+    refute_includes user.to_json, "test@example.org"
+    assert "test@example.org", user.as_json(methods: :email)
+  end
+
+  def test_filter_attributes
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    assert_includes User.filter_attributes, /\Aemail\z/
+    refute_includes User.filter_attributes, /\Aemail_ciphertext\z/
   end
 
   def test_reload
@@ -376,7 +476,7 @@ class ModelTest < Minitest::Test
     error = assert_raises(ArgumentError) do
       agent.email
     end
-    assert_equal "No private key set", error.message
+    assert_equal "No decryption key set", error.message
   end
 
   def test_validations_valid
@@ -556,6 +656,31 @@ class ModelTest < Minitest::Test
     assert_equal email, User.decrypt_email_ciphertext(admin.email_address_ciphertext)
   end
 
+  def test_previous_versions_key
+    email = "test@example.org"
+    key = User.lockbox_attributes[:email][:previous_versions][0].fetch(:key)
+    box = Lockbox.new(key: key, encode: true)
+    User.create!(email_ciphertext: box.encrypt(email))
+    assert_equal email, User.last.email
+  end
+
+  def test_previous_versions_master_key
+    email = "test@example.org"
+    master_key = User.lockbox_attributes[:email][:previous_versions][1].fetch(:master_key)
+    key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext", master_key: master_key)
+    box = Lockbox.new(key: key, encode: true)
+    User.create!(email_ciphertext: box.encrypt(email))
+    assert_equal email, User.last.email
+  end
+
+  def test_previous_versions_key_table_key_attribute
+    email = "test@example.org"
+    key = Lockbox.attribute_key(table: "people", attribute: "email_ciphertext")
+    box = Lockbox.new(key: key, encode: true)
+    admin = Admin.create!(email_address_ciphertext: box.encrypt(email))
+    assert_equal email, Admin.decrypt_email_address_ciphertext(admin.email_address_ciphertext)
+  end
+
   def test_encrypted_attribute
     email = "test@example.org"
     admin = Admin.create!(work_email: email)
@@ -578,11 +703,11 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(admin.encrypted_email)
   end
 
-  # TODO raise ArgumentError in 0.5.0
   def test_encrypts_no_attributes
-    assert_output(nil, /No attributes specified/) do
+    error = assert_raises(ArgumentError) do
       Admin.encrypts
     end
+    assert_equal "No attributes specified", error.message
   end
 
   private

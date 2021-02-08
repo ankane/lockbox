@@ -5,6 +5,7 @@ class PluckTest < Minitest::Test
     skip if mongoid?
 
     User.delete_all
+    Robot.delete_all
   end
 
   def test_symbol
@@ -51,5 +52,13 @@ class PluckTest < Minitest::Test
       Admin.pluck(:email)
     end
     assert_equal "Not available since :key depends on record", error.message
+  end
+
+  def test_migrating
+    Robot.create!(name: "Test 1")
+    Robot.create!(name: "Test 2")
+
+    Robot.update_all(name_ciphertext: nil)
+    assert_equal ["Test 1", "Test 2"], Robot.order(:id).pluck(:name)
   end
 end

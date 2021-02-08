@@ -1,14 +1,15 @@
 # Lockbox
 
-:package: Modern encryption for Rails
+:package: Modern encryption for Ruby and Rails
 
 - Works with database fields, files, and strings
 - Maximizes compatibility with existing code and libraries
 - Makes migrating existing data and key rotation easy
+- Has zero dependencies and many integrations
 
 Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [how to secure emails with Devise](https://ankane.org/securing-user-emails-lockbox), and [how to secure sensitive data in Rails](https://ankane.org/sensitive-data-rails).
 
-[![Build Status](https://travis-ci.org/ankane/lockbox.svg?branch=master)](https://travis-ci.org/ankane/lockbox)
+[![Build Status](https://github.com/ankane/lockbox/workflows/build/badge.svg?branch=master)](https://github.com/ankane/lockbox/actions)
 
 ## Installation
 
@@ -26,7 +27,7 @@ Generate a key
 Lockbox.generate_key
 ```
 
-Store the key with your other secrets. This is typically Rails credentials or an environment variable ([dotenv](https://github.com/bkeepers/dotenv) is great for this). Be sure to use different keys in development and production. Keys don’t need to be hex-encoded, but it’s often easier to store them this way.
+Store the key with your other secrets. This is typically Rails credentials or an environment variable ([dotenv](https://github.com/bkeepers/dotenv) is great for this). Be sure to use different keys in development and production.
 
 Set the following environment variable with your key (you can use this one in development)
 
@@ -34,10 +35,17 @@ Set the following environment variable with your key (you can use this one in de
 LOCKBOX_MASTER_KEY=0000000000000000000000000000000000000000000000000000000000000000
 ```
 
+or add it to your credentials for each environment (`rails credentials:edit --environment <env>` for Rails 6+)
+
+```yml
+lockbox:
+  master_key: "0000000000000000000000000000000000000000000000000000000000000000"
+```
+
 or create `config/initializers/lockbox.rb` with something like
 
 ```ruby
-Lockbox.master_key = Rails.application.credentials.lockbox_master_key
+Lockbox.master_key = Rails.application.credentials.lockbox[:master_key]
 ```
 
 Then follow the instructions below for the data you want to encrypt.
@@ -114,6 +122,7 @@ class User < ApplicationRecord
   encrypts :properties, type: :json
   encrypts :settings, type: :hash
   encrypts :messages, type: :array
+  encrypts :ip, type: :inet # [master]
 end
 ```
 
@@ -194,6 +203,34 @@ If adding blind indexes, mark them as `migrating` during this process as well.
 ```ruby
 class User < ApplicationRecord
   blind_index :email, migrating: true
+end
+```
+
+#### Model Changes
+
+If tracking changes to model attributes, be sure to remove or redact encrypted attributes.
+
+PaperTrail
+
+```ruby
+class User < ApplicationRecord
+  # for an encrypted history (still tracks ciphertext changes)
+  has_paper_trail skip: [:email]
+
+  # for no history (add blind indexes as well)
+  has_paper_trail skip: [:email, :email_ciphertext]
+end
+```
+
+Audited
+
+```ruby
+class User < ApplicationRecord
+  # for an encrypted history (still tracks ciphertext changes)
+  audited except: [:email]
+
+  # for no history (add blind indexes as well)
+  audited except: [:email, :email_ciphertext]
 end
 ```
 
@@ -414,6 +451,36 @@ Finally, delete the unencrypted files and drop the column for the original uploa
 
 ## Shrine
 
+#### Models
+
+Include the attachment as normal:
+
+```ruby
+class User < ApplicationRecord
+  include LicenseUploader::Attachment(:license)
+end
+```
+
+And encrypt in a controller (or background job, etc) with:
+
+```ruby
+license = params.require(:user).fetch(:license)
+lockbox = Lockbox.new(key: Lockbox.attribute_key(table: "users", attribute: "license"))
+user.license = lockbox.encrypt_io(license)
+```
+
+To serve encrypted files, use a controller action.
+
+```ruby
+def license
+  user = User.find(params[:id])
+  lockbox = Lockbox.new(key: Lockbox.attribute_key(table: "users", attribute: "license"))
+  send_data lockbox.decrypt(user.license.read), type: user.license.mime_type
+end
+```
+
+#### Non-Models
+
 Generate a key
 
 ```ruby
@@ -436,22 +503,6 @@ And decrypt them after reading
 
 ```ruby
 lockbox.decrypt(uploaded_file.read)
-```
-
-For models, encrypt with:
-
-```ruby
-license = params.require(:user).fetch(:license)
-user.license = lockbox.encrypt_io(license)
-```
-
-To serve encrypted files, use a controller action.
-
-```ruby
-def license
-  user = User.find(params[:id])
-  send_data lockbox.decrypt(user.license.read), type: user.license.mime_type
-end
 ```
 
 ## Local Files
@@ -656,6 +707,8 @@ This is the default algorithm. It’s:
 - an IETF standard
 - fast thanks to a [dedicated instruction set](https://en.wikipedia.org/wiki/AES_instruction_set)
 
+Lockbox uses 256-bit keys.
+
 **For users who do a lot of encryptions:** You should rotate an individual key after 2 billion encryptions to minimize the chance of a [nonce collision](https://www.cryptologie.net/article/402/is-symmetric-security-solved/), which will expose the key. Each database field and file uploader use a different key (derived from the master key) to extend this window.
 
 ### XSalsa20
@@ -709,6 +762,22 @@ For Ubuntu 16.04, use:
 sudo apt-get install libsodium18
 ```
 
+##### GitHub Actions
+
+For Ubuntu 20.04 and 18.04, use:
+
+```yml
+    - name: Install Libsodium
+      run: sudo apt-get update && sudo apt-get install libsodium23
+```
+
+For Ubuntu 16.04, use:
+
+```yml
+    - name: Install Libsodium
+      run: sudo apt-get update && sudo apt-get install libsodium18
+```
+
 ##### Travis CI
 
 On Bionic, add to `.travis.yml`:
@@ -736,8 +805,7 @@ Add a step to `.circleci/config.yml`:
 ```yml
 - run:
     name: install Libsodium
-    command: |
-      sudo apt-get install -y libsodium18
+    command: sudo apt-get install -y libsodium18
 ```
 
 ## Hybrid Cryptography
@@ -1020,12 +1088,29 @@ end
 
 ## Upgrading
 
+### 0.6.0
+
+0.6.0 adds `encrypted: true` to Active Storage metadata for new files. This field is informational, but if you prefer to add it to existing files, use:
+
+```ruby
+User.with_attached_license.find_each do |user|
+  next unless user.license.attached?
+
+  metadata = user.license.metadata
+  unless metadata["encrypted"]
+    user.license.blob.update!(metadata: metadata.merge("encrypted" => true))
+  end
+end
+```
+
 ### 0.3.6
 
 0.3.6 makes content type detection more reliable for Active Storage. You can check and update the content type of existing files with:
 
 ```ruby
-User.find_each do |user|
+User.with_attached_license.find_each do |user|
+  next unless user.license.attached?
+
   license = user.license
   content_type = Marcel::MimeType.for(license.download, name: license.filename.to_s)
   if content_type != license.content_type

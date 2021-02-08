@@ -1,6 +1,11 @@
 module Lockbox
   class Railtie < Rails::Railtie
     initializer "lockbox" do |app|
+      if defined?(Rails.application.credentials)
+        # needs to work when lockbox key has a string value
+        Lockbox.master_key ||= Rails.application.credentials.try(:lockbox).try(:fetch, :master_key, nil)
+      end
+
       require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
 
       if defined?(ActiveStorage)

@@ -74,12 +74,19 @@ class User < ActiveRecord::Base
   encrypts :data2, type: :json
   encrypts :info2, type: :hash
   encrypts :coordinates2, type: :array
+
+  if ENV["ADAPTER"] == "postgresql"
+    encrypts :ip2, type: :inet
+  end
+
   encrypts :city, padding: true
   encrypts :ssn, encode: false
 
   encrypts :state
 
   has_rich_text :content if respond_to?(:has_rich_text)
+
+  include PhotoUploader::Attachment(:photo)
 end
 
 class Post < ActiveRecord::Base
@@ -116,7 +123,7 @@ class Admin < ActiveRecord::Base
     "1"*64
   end
 
-  encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext"
+  encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext", previous_versions: [{key_table: "people", key_attribute: "email_ciphertext"}]
   encrypts :work_email, encrypted_attribute: "encrypted_email"
 end
 

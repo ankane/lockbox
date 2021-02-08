@@ -1,7 +1,7 @@
 module Lockbox
   class Box
     def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false)
-      raise ArgumentError, "Cannot pass both key and public/private key" if key && (encryption_key || decryption_key)
+      raise ArgumentError, "Cannot pass both key and encryption/decryption key" if key && (encryption_key || decryption_key)
 
       key = Lockbox::Utils.decode_key(key) if key
       encryption_key = Lockbox::Utils.decode_key(encryption_key, size: 64) if encryption_key
@@ -12,7 +12,6 @@ module Lockbox
       case algorithm
       when "aes-gcm"
         raise ArgumentError, "Missing key" unless key
-        require "lockbox/aes_gcm"
         @box = AES_GCM.new(key)
       when "xchacha20"
         raise ArgumentError, "Missing key" unless key
@@ -39,7 +38,7 @@ module Lockbox
       message = Lockbox.pad(message, size: @padding) if @padding
       case @algorithm
       when "hybrid"
-        raise ArgumentError, "No public key set" unless @encryption_box
+        raise ArgumentError, "No encryption key set" unless defined?(@encryption_box)
         raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
         nonce = generate_nonce(@encryption_box)
         ciphertext = @encryption_box.encrypt(nonce, message)
@@ -58,7 +57,7 @@ module Lockbox
       message =
         case @algorithm
         when "hybrid"
-          raise ArgumentError, "No private key set" unless @decryption_box
+          raise ArgumentError, "No decryption key set" unless defined?(@decryption_box)
           raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
           nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
           @decryption_box.decrypt(nonce, ciphertext)

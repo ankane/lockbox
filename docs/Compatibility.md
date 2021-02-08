@@ -5,6 +5,7 @@ Here’s how to decrypt in other languages. For files, skip Base64 decoding the 
 - [Node.js](#node-js)
 - [Python](#python)
 - [Rust](#rust)
+- [Elixir](#elixir)
 
 Pull requests are welcome for other languages.
 
@@ -61,11 +62,11 @@ hex = "0.4.2"
 And use:
 
 ```rust
-let key = hex::decode("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb").expect("decode failure!");
-let ciphertext = base64::decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").expect("decode failure!");
-
 use aes_gcm::Aes256Gcm;
 use aead::{Aead, NewAead, generic_array::GenericArray};
+
+let key = hex::decode("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb").expect("decode failure!");
+let ciphertext = base64::decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").expect("decode failure!");
 
 let aead = Aes256Gcm::new(GenericArray::clone_from_slice(&key));
 let nonce = GenericArray::from_slice(&ciphertext[..12]);
@@ -73,3 +74,16 @@ let plaintext = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failur
 ```
 
 Check out the [aes-gcm docs](https://docs.rs/aes-gcm/) for more on security and performance.
+
+## Elixir
+
+```ex
+{:ok, key} = Base.decode16("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb", case: :lower)
+{:ok, ciphertext} = Base.decode64("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==")
+
+ciphertext_size = byte_size(ciphertext) - 28
+
+<<nonce::binary-size(12), ciphertext::binary-size(ciphertext_size), tag::binary>> = ciphertext
+
+:crypto.block_decrypt(:aes_gcm, key, nonce, {"", ciphertext, tag})
+```

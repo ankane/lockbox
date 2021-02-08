@@ -4,6 +4,7 @@ require "openssl"
 require "securerandom"
 
 # modules
+require "lockbox/aes_gcm"
 require "lockbox/box"
 require "lockbox/calculations"
 require "lockbox/encryptor"
@@ -26,6 +27,11 @@ end
 
 if defined?(ActiveSupport.on_load)
   ActiveSupport.on_load(:active_record) do
+    # TODO raise error in 0.7.0
+    if ActiveRecord::VERSION::STRING.to_f <= 5.0
+      warn "Active Record version (#{ActiveRecord::VERSION::STRING}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
+    end
+
     extend Lockbox::Model
     extend Lockbox::Model::Attached
     ActiveRecord::Calculations.prepend Lockbox::Calculations
