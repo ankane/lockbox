@@ -568,11 +568,9 @@ Update your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, previous_versions: [{key: previous_key}]
+  encrypts :email, previous_versions: [{master_key: previous_key}]
 end
 ```
-
-Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing records, use:
 
@@ -587,10 +585,8 @@ Once all records are rotated, you can remove `previous_versions` from the model.
 Update your initializer:
 
 ```ruby
-Lockbox.encrypts_action_text_body(previous_versions: [{key: previous_key}])
+Lockbox.encrypts_action_text_body(previous_versions: [{master_key: previous_key}])
 ```
-
-Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing records, use:
 
@@ -606,11 +602,9 @@ Update your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts_attached :license, previous_versions: [{key: previous_key}]
+  encrypts_attached :license, previous_versions: [{master_key: previous_key}]
 end
 ```
-
-Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing files, use:
 
@@ -628,11 +622,9 @@ Update your model:
 
 ```ruby
 class LicenseUploader < CarrierWave::Uploader::Base
-  encrypt previous_versions: [{key: previous_key}]
+  encrypt previous_versions: [{master_key: previous_key}]
 end
 ```
-
-Use `master_key` instead of `key` if passing the master key.
 
 To rotate existing files, use:
 
