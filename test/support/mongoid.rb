@@ -60,6 +60,8 @@ class Admin
 
   field :name, type: String
   field :email_ciphertext, type: String
+  field :personal_email_ciphertext, type: String
+  field :other_email_ciphertext, type: String
   field :email_address_ciphertext, type: String
   field :encrypted_email, type: String
 

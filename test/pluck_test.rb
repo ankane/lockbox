@@ -56,7 +56,7 @@ class PluckTest < Minitest::Test
     error = assert_raises(NameError) do
       Admin.pluck(:personal_email)
     end
-    assert_match "undefined local variable or method `record_key' for Admin:Class", error.message
+    assert_match "undefined local variable or method `record_key'", error.message
   end
 
   def test_symbol_options
