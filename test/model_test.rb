@@ -643,6 +643,20 @@ class ModelTest < Minitest::Test
     end
   end
 
+  def test_callable_options
+    email = "test@example.org"
+    admin = Admin.create!(other_email: email)
+    box = Lockbox.new(key: "2"*64, encode: true)
+    assert_equal email, box.decrypt(admin.other_email_ciphertext)
+  end
+
+  def test_callable_options_record
+    email = "test@example.org"
+    admin = Admin.create!(personal_email: email)
+    box = Lockbox.new(key: admin.record_key, encode: true)
+    assert_equal email, box.decrypt(admin.personal_email_ciphertext)
+  end
+
   def test_symbol_options
     email = "test@example.org"
     admin = Admin.create!(email: email)
@@ -689,7 +703,7 @@ class ModelTest < Minitest::Test
 
   def test_encrypted_attribute_duplicate
     error = assert_raises do
-      Admin.encrypts :personal_email, encrypted_attribute: "encrypted_email"
+      Admin.encrypts :dup_email, encrypted_attribute: "encrypted_email"
     end
     assert_equal "Multiple encrypted attributes use the same column: encrypted_email", error.message
   end

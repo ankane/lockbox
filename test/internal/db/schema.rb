@@ -106,6 +106,8 @@ ActiveRecord::Schema.define do
   create_table :admins do |t|
     t.text :name
     t.text :email_ciphertext
+    t.text :personal_email_ciphertext
+    t.text :other_email_ciphertext
     t.text :email_address_ciphertext
     t.text :encrypted_email
   end

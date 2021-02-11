@@ -117,6 +117,8 @@ end
 
 class Admin < ActiveRecord::Base
   encrypts :email, key: :record_key
+  encrypts :personal_email, key: -> { record_key }
+  encrypts :other_email, key: -> { "2"*64 }
 
   def record_key
     "1"*64

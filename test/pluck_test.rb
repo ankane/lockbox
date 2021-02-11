@@ -46,6 +46,19 @@ class PluckTest < Minitest::Test
     assert_equal ["test2@example.org"], User.where(name: "Test 2").pluck("email")
   end
 
+  def test_callable_options_record
+    Admin.create!(other_email: "test@example.org")
+    assert_equal ["test@example.org"], Admin.pluck(:other_email)
+  end
+
+  def test_callable_options_record
+    Admin.create!(personal_email: "test@example.org")
+    error = assert_raises(NameError) do
+      Admin.pluck(:personal_email)
+    end
+    assert_match "undefined local variable or method `record_key' for Admin:Class", error.message
+  end
+
   def test_symbol_options
     Admin.create!(email: "test@example.org")
     error = assert_raises(Lockbox::Error) do
