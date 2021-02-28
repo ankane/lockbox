@@ -1,0 +1,16 @@
+source "https://rubygems.org"
+
+gemspec path: ".."
+
+gem "rake"
+gem "minitest", ">= 5"
+
+# This is the Rails 7.0.0.alpha commmit where Lockbox begins breaking
+gem 'rails', github: 'rails/rails', ref: '14ff158e73f17d2cb76f89f0d8c84a556f7589d9'
+gem "carrierwave"
+gem "combustion", ">= 1.3"
+gem "rbnacl", ">= 6"
+gem "sqlite3"
+gem "pg"
+gem "mysql2"
+gem "shrine"
