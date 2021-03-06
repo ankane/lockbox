@@ -11,7 +11,7 @@ jobs:
         - ruby: 3.0
           gemfile: Gemfile
         - ruby: 2.7
-          gemfile: gemfiles/rails70.gemfile
+          gemfile: gemfiles/railsedge.gemfile
         - ruby: 2.7
           gemfile: gemfiles/rails60.gemfile
         - ruby: 2.6
