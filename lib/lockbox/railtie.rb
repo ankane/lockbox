@@ -19,7 +19,6 @@ module Lockbox
         ActiveStorage::Attached::Many.prepend(Lockbox::ActiveStorageExtensions::AttachedMany)
 
         # use load hooks when possible
-
         if ActiveStorage::VERSION::MAJOR >= 7
           ActiveSupport.on_load(:active_storage_attachment) do
             prepend Lockbox::ActiveStorageExtensions::Attachment
