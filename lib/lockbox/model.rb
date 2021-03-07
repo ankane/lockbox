@@ -194,8 +194,11 @@ module Lockbox
                 attributes_to_set.each do |k, v|
                   if respond_to?(:write_attribute_without_type_cast, true)
                     write_attribute_without_type_cast(k, v)
-                  else
+                  elsif respond_to?(:raw_write_attribute, true)
                     raw_write_attribute(k, v)
+                  else
+                    @attributes.write_cast_value(k, v)
+                    clear_attribute_change(k)
                   end
                 end
 
@@ -254,7 +257,12 @@ module Lockbox
               # otherwise, type gets set to ActiveModel::Type::Value
               # which always returns false for changed_in_place?
               # earlier versions of Active Record take the previous code path
-              if ActiveRecord::VERSION::STRING.to_f >= 6.1 && attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
+              if ActiveRecord::VERSION::STRING.to_f >= 7.0 && attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
+                attribute_type = attributes_to_define_after_schema_loads[name.to_s].first.call(nil)
+                if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.nil?
+                  attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
+                end
+              elsif ActiveRecord::VERSION::STRING.to_f >= 6.1 && attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
                 attribute_type = attributes_to_define_after_schema_loads[name.to_s].first.call
                 if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.nil?
                   attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
@@ -383,8 +391,13 @@ module Lockbox
                 # decrypt method does type casting
                 if respond_to?(:write_attribute_without_type_cast, true)
                   write_attribute_without_type_cast(name.to_s, message) if !@attributes.frozen?
-                else
+                elsif respond_to?(:raw_write_attribute, true)
                   raw_write_attribute(name, message) if !@attributes.frozen?
+                else
+                  if !@attributes.frozen?
+                    @attributes.write_cast_value(name.to_s, message)
+                    clear_attribute_change(name)
+                  end
                 end
               else
                 instance_variable_set("@#{name}", message)
