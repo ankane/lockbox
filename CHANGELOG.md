@@ -1,4 +1,4 @@
-## 0.6.2 (2020-02-08)
+## 0.6.2 (2021-02-08)
 
 - Added `inet` type
 - Fixed error when `lockbox` key in Rails credentials has a string value
