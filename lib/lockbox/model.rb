@@ -379,7 +379,11 @@ module Lockbox
             # check for this explicitly as a layer of safety
             if message.nil? || ((message == {} || message == []) && activerecord && @attributes[name.to_s].value_before_type_cast.nil?)
               ciphertext = send(encrypted_attribute)
-              message = self.class.send(decrypt_method_name, ciphertext, context: self)
+
+              # keep original message for empty hashes and arrays
+              unless ciphertext.nil?
+                message = self.class.send(decrypt_method_name, ciphertext, context: self)
+              end
 
               if activerecord
                 # set previous attribute so changes populate correctly

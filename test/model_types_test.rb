@@ -277,6 +277,12 @@ class ModelTypesTest < Minitest::Test
     assert_equal info2, user.info2
   end
 
+  def test_type_hash_empty
+    user = User.create!
+    assert_equal({}, user.info)
+    assert_equal({}, user.info2)
+  end
+
   def test_type_array
     coordinates = [1, 2, 3]
     assert_attribute :coordinates, coordinates, format: coordinates.to_yaml
@@ -316,6 +322,12 @@ class ModelTypesTest < Minitest::Test
     user.coordinates2
     user.save!
     assert_equal coordinates2, user.coordinates2
+  end
+
+  def test_type_array_empty
+    user = User.create!
+    assert_equal [], user.coordinates
+    assert_equal [], user.coordinates2
   end
 
   def test_serialize_json
