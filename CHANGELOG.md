@@ -1,3 +1,7 @@
+## 0.6.3 (unreleased)
+
+- Fixed empty arrays and hashes
+
 ## 0.6.2 (2020-02-08)
 
 - Added `inet` type
