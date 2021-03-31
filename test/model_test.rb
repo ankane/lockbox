@@ -418,7 +418,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_write_attribute
-    skip if ActiveRecord::VERSION::STRING.to_f < 5.2
+    skip if mongoid? || ActiveRecord::VERSION::STRING.to_f < 5.2
 
     user = User.create!(email: "test@example.org")
     user.write_attribute(:email, "new@example.org")
