@@ -1,4 +1,4 @@
-## 0.6.3 (unreleased)
+## 0.6.3 (2021-03-30)
 
 - Fixed empty arrays and hashes
 - Fixed content type for CarrierWave 2.2.1
