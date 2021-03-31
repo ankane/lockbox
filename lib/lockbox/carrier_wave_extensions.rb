@@ -33,7 +33,10 @@ module Lockbox
         end
 
         def content_type
-          if CarrierWave::VERSION.to_i >= 2
+          if Gem::Version.new(CarrierWave::VERSION) >= Gem::Version.new("2.2.1")
+            # based on CarrierWave::SanitizedFile#marcel_magic_content_type
+            Marcel::Magic.by_magic(read).try(:type) || "invalid/invalid"
+          elsif CarrierWave::VERSION.to_i >= 2
             # based on CarrierWave::SanitizedFile#mime_magic_content_type
             MimeMagic.by_magic(read).try(:type) || "invalid/invalid"
           else
