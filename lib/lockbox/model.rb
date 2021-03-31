@@ -149,7 +149,7 @@ module Lockbox
               # needed for in-place modifications
               # assigned attributes are encrypted on assignment
               # and then again here
-              before_save do
+              def lockbox_sync_attributes
                 self.class.lockbox_attributes.each do |_, lockbox_attribute|
                   attribute = lockbox_attribute[:attribute]
 
@@ -157,6 +157,21 @@ module Lockbox
                     send("#{attribute}=", send(attribute))
                   end
                 end
+              end
+
+              # safety check
+              unless private_method_defined?(:_create_record) && private_method_defined?(:_update_record)
+                raise Lockbox::Error, "Expected _create_record and _update_record to be defined. Please report an issue."
+              end
+
+              def _create_record(*)
+                lockbox_sync_attributes
+                super
+              end
+
+              def _update_record(*)
+                lockbox_sync_attributes
+                super
               end
 
               def update_columns(attributes)

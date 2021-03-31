@@ -222,6 +222,17 @@ class ModelTypesTest < Minitest::Test
     assert_equal "world", user.data2["c"]
   end
 
+  def test_type_json_in_place_callbacks
+    Person.create!(data: {"count" => 0})
+
+    person = Person.last
+    assert_equal 1, person.data["count"]
+    person.save!
+
+    person = Person.last
+    assert_equal 2, person.data["count"]
+  end
+
   def test_type_json_save_twice
     data2 = {a: 1, b: "hi"}
     user = User.create!(data2: data2)

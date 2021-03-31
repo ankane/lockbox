@@ -1,3 +1,7 @@
+## 0.6.4 (unreleased)
+
+- Fixed in place changes in callbacks
+
 ## 0.6.3 (2021-03-30)
 
 - Fixed empty arrays and hashes

@@ -132,3 +132,13 @@ class Agent < ActiveRecord::Base
   key_pair = Lockbox.generate_key_pair
   encrypts :email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key]
 end
+
+class Person < ActiveRecord::Base
+  encrypts :data, type: :json
+
+  before_save :update_data
+
+  def update_data
+    data["count"] += 1
+  end
+end
