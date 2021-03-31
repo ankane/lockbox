@@ -417,6 +417,16 @@ class ModelTest < Minitest::Test
     assert_equal "new@example.org", user.email
   end
 
+  def test_write_attribute
+    skip if ActiveRecord::VERSION::STRING.to_f < 5.2
+
+    user = User.create!(email: "test@example.org")
+    user.write_attribute(:email, "new@example.org")
+    user.save!
+
+    assert_equal "new@example.org", User.last.email
+  end
+
   def test_nil
     user = User.create!(email: "test@example.org")
     user.email = nil

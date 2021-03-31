@@ -153,7 +153,7 @@ module Lockbox
                 self.class.lockbox_attributes.each do |_, lockbox_attribute|
                   attribute = lockbox_attribute[:attribute]
 
-                  if attribute_changed_in_place?(attribute)
+                  if attribute_changed_in_place?(attribute) || (send("#{attribute}_changed?") && !send("#{lockbox_attribute[:encrypted_attribute]}_changed?"))
                     send("#{attribute}=", send(attribute))
                   end
                 end
