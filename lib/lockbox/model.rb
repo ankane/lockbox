@@ -160,8 +160,10 @@ module Lockbox
               end
 
               # safety check
-              unless private_method_defined?(:_create_record) && private_method_defined?(:_update_record)
-                raise Lockbox::Error, "Expected _create_record and _update_record to be defined. Please report an issue."
+              [:_create_record, :_update_record].each do |method_name|
+                unless private_method_defined?(method_name) || method_defined?(method_name)
+                  raise Lockbox::Error, "Expected #{method_name} to be defined. Please report an issue."
+                end
               end
 
               def _create_record(*)
