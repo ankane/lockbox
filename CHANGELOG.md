@@ -1,6 +1,7 @@
 ## 0.6.4 (unreleased)
 
 - Fixed in place changes in callbacks
+- Fixed `[]` method for encrypted attributes
 
 ## 0.6.3 (2021-03-30)
 

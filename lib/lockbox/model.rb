@@ -174,6 +174,11 @@ module Lockbox
                 super
               end
 
+              def [](attr_name)
+                send(attr_name) if self.class.lockbox_attributes[attr_name]
+                super
+              end
+
               def update_columns(attributes)
                 return super unless attributes.is_a?(Hash)
 
