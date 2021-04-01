@@ -175,7 +175,7 @@ module Lockbox
               end
 
               def [](attr_name)
-                send(attr_name) if self.class.lockbox_attributes[attr_name]
+                send(attr_name) if self.class.lockbox_attributes.any? { |_, la| la[:attribute] == attr_name.to_s }
                 super
               end
 
