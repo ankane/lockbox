@@ -255,7 +255,9 @@ class ModelTest < Minitest::Test
 
     user = User.create!(name: "Test", email: "test@example.org")
     assert_equal "Test", user[:name]
+    assert_equal "Test", user["name"]
     assert_equal "test@example.org", user[:email]
+    assert_equal "test@example.org", user["email"]
 
     user = User.last
     assert_equal "Test", user[:name]
