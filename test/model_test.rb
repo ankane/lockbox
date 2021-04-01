@@ -259,7 +259,9 @@ class ModelTest < Minitest::Test
 
     user = User.last
     assert_equal "Test", user[:name]
+    assert_equal "Test", user["name"]
     assert_equal "test@example.org", user[:email]
+    assert_equal "test@example.org", user["email"]
   end
 
   def test_keyed_setter
