@@ -34,11 +34,13 @@ if defined?(ActiveSupport.on_load)
 
     extend Lockbox::Model
     extend Lockbox::Model::Attached
+    singleton_class.alias_method :encrypts, :lockbox_encrypts if ActiveRecord::VERSION::STRING.to_i < 7
     ActiveRecord::Calculations.prepend Lockbox::Calculations
   end
 
   ActiveSupport.on_load(:mongoid) do
     Mongoid::Document::ClassMethods.include(Lockbox::Model)
+    Mongoid::Document::ClassMethods.alias_method :encrypts, :lockbox_encrypts
   end
 end
 

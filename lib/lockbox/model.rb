@@ -1,6 +1,6 @@
 module Lockbox
   module Model
-    def encrypts(*attributes, **options)
+    def lockbox_encrypts(*attributes, **options)
       # support objects
       # case options[:type]
       # when Date
