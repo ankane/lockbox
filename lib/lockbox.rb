@@ -35,7 +35,7 @@ if defined?(ActiveSupport.on_load)
     extend Lockbox::Model
     extend Lockbox::Model::Attached
     # alias_method is private in Ruby < 2.5
-    singleton_class.send(:alias_method, :encrypts, :lockbox_encrypts) if ActiveRecord::VERSION::STRING.to_i < 7
+    singleton_class.send(:alias_method, :encrypts, :lockbox_encrypts) if ActiveRecord::VERSION::MAJOR < 7
     ActiveRecord::Calculations.prepend Lockbox::Calculations
   end
 
