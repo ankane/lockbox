@@ -110,7 +110,7 @@ module Lockbox
 
   def self.encrypts_action_text_body(**options)
     ActiveSupport.on_load(:action_text_rich_text) do
-      ActionText::RichText.encrypts :body, **options
+      ActionText::RichText.lockbox_encrypts :body, **options
     end
   end
 end
