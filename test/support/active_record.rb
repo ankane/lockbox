@@ -1,5 +1,10 @@
 require "active_record"
 
+# TODO remove when Active Record 7 released
+if ActiveRecord::VERSION::MAJOR >= 7
+  ActiveRecord::Base.singleton_class.alias_method(:encrypts, :lockbox_encrypts)
+end
+
 ActiveRecord::Base.logger = $logger
 
 class User < ActiveRecord::Base
