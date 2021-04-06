@@ -1,4 +1,4 @@
-## 0.6.4 (unreleased)
+## 0.6.4 (2021-04-05)
 
 - Fixed in place changes in callbacks
 - Fixed `[]` method for encrypted attributes
