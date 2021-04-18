@@ -197,6 +197,30 @@ end
 
 Finally, drop the unencrypted column.
 
+```ruby
+class RemoveEmailFromUsers < ActiveRecord::Migration[6.1]
+  def up
+    remove_column :users, :email, :text
+  end
+
+  def down
+    add_column :users, :email, :text
+
+    decrypt_email
+  end
+
+  def decrypt_email
+    User.all.each do |user|
+      unless user.email.nil?
+        execute <<-SQL
+          UPDATE users SET email=#{user.email} WHERE id=#{user.id};
+        SQL
+      end
+    end
+  end
+end
+```
+
 If adding blind indexes, mark them as `migrating` during this process as well.
 
 ```ruby
