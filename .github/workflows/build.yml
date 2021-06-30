@@ -2,7 +2,6 @@ name: build
 on: [push, pull_request]
 jobs:
   build:
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -42,14 +41,14 @@ jobs:
 
     - if : ${{ !matrix.mongodb }}
       uses: ankane/setup-postgres@v1
+      with:
+        database: lockbox_test
     - if : ${{ !matrix.mongodb }}
-      run: |
-        createdb lockbox_test
-        ADAPTER=postgresql bundle exec rake test
+      run: ADAPTER=postgresql bundle exec rake test
 
     - if : ${{ !matrix.mongodb }}
       uses: ankane/setup-mysql@v1
+      with:
+        database: lockbox_test
     - if : ${{ !matrix.mongodb }}
-      run: |
-        mysqladmin create lockbox_test
-        ADAPTER=mysql2 bundle exec rake test
+      run: ADAPTER=mysql2 bundle exec rake test
