@@ -1,6 +1,6 @@
 ## 0.6.5 (unreleased)
 
-- Fixed issue with `pluck` extension loading too late in some cases
+- Fixed issue with `pluck` extension not loading in some cases
 
 ## 0.6.4 (2021-04-05)
 
