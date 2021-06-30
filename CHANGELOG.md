@@ -1,3 +1,7 @@
+## 0.6.5 (unreleased)
+
+- Fixed issue with `pluck` extension loading too late in some cases
+
 ## 0.6.4 (2021-04-05)
 
 - Fixed in place changes in callbacks
