@@ -1,4 +1,4 @@
-## 0.6.5 (unreleased)
+## 0.6.5 (2021-07-07)
 
 - Fixed issue with `pluck` extension not loading in some cases
 
