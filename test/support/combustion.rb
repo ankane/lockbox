@@ -13,6 +13,10 @@ Combustion.initialize!(*components) do
     config.active_record.sqlite3.represent_boolean_as_integer = true
   end
 
+  if ActiveRecord::VERSION::MAJOR >= 7
+    config.active_record.legacy_connection_handling = false
+  end
+
   config.logger = $logger
 
   config.time_zone = "Mountain Time (US & Canada)"
@@ -21,5 +25,9 @@ Combustion.initialize!(*components) do
 
   if defined?(ActiveStorage)
     config.active_storage.service = :test
+
+    if ActiveRecord::VERSION::MAJOR >= 7
+      config.active_storage.replace_on_assign_to_many = true
+    end
   end
 end
