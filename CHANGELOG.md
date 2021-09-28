@@ -1,4 +1,4 @@
-## 0.6.6 (unreleased)
+## 0.6.6 (2021-09-27)
 
 - Fixed `attribute?` method for `boolean` and `integer` types
 
