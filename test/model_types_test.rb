@@ -54,6 +54,22 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :active, "", expected: nil
   end
 
+  def test_type_boolean_query_attribute
+    user = User.create!(active: true, active2: true)
+    assert user.active?
+    assert user.active2?
+    user = User.last
+    assert user.active?
+    assert user.active2?
+
+    user = User.create!(active: false, active2: false)
+    refute user.active?
+    refute user.active2?
+    user = User.last
+    refute user.active?
+    refute user.active2?
+  end
+
   def test_type_date
     born_on = Date.current
     assert_attribute :born_on, born_on, format: born_on.strftime("%Y-%m-%d")
@@ -145,6 +161,22 @@ class ModelTypesTest < Minitest::Test
     assert_raises ActiveModel::RangeError do
       User.create!(sign_in_count2: -(2**63 + 1))
     end
+  end
+
+  def test_type_integer_query_attribute
+    user = User.create!(sign_in_count: 1, sign_in_count2: 1)
+    assert user.sign_in_count?
+    assert user.sign_in_count2?
+    user = User.last
+    assert user.sign_in_count?
+    assert user.sign_in_count2?
+
+    user = User.create!(sign_in_count: 0, sign_in_count2: 0)
+    refute user.sign_in_count?
+    refute user.sign_in_count2?
+    user = User.last
+    refute user.sign_in_count?
+    refute user.sign_in_count2?
   end
 
   def test_type_float

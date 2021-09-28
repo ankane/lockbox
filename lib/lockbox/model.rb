@@ -309,6 +309,11 @@ module Lockbox
                 super()
               end
             end
+
+            define_method("#{name}?") do
+              # uses public_send, so we don't need to preload attribute
+              query_attribute(name)
+            end
           else
             # keep this module dead simple
             # Mongoid uses changed_attributes to calculate keys to update
@@ -348,10 +353,10 @@ module Lockbox
               send("reset_#{encrypted_attribute}_to_default!")
               send(name)
             end
-          end
 
-          define_method("#{name}?") do
-            send("#{encrypted_attribute}?")
+            define_method("#{name}?") do
+              send("#{encrypted_attribute}?")
+            end
           end
 
           define_method("#{name}=") do |message|
