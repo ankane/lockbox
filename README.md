@@ -336,7 +336,7 @@ def license
 end
 ```
 
-Use `disposition: "inline"` to show files inline.
+Use `filename` to specify a filename or `disposition: "inline"` to show inline.
 
 #### Migrating Existing Files
 
@@ -403,7 +403,7 @@ def license
 end
 ```
 
-Use `disposition: "inline"` to show files inline.
+Use `filename` to specify a filename or `disposition: "inline"` to show inline.
 
 #### Migrating Existing Files
 
@@ -480,7 +480,7 @@ def license
 end
 ```
 
-Use `disposition: "inline"` to show files inline.
+Use `filename` to specify a filename or `disposition: "inline"` to show inline.
 
 #### Non-Models
 
