@@ -336,6 +336,8 @@ def license
 end
 ```
 
+Use `disposition: "inline"` to show files inline.
+
 #### Migrating Existing Files
 
 Lockbox makes it easy to encrypt existing files without downtime.
@@ -400,6 +402,8 @@ def license
   send_data user.license.read, type: user.license.content_type
 end
 ```
+
+Use `disposition: "inline"` to show files inline.
 
 #### Migrating Existing Files
 
@@ -475,6 +479,8 @@ def license
   send_data lockbox.decrypt(user.license.read), type: user.license.mime_type
 end
 ```
+
+Use `disposition: "inline"` to show files inline.
 
 #### Non-Models
 
