@@ -1,3 +1,7 @@
+## 0.6.7 (unreleased)
+
+- Added warning for attributes with `default` option
+
 ## 0.6.6 (2021-09-27)
 
 - Fixed `attribute?` method for `boolean` and `integer` types
