@@ -315,7 +315,13 @@ module Lockbox
               query_attribute(name)
             end
 
-            if _default_attributes[name.to_s].is_a?(ActiveModel::Attribute::UserProvidedDefault)
+            user_provided_default =
+              if ActiveRecord::VERSION::STRING >= "5.2"
+                ActiveModel::Attribute::UserProvidedDefault
+              else
+                ActiveRecord::Attribute::UserProvidedDefault
+              end
+            if _default_attributes[name.to_s].is_a?(user_provided_default)
               warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
             end
           else
