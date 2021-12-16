@@ -87,6 +87,8 @@ class User < ApplicationRecord
 end
 ```
 
+**Note:** With Rails 7, use `lockbox_encrypts` instead of `encrypts`
+
 You can use `email` just like any other attribute.
 
 ```ruby
