@@ -5,7 +5,7 @@ gemspec
 gem "rake"
 gem "minitest", ">= 5"
 
-gem "rails", "~> 6.1.0"
+gem "rails", "~> 7.0.0"
 gem "carrierwave"
 gem "combustion", ">= 1.3"
 gem "rbnacl", ">= 6"
