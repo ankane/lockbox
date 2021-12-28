@@ -463,12 +463,8 @@ class LockboxTest < Minitest::Test
   end
 
   def with_master_key(key)
-    previous_key = Lockbox.master_key
-    begin
-      Lockbox.master_key = key
+    Lockbox.stub(:master_key, key) do
       yield
-    ensure
-      Lockbox.master_key = previous_key
     end
   end
 end

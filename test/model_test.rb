@@ -574,14 +574,10 @@ class ModelTest < Minitest::Test
   end
 
   def test_bad_master_key
-    previous_value = Lockbox.master_key
-    begin
-      Lockbox.master_key = "bad"
+    Lockbox.stub(:master_key, "bad") do
       assert_raises(Lockbox::Error) do
         User.create!(email: "test@example.org")
       end
-    ensure
-      Lockbox.master_key = previous_value
     end
   end
 
