@@ -253,6 +253,8 @@ class ModelTest < Minitest::Test
   def test_attributes_default
     skip if mongoid?
 
+    skip "Flaky" if ActiveRecord::VERSION::STRING.to_f < 5.2
+
     _, stderr = capture_io do
       Admin.encrypts :code
     end
