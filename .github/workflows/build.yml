@@ -25,7 +25,6 @@ jobs:
         - ruby: 2.6
           gemfile: gemfiles/mongoid6.gemfile
           mongodb: true
-    continue-on-error: ${{ contains(matrix.gemfile, 'rails7') }}
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
