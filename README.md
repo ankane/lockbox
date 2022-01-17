@@ -16,7 +16,7 @@ Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [h
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'lockbox'
+gem "lockbox"
 ```
 
 ## Key Generation
@@ -719,7 +719,7 @@ brew install libsodium
 And add to your Gemfile:
 
 ```ruby
-gem 'rbnacl'
+gem "rbnacl"
 ```
 
 Then add to your model:
