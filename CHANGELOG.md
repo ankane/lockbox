@@ -1,7 +1,7 @@
 ## 0.6.7 (2022-01-25)
 
 - Added warning for attributes with `default` option
-- Removing warning for Active Record 5.0 (still supported)
+- Removed warning for Active Record 5.0 (still supported)
 
 ## 0.6.6 (2021-09-27)
 
