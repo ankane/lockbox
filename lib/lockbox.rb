@@ -28,7 +28,7 @@ end
 if defined?(ActiveSupport.on_load)
   ActiveSupport.on_load(:active_record) do
     # TODO raise error in 0.7.0
-    if ActiveRecord::VERSION::STRING.to_f <= 5.0
+    if ActiveRecord::VERSION::STRING.to_f < 5.0
       warn "Active Record version (#{ActiveRecord::VERSION::STRING}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
     end
 
