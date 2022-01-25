@@ -1,6 +1,7 @@
 ## 0.6.7 (unreleased)
 
 - Added warning for attributes with `default` option
+- Removing warning for Active Record 5.0 (still supported)
 
 ## 0.6.6 (2021-09-27)
 
@@ -29,6 +30,7 @@
 ## 0.6.1 (2020-12-03)
 
 - Added integration with Rails credentials
+- Added warning for unsupported versions of Active Record
 - Fixed in place changes for Active Record 6.1
 - Fixed error with `content_type` method for CarrierWave < 2
 
