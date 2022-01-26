@@ -241,6 +241,23 @@ module Lockbox
           @lockbox_attributes[original_name] = options
 
           if activerecord
+            # warn on default attributes
+            if attributes_to_define_after_schema_loads.key?(name.to_s)
+              opt = attributes_to_define_after_schema_loads[name.to_s][1]
+
+              has_default =
+                if ActiveRecord::VERSION::MAJOR >= 7
+                  # not ideal, since NO_DEFAULT_PROVIDED is private
+                  opt != ActiveRecord::Attributes::ClassMethods.const_get(:NO_DEFAULT_PROVIDED)
+                else
+                  opt.is_a?(Hash) && opt.key?(:default)
+                end
+
+              if has_default
+                warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
+              end
+            end
+
             # preference:
             # 1. type option
             # 2. existing virtual attribute

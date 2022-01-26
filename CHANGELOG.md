@@ -1,3 +1,7 @@
+## 0.6.9 (unreleased)
+
+- Restored warning for attributes with `default` option
+
 ## 0.6.8 (2022-01-25)
 
 - Fixed issue with `encrypts` loading model schema early
