@@ -250,17 +250,6 @@ class ModelTest < Minitest::Test
     end
   end
 
-  def test_attributes_default
-    skip if mongoid?
-
-    skip "Flaky" if ActiveRecord::VERSION::STRING.to_f < 5.2
-
-    _, stderr = capture_io do
-      Admin.encrypts :code
-    end
-    assert_match "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead.", stderr
-  end
-
   def test_keyed_getter
     skip if mongoid?
 

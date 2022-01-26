@@ -131,8 +131,6 @@ class Admin < ActiveRecord::Base
 
   encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext", previous_versions: [{key_table: "people", key_attribute: "email_ciphertext"}]
   encrypts :work_email, encrypted_attribute: "encrypted_email"
-
-  attribute :code, :string, default: -> { "hello" }
 end
 
 class Agent < ActiveRecord::Base
@@ -149,3 +147,6 @@ class Person < ActiveRecord::Base
     data["count"] += 1
   end
 end
+
+# ensure encrypts does not cause schema to load
+raise "encrypts causing schema to load" if Person.send(:schema_loaded?)

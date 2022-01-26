@@ -314,16 +314,6 @@ module Lockbox
               # uses public_send, so we don't need to preload attribute
               query_attribute(name)
             end
-
-            user_provided_default =
-              if ActiveRecord::VERSION::STRING >= "5.2"
-                ActiveModel::Attribute::UserProvidedDefault
-              else
-                ActiveRecord::Attribute::UserProvidedDefault
-              end
-            if _default_attributes[name.to_s].is_a?(user_provided_default)
-              warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
-            end
           else
             # keep this module dead simple
             # Mongoid uses changed_attributes to calculate keys to update
