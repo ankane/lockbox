@@ -148,5 +148,5 @@ class Person < ActiveRecord::Base
   end
 end
 
-# ensure encrypts does not cause schema to load
-raise "encrypts causing schema to load" if Person.send(:schema_loaded?)
+# ensure encrypts does not cause model schema to load
+raise "encrypts loading model schema early" if Person.send(:schema_loaded?)
