@@ -710,19 +710,25 @@ Lockbox uses 256-bit keys.
 
 ### XSalsa20
 
-You can also use XSalsa20, which uses an extended nonce so you don’t have to worry about nonce collisions. First, [install Libsodium](https://github.com/crypto-rb/rbnacl/wiki/Installing-libsodium). For Homebrew, use:
+You can also use XSalsa20, which uses an extended nonce so you don’t have to worry about nonce collisions. First, [install Libsodium](https://github.com/crypto-rb/rbnacl/wiki/Installing-libsodium). It comes preinstalled on [Heroku](https://devcenter.heroku.com/articles/stack-packages). For Homebrew, use:
 
 ```sh
 brew install libsodium
 ```
 
-And add to your Gemfile:
+And for Ubuntu, use:
+
+```sh
+sudo apt-get install libsodium23
+```
+
+Then add to your Gemfile:
 
 ```ruby
 gem "rbnacl"
 ```
 
-Then add to your model:
+And add to your model:
 
 
 ```ruby
@@ -738,72 +744,6 @@ Lockbox.default_options = {algorithm: "xsalsa20"}
 ```
 
 You can also pass an algorithm to `previous_versions` for key rotation.
-
-#### XSalsa20 Deployment
-
-##### Heroku
-
-Heroku [comes with libsodium](https://devcenter.heroku.com/articles/stack-packages) preinstalled.
-
-##### Ubuntu
-
-For Ubuntu 20.04 and 18.04, use:
-
-```sh
-sudo apt-get install libsodium23
-```
-
-For Ubuntu 16.04, use:
-
-```sh
-sudo apt-get install libsodium18
-```
-
-##### GitHub Actions
-
-For Ubuntu 20.04 and 18.04, use:
-
-```yml
-    - name: Install Libsodium
-      run: sudo apt-get update && sudo apt-get install libsodium23
-```
-
-For Ubuntu 16.04, use:
-
-```yml
-    - name: Install Libsodium
-      run: sudo apt-get update && sudo apt-get install libsodium18
-```
-
-##### Travis CI
-
-On Bionic, add to `.travis.yml`:
-
-```yml
-addons:
-  apt:
-    packages:
-      - libsodium23
-```
-
-On Xenial, add to `.travis.yml`:
-
-```yml
-addons:
-  apt:
-    packages:
-      - libsodium18
-```
-
-##### CircleCI
-
-Add a step to `.circleci/config.yml`:
-
-```yml
-- run:
-    name: install Libsodium
-    command: sudo apt-get install -y libsodium18
-```
 
 ## Hybrid Cryptography
 
