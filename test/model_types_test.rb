@@ -14,17 +14,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_string_non_utf8
-    if mysql? && ActiveRecord::VERSION::MAJOR >= 7
-      error = assert_raises(ActiveRecord::StatementInvalid) do
-        assert_attribute :country, "Hi \255", format: "Hi \255"
-      end
-      assert_includes error.message, "Incorrect string value"
-    elsif mysql? && ActiveRecord::VERSION::STRING >= "6.1"
-      error = assert_raises(ArgumentError) do
-        assert_attribute :country, "Hi \255", format: "Hi \255"
-      end
-      assert_includes error.message, "invalid byte sequence in UTF-8"
-    elsif postgresql? || mysql?
+    if postgresql? || mysql?
       error = assert_raises(ActiveRecord::StatementInvalid) do
         assert_attribute :country, "Hi \255", format: "Hi \255"
       end
