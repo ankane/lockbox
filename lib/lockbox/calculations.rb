@@ -3,7 +3,13 @@ module Lockbox
     def pluck(*column_names)
       return super unless model.respond_to?(:lockbox_attributes)
 
-      lockbox_columns = column_names.map.with_index { |c, i| [model.lockbox_attributes[c.to_sym], i] }.select { |la, _i| la && !la[:migrating] }
+      lockbox_columns = column_names.map.with_index do |c, i|
+        next unless c.is_a?(String) || c.is_a?(Symbol)
+
+        [model.lockbox_attributes[c.to_sym], i]
+      end.select do |la, _i|
+        la && !la[:migrating]
+      end
 
       return super unless lockbox_columns.any?
 
