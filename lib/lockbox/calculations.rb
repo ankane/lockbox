@@ -4,8 +4,7 @@ module Lockbox
       return super unless model.respond_to?(:lockbox_attributes)
 
       lockbox_columns = column_names.map.with_index do |c, i|
-        next unless c.is_a?(String) || c.is_a?(Symbol)
-
+        next unless c.respond_to?(:to_sym)
         [model.lockbox_attributes[c.to_sym], i]
       end.select do |la, _i|
         la && !la[:migrating]
