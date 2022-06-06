@@ -46,6 +46,11 @@ class PluckTest < Minitest::Test
     assert_equal ["test2@example.org"], User.where(name: "Test 2").pluck("email")
   end
 
+  def test_object
+    User.create!
+    assert_equal ["Test"], User.pluck(Arel::Nodes::Quoted.new("Test"))
+  end
+
   def test_callable_options_record
     Admin.create!(other_email: "test@example.org")
     assert_equal ["test@example.org"], Admin.pluck(:other_email)
