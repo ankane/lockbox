@@ -102,7 +102,6 @@ module Lockbox
               inspection = []
               # use serializable_hash like Devise
               values = serializable_hash
-              ar_version = ActiveRecord::VERSION::STRING.to_f
               self.class.attribute_names.each do |k|
                 next if !has_attribute?(k) || lockbox_attributes[k]
 
@@ -115,10 +114,9 @@ module Lockbox
                   v = respond_to?(:attribute_for_inspect) ? attribute_for_inspect(k) : values[k].inspect
 
                   # fix for https://github.com/rails/rails/issues/40725
-                  if ar_version == 6.0
-                    if respond_to?(:inspection_filter, true) && v != "nil"
-                      v = inspection_filter.filter_param(k, v)
-                    end
+                  # TODO only apply to Active Record 6.0
+                  if respond_to?(:inspection_filter, true) && v != "nil"
+                    v = inspection_filter.filter_param(k, v)
                   end
                 else
                   next
