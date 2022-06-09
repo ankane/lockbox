@@ -1,7 +1,8 @@
-## 0.6.9 (unreleased)
+## 0.7.0 (unreleased)
 
 - Fixed error with `pluck`
 - Restored warning for attributes with `default` option
+- Dropped support for Active Record < 5.2 and Ruby < 2.6
 
 ## 0.6.8 (2022-01-25)
 
