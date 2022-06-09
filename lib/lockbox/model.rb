@@ -460,7 +460,6 @@ module Lockbox
             table = activerecord ? table_name : collection_name.to_s
 
             unless message.nil?
-              # TODO use attribute type class in 0.7.0
               case options[:type]
               when :boolean
                 message = ActiveRecord::Type::Boolean.new.serialize(message)
@@ -523,7 +522,6 @@ module Lockbox
               end
 
             unless message.nil?
-              # TODO use attribute type class in 0.7.0
               case options[:type]
               when :boolean
                 message = message == "t"
