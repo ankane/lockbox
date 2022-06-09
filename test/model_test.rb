@@ -254,7 +254,7 @@ class ModelTest < Minitest::Test
     skip if mongoid?
 
     _, stderr = capture_io do
-      Admin.encrypts :code
+      Admin.lockbox_encrypts :code
     end
     assert_match "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead.", stderr
   end
@@ -720,7 +720,7 @@ class ModelTest < Minitest::Test
 
   def test_encrypted_attribute_duplicate
     error = assert_raises do
-      Admin.encrypts :dup_email, encrypted_attribute: "encrypted_email"
+      Admin.lockbox_encrypts :dup_email, encrypted_attribute: "encrypted_email"
     end
     assert_equal "Multiple encrypted attributes use the same column: encrypted_email", error.message
   end
@@ -736,7 +736,7 @@ class ModelTest < Minitest::Test
 
   def test_encrypts_no_attributes
     error = assert_raises(ArgumentError) do
-      Admin.encrypts
+      Admin.lockbox_encrypts
     end
     assert_equal "No attributes specified", error.message
   end
