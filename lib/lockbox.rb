@@ -16,34 +16,6 @@ require "lockbox/padding"
 require "lockbox/utils"
 require "lockbox/version"
 
-# integrations
-require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
-require "lockbox/railtie" if defined?(Rails)
-
-if defined?(ActiveSupport::LogSubscriber)
-  require "lockbox/log_subscriber"
-  Lockbox::LogSubscriber.attach_to :lockbox
-end
-
-if defined?(ActiveSupport.on_load)
-  ActiveSupport.on_load(:active_record) do
-    # TODO raise error in 0.7.0
-    if ActiveRecord::VERSION::STRING.to_f < 5.2
-      warn "Active Record version (#{ActiveRecord::VERSION::STRING}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
-    end
-
-    extend Lockbox::Model
-    extend Lockbox::Model::Attached
-    singleton_class.alias_method(:encrypts, :lockbox_encrypts) if ActiveRecord::VERSION::MAJOR < 7
-    ActiveRecord::Relation.prepend Lockbox::Calculations
-  end
-
-  ActiveSupport.on_load(:mongoid) do
-    Mongoid::Document::ClassMethods.include(Lockbox::Model)
-    Mongoid::Document::ClassMethods.alias_method(:encrypts, :lockbox_encrypts)
-  end
-end
-
 module Lockbox
   class Error < StandardError; end
   class DecryptionError < Error; end
@@ -110,5 +82,37 @@ module Lockbox
     ActiveSupport.on_load(:action_text_rich_text) do
       ActionText::RichText.lockbox_encrypts :body, **options
     end
+  end
+end
+
+# integrations
+require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
+require "lockbox/railtie" if defined?(Rails)
+
+if defined?(ActiveSupport::LogSubscriber)
+  require "lockbox/log_subscriber"
+  Lockbox::LogSubscriber.attach_to :lockbox
+end
+
+if defined?(ActiveSupport.on_load)
+  ActiveSupport.on_load(:active_record) do
+    ar_version = ActiveRecord::VERSION::STRING.to_f
+    if ar_version < 5.2
+      if ar_version >= 5
+        raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} requires Lockbox < 0.7"
+      else
+        raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} not supported"
+      end
+    end
+
+    extend Lockbox::Model
+    extend Lockbox::Model::Attached
+    singleton_class.alias_method(:encrypts, :lockbox_encrypts) if ActiveRecord::VERSION::MAJOR < 7
+    ActiveRecord::Relation.prepend Lockbox::Calculations
+  end
+
+  ActiveSupport.on_load(:mongoid) do
+    Mongoid::Document::ClassMethods.include(Lockbox::Model)
+    Mongoid::Document::ClassMethods.alias_method(:encrypts, :lockbox_encrypts)
   end
 end

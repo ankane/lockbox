@@ -106,10 +106,9 @@ module Lockbox
 end
 
 if CarrierWave::VERSION.to_i > 2
-  raise "CarrierWave version (#{CarrierWave::VERSION}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
+  raise Lockbox::Error, "CarrierWave #{CarrierWave::VERSION} not supported in this version of Lockbox"
 elsif CarrierWave::VERSION.to_i < 1
-  # TODO raise error in 0.7.0
-  warn "CarrierWave version (#{CarrierWave::VERSION}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
+  raise Lockbox::Error, "CarrierWave #{CarrierWave::VERSION} not supported"
 end
 
 CarrierWave::Uploader::Base.extend(Lockbox::CarrierWaveExtensions)
