@@ -72,7 +72,7 @@ class ModelTest < Minitest::Test
     assert_equal original_email, user.email_was
 
     # in database
-    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
+    if !mongoid?
       assert_equal original_name, user.name_in_database
       assert_equal original_email, user.email_in_database
     else
@@ -85,7 +85,7 @@ class ModelTest < Minitest::Test
     assert !user.changed?
     assert_equal [], user.changed
 
-    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
+    if !mongoid?
       assert !user.will_save_change_to_name?
       assert !user.will_save_change_to_email?
     end
@@ -94,7 +94,7 @@ class ModelTest < Minitest::Test
     user.name = new_name
     user.email = new_email
 
-    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
+    if !mongoid?
       assert user.will_save_change_to_name?
       assert user.will_save_change_to_email?
     end
@@ -114,7 +114,7 @@ class ModelTest < Minitest::Test
     assert_equal original_email, user.email_was
 
     # ensure in database
-    if !mongoid? && ActiveRecord::VERSION::STRING >= "5.1"
+    if !mongoid?
       assert_equal original_name, user.name_in_database
       assert_equal original_email, user.email_in_database
     else
@@ -142,7 +142,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_dirty_before_last_save
-    skip if mongoid? || ActiveRecord::VERSION::STRING < "5.1"
+    skip if mongoid?
 
     original_name = "Test"
     original_email = "test@example.org"
@@ -429,7 +429,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_write_attribute
-    skip if mongoid? || ActiveRecord::VERSION::STRING.to_f < 5.2
+    skip if mongoid?
 
     user = User.create!(email: "test@example.org")
     user.write_attribute(:email, "new@example.org")

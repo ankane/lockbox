@@ -226,8 +226,6 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_type_json
-    # json type isn't recognized with SQLite in Rails < 5.2
-    skip if ActiveRecord::VERSION::STRING < "5.2"
     skip if mysql?
 
     data = {a: 1, b: "hi"}.as_json

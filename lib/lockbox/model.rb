@@ -320,11 +320,9 @@ module Lockbox
               send("restore_#{encrypted_attribute}!")
             end
 
-            if ActiveRecord::VERSION::STRING >= "5.1"
-              define_method("#{name}_in_database") do
-                send(name) # writes attribute when not already set
-                super()
-              end
+            define_method("#{name}_in_database") do
+              send(name) # writes attribute when not already set
+              super()
             end
 
             define_method("#{name}?") do
