@@ -28,21 +28,19 @@ end
 if defined?(ActiveSupport.on_load)
   ActiveSupport.on_load(:active_record) do
     # TODO raise error in 0.7.0
-    if ActiveRecord::VERSION::STRING.to_f < 5.0
+    if ActiveRecord::VERSION::STRING.to_f < 5.2
       warn "Active Record version (#{ActiveRecord::VERSION::STRING}) not supported in this version of Lockbox (#{Lockbox::VERSION})"
     end
 
     extend Lockbox::Model
     extend Lockbox::Model::Attached
-    # alias_method is private in Ruby < 2.5
-    singleton_class.send(:alias_method, :encrypts, :lockbox_encrypts) if ActiveRecord::VERSION::MAJOR < 7
+    singleton_class.alias_method(:encrypts, :lockbox_encrypts) if ActiveRecord::VERSION::MAJOR < 7
     ActiveRecord::Relation.prepend Lockbox::Calculations
   end
 
   ActiveSupport.on_load(:mongoid) do
     Mongoid::Document::ClassMethods.include(Lockbox::Model)
-    # alias_method is private in Ruby < 2.5
-    Mongoid::Document::ClassMethods.send(:alias_method, :encrypts, :lockbox_encrypts)
+    Mongoid::Document::ClassMethods.alias_method(:encrypts, :lockbox_encrypts)
   end
 end
 
