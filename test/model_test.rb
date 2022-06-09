@@ -163,9 +163,10 @@ class ModelTest < Minitest::Test
     assert_equal [original_name, new_name], user.name_previous_change
     assert_equal [original_email, new_email], user.email_previous_change
 
-    # TODO enable for Rails 6.1
-    # assert_equal original_name, user.name_previously_was
-    # assert_equal original_email, user.email_previously_was
+    if ActiveRecord::VERSION::STRING.to_f >= 6.1
+      assert_equal original_name, user.name_previously_was
+      assert_equal original_email, user.email_previously_was
+    end
 
     # ensure updated
     assert_equal original_name, user.name_before_last_save
