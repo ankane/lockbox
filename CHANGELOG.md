@@ -1,4 +1,4 @@
-## 1.0.0 (unreleased)
+## 1.0.0 (2022-06-11)
 
 - Deprecated `encrypts` in favor of `has_encrypted` to avoid conflicting with Active Record encryption
 - Deprecated `lockbox_encrypts` in favor of `has_encrypted`

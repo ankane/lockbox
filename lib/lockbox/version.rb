@@ -1,3 +1,3 @@
 module Lockbox
-  VERSION = "0.6.8"
+  VERSION = "1.0.0"
 end
