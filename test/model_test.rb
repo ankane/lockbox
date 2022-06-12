@@ -749,7 +749,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_encrypts_deprecated
-    skip if ActiveRecord::VERSION::MAJOR >= 7
+    skip if !mongoid? && ActiveRecord::VERSION::MAJOR >= 7
     assert_output(nil, /DEPRECATION WARNING: `encrypts` is deprecated in favor of `has_encrypted`/) do
       Admin.encrypts :dep2
     end
