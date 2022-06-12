@@ -72,7 +72,7 @@ Then follow the instructions below for the data you want to encrypt.
 Create a migration with:
 
 ```ruby
-class AddEmailCiphertextToUsers < ActiveRecord::Migration[6.1]
+class AddEmailCiphertextToUsers < ActiveRecord::Migration[7.0]
   def change
     add_column :users, :email_ciphertext, :text
   end
@@ -83,11 +83,9 @@ Add to your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email
+  has_encrypted :email
 end
 ```
-
-**Note:** With Rails 7, use `lockbox_encrypts` instead of `encrypts`
 
 You can use `email` just like any other attribute.
 
@@ -103,7 +101,7 @@ You can specify multiple fields in single line.
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, :phone, :city
+  has_encrypted :email, :phone, :city
 end
 ```
 
@@ -113,17 +111,17 @@ Fields are strings by default. Specify the type of a field with:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :born_on, type: :date
-  encrypts :signed_at, type: :datetime
-  encrypts :opens_at, type: :time
-  encrypts :active, type: :boolean
-  encrypts :salary, type: :integer
-  encrypts :latitude, type: :float
-  encrypts :video, type: :binary
-  encrypts :properties, type: :json
-  encrypts :settings, type: :hash
-  encrypts :messages, type: :array
-  encrypts :ip, type: :inet
+  has_encrypted :birthday, type: :date
+  has_encrypted :signed_at, type: :datetime
+  has_encrypted :opens_at, type: :time
+  has_encrypted :active, type: :boolean
+  has_encrypted :salary, type: :integer
+  has_encrypted :latitude, type: :float
+  has_encrypted :video, type: :binary
+  has_encrypted :properties, type: :json
+  has_encrypted :settings, type: :hash
+  has_encrypted :messages, type: :array
+  has_encrypted :ip, type: :inet
 end
 ```
 
@@ -137,7 +135,7 @@ class User < ApplicationRecord
   store :settings, accessors: [:color, :homepage]
   attribute :configuration, CustomType.new
 
-  encrypts :properties, :settings, :configuration
+  has_encrypted :properties, :settings, :configuration
 end
 ```
 
@@ -145,7 +143,7 @@ For [StoreModel](https://github.com/DmitryTsepelev/store_model), use:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :configuration, type: Configuration.to_type
+  has_encrypted :configuration, type: Configuration.to_type
 
   after_initialize do
     self.configuration ||= {}
@@ -176,7 +174,7 @@ Add a new column for the ciphertext, then add to your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, migrating: true
+  has_encrypted :email, migrating: true
 end
 ```
 
@@ -190,7 +188,7 @@ Then update the model to the desired state:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email
+  has_encrypted :email
 
   # remove this line after dropping email column
   self.ignored_columns = ["email"]
@@ -250,7 +248,7 @@ User.decrypt_email_ciphertext(user.email_ciphertext)
 Create a migration with:
 
 ```ruby
-class AddBodyCiphertextToRichTexts < ActiveRecord::Migration[6.1]
+class AddBodyCiphertextToRichTexts < ActiveRecord::Migration[7.0]
   def change
     add_column :action_text_rich_texts, :body_ciphertext, :text
   end
@@ -289,7 +287,7 @@ Add to your model:
 class User
   field :email_ciphertext, type: String
 
-  encrypts :email
+  has_encrypted :email
 end
 ```
 
@@ -381,7 +379,7 @@ Encryption is applied to all versions after processing.
 You can mount the uploader [as normal](https://github.com/carrierwaveuploader/carrierwave#activerecord). With Active Record, this involves creating a migration:
 
 ```ruby
-class AddLicenseToUsers < ActiveRecord::Migration[6.1]
+class AddLicenseToUsers < ActiveRecord::Migration[7.0]
   def change
     add_column :users, :license, :string
   end
@@ -574,7 +572,7 @@ Update your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, previous_versions: [{master_key: previous_key}]
+  has_encrypted :email, previous_versions: [{master_key: previous_key}]
 end
 ```
 
@@ -733,7 +731,7 @@ And add to your model:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, algorithm: "xsalsa20"
+  has_encrypted :email, algorithm: "xsalsa20"
 end
 ```
 
@@ -761,7 +759,7 @@ Store the keys with your other secrets. Then use:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
+  has_encrypted :email, algorithm: "hybrid", encryption_key: encryption_key, decryption_key: decryption_key
 end
 ```
 
@@ -791,7 +789,7 @@ To rename a table with encrypted columns/uploaders, use:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key_table: "original_table"
+  has_encrypted :email, key_table: "original_table"
 end
 ```
 
@@ -799,7 +797,7 @@ To rename an encrypted column itself, use:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key_attribute: "original_column"
+  has_encrypted :email, key_attribute: "original_column"
 end
 ```
 
@@ -809,7 +807,7 @@ To set a key for an individual field/uploader, use a string:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key: ENV["USER_EMAIL_ENCRYPTION_KEY"]
+  has_encrypted :email, key: ENV["USER_EMAIL_ENCRYPTION_KEY"]
 end
 ```
 
@@ -817,7 +815,7 @@ Or a proc:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key: -> { code }
+  has_encrypted :email, key: -> { code }
 end
 ```
 
@@ -827,7 +825,7 @@ To use a different key for each record, use a symbol:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key: :some_method
+  has_encrypted :email, key: :some_method
 end
 ```
 
@@ -835,7 +833,7 @@ Or a proc:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key: -> { some_method }
+  has_encrypted :email, key: -> { some_method }
 end
 ```
 
@@ -847,7 +845,7 @@ For Active Record and Mongoid, use:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, key: :kms_key
+  has_encrypted :email, key: :kms_key
 end
 ```
 
@@ -935,7 +933,7 @@ lockbox.decrypt(ciphertext, associated_data: "othercontext") # fails
 You can use `binary` columns for the ciphertext instead of `text` columns.
 
 ```ruby
-class AddEmailCiphertextToUsers < ActiveRecord::Migration[6.1]
+class AddEmailCiphertextToUsers < ActiveRecord::Migration[7.0]
   def change
     add_column :users, :email_ciphertext, :binary
   end
@@ -946,7 +944,7 @@ Disable Base64 encoding to save space.
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :email, encode: false
+  has_encrypted :email, encode: false
 end
 ```
 
@@ -980,7 +978,7 @@ end
 Create a migration with:
 
 ```ruby
-class MigrateToLockbox < ActiveRecord::Migration[6.1]
+class MigrateToLockbox < ActiveRecord::Migration[7.0]
   def change
     add_column :users, :name_ciphertext, :text
     add_column :users, :email_ciphertext, :text
@@ -988,11 +986,11 @@ class MigrateToLockbox < ActiveRecord::Migration[6.1]
 end
 ```
 
-And add `encrypts` to your model with the `migrating` option:
+And add `has_encrypted` to your model with the `migrating` option:
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :name, :email, migrating: true
+  has_encrypted :name, :email, migrating: true
 end
 ```
 
@@ -1006,14 +1004,14 @@ Once all records are migrated, remove the `migrating` option and the previous mo
 
 ```ruby
 class User < ApplicationRecord
-  encrypts :name, :email
+  has_encrypted :name, :email
 end
 ```
 
 Then remove the previous gem from your Gemfile and drop its columns.
 
 ```ruby
-class RemovePreviousEncryptedColumns < ActiveRecord::Migration[6.1]
+class RemovePreviousEncryptedColumns < ActiveRecord::Migration[7.0]
   def change
     remove_column :users, :encrypted_name, :text
     remove_column :users, :encrypted_name_iv, :text
@@ -1024,6 +1022,16 @@ end
 ```
 
 ## Upgrading
+
+### 1.0.0
+
+`encrypts` is now deprecated in favor of `has_encrypted` to avoid conflicting with Active Record encryption.
+
+```ruby
+class User < ApplicationRecord
+  has_encrypted :email
+end
+```
 
 ### 0.6.0
 

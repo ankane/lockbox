@@ -1,5 +1,7 @@
-## 0.7.0 (unreleased)
+## 1.0.0 (unreleased)
 
+- Deprecated `encrypts` in favor of `has_encrypted` to avoid conflicting with Active Record encryption
+- Deprecated `lockbox_encrypts` in favor of `has_encrypted`
 - Fixed error with `pluck`
 - Restored warning for attributes with `default` option
 - Dropped support for Active Record < 5.2 and Ruby < 2.6

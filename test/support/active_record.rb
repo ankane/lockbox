@@ -29,10 +29,10 @@ class User < ActiveRecord::Base
   mount_uploaders :documents, DocumentUploader
   serialize :documents, JSON
 
-  lockbox_encrypts :email, previous_versions: [{key: Lockbox.generate_key}, {master_key: Lockbox.generate_key}]
+  has_encrypted :email, previous_versions: [{key: Lockbox.generate_key}, {master_key: Lockbox.generate_key}]
 
   key_pair = Lockbox.generate_key_pair
-  lockbox_encrypts :phone, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: key_pair[:decryption_key]
+  has_encrypted :phone, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: key_pair[:decryption_key]
 
   serialize :properties, JSON
   serialize :properties2, JSON
@@ -43,45 +43,45 @@ class User < ActiveRecord::Base
   serialize :messages, Array
   serialize :messages2, Array
 
-  lockbox_encrypts :properties2, :settings2, :messages2
+  has_encrypted :properties2, :settings2, :messages2
 
   serialize :info, Hash
   serialize :coordinates, Array
 
   store :credentials, accessors: [:username], coder: JSON
   store :credentials2, accessors: [:username2], coder: JSON
-  lockbox_encrypts :credentials2
+  has_encrypted :credentials2
 
   attribute :configuration, Configuration.new
-  lockbox_encrypts :configuration2, type: Configuration.new
+  has_encrypted :configuration2, type: Configuration.new
 
   attribute :config, Configuration.new
   attribute :config2, Configuration.new
-  lockbox_encrypts :config2
+  has_encrypted :config2
 
   attribute :conf, Configuration.new
-  lockbox_encrypts :conf, migrating: true
+  has_encrypted :conf, migrating: true
 
-  lockbox_encrypts :country2, type: :string
-  lockbox_encrypts :active2, type: :boolean
-  lockbox_encrypts :born_on2, type: :date
-  lockbox_encrypts :signed_at2, type: :datetime
-  lockbox_encrypts :opens_at2, type: :time
-  lockbox_encrypts :sign_in_count2, type: :integer
-  lockbox_encrypts :latitude2, type: :float
-  lockbox_encrypts :video2, type: :binary
-  lockbox_encrypts :data2, type: :json
-  lockbox_encrypts :info2, type: :hash
-  lockbox_encrypts :coordinates2, type: :array
+  has_encrypted :country2, type: :string
+  has_encrypted :active2, type: :boolean
+  has_encrypted :born_on2, type: :date
+  has_encrypted :signed_at2, type: :datetime
+  has_encrypted :opens_at2, type: :time
+  has_encrypted :sign_in_count2, type: :integer
+  has_encrypted :latitude2, type: :float
+  has_encrypted :video2, type: :binary
+  has_encrypted :data2, type: :json
+  has_encrypted :info2, type: :hash
+  has_encrypted :coordinates2, type: :array
 
   if ENV["ADAPTER"] == "postgresql"
-    lockbox_encrypts :ip2, type: :inet
+    has_encrypted :ip2, type: :inet
   end
 
-  lockbox_encrypts :city, padding: true
-  lockbox_encrypts :ssn, encode: false
+  has_encrypted :city, padding: true
+  has_encrypted :ssn, encode: false
 
-  lockbox_encrypts :state
+  has_encrypted :state
 
   has_rich_text :content if respond_to?(:has_rich_text)
 
@@ -89,7 +89,7 @@ class User < ActiveRecord::Base
 end
 
 class Post < ActiveRecord::Base
-  lockbox_encrypts :title
+  has_encrypted :title
   validates :title, presence: true, length: {minimum: 3}
 
   if respond_to?(:has_one_attached)
@@ -102,7 +102,7 @@ class Robot < ActiveRecord::Base
 
   serialize :properties, JSON
 
-  lockbox_encrypts :name, :email, :properties, migrating: true
+  has_encrypted :name, :email, :properties, migrating: true
 end
 
 class Comment < ActiveRecord::Base
@@ -116,27 +116,27 @@ class Comment < ActiveRecord::Base
 end
 
 class Admin < ActiveRecord::Base
-  lockbox_encrypts :email, key: :record_key
-  lockbox_encrypts :personal_email, key: -> { record_key }
-  lockbox_encrypts :other_email, key: -> { "2"*64 }
+  has_encrypted :email, key: :record_key
+  has_encrypted :personal_email, key: -> { record_key }
+  has_encrypted :other_email, key: -> { "2"*64 }
 
   def record_key
     "1"*64
   end
 
-  lockbox_encrypts :email_address, key_table: "users", key_attribute: "email_ciphertext", previous_versions: [{key_table: "people", key_attribute: "email_ciphertext"}]
-  lockbox_encrypts :work_email, encrypted_attribute: "encrypted_email"
+  has_encrypted :email_address, key_table: "users", key_attribute: "email_ciphertext", previous_versions: [{key_table: "people", key_attribute: "email_ciphertext"}]
+  has_encrypted :work_email, encrypted_attribute: "encrypted_email"
 
   attribute :code, :string, default: -> { "hello" }
 end
 
 class Agent < ActiveRecord::Base
   key_pair = Lockbox.generate_key_pair
-  lockbox_encrypts :email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key]
+  has_encrypted :email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key]
 end
 
 class Person < ActiveRecord::Base
-  lockbox_encrypts :data, type: :json
+  has_encrypted :data, type: :json
 
   before_save :update_data
 
@@ -145,5 +145,5 @@ class Person < ActiveRecord::Base
   end
 end
 
-# ensure encrypts does not cause model schema to load
-raise "encrypts loading model schema early" if Person.send(:schema_loaded?)
+# ensure has_encrypted does not cause model schema to load
+raise "has_encrypted loading model schema early" if Person.send(:schema_loaded?)

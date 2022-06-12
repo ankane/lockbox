@@ -255,7 +255,7 @@ class ModelTest < Minitest::Test
     skip if mongoid?
 
     _, stderr = capture_io do
-      Admin.lockbox_encrypts :code
+      Admin.has_encrypted :code
     end
     assert_match "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead.", stderr
   end
@@ -721,7 +721,7 @@ class ModelTest < Minitest::Test
 
   def test_encrypted_attribute_duplicate
     error = assert_raises do
-      Admin.lockbox_encrypts :dup_email, encrypted_attribute: "encrypted_email"
+      Admin.has_encrypted :dup_email, encrypted_attribute: "encrypted_email"
     end
     assert_equal "Multiple encrypted attributes use the same column: encrypted_email", error.message
   end
@@ -737,9 +737,22 @@ class ModelTest < Minitest::Test
 
   def test_encrypts_no_attributes
     error = assert_raises(ArgumentError) do
-      Admin.lockbox_encrypts
+      Admin.has_encrypted
     end
     assert_equal "No attributes specified", error.message
+  end
+
+  def test_lockbox_encrypts_deprecated
+    assert_output(nil, /DEPRECATION WARNING: `lockbox_encrypts` is deprecated in favor of `has_encrypted`/) do
+      Admin.lockbox_encrypts :dep
+    end
+  end
+
+  def test_encrypts_deprecated
+    skip if ActiveRecord::VERSION::MAJOR >= 7
+    assert_output(nil, /DEPRECATION WARNING: `encrypts` is deprecated in favor of `has_encrypted`/) do
+      Admin.encrypts :dep2
+    end
   end
 
   private

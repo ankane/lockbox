@@ -1,6 +1,6 @@
 module Lockbox
   module Model
-    def lockbox_encrypts(*attributes, **options)
+    def has_encrypted(*attributes, **options)
       # support objects
       # case options[:type]
       # when Date
@@ -575,6 +575,11 @@ module Lockbox
           end
         end
       end
+    end
+
+    def lockbox_encrypts(*attributes, **options)
+      ActiveSupport::Deprecation.warn("`#{__callee__}` is deprecated in favor of `has_encrypted`")
+      has_encrypted(*attributes, **options)
     end
 
     module Attached
