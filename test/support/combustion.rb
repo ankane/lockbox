@@ -1,7 +1,6 @@
 Combustion.path = "test/internal"
 
-components = [:active_record, :active_job]
-components << :active_storage if Rails.version >= "5.2"
+components = [:active_record, :active_job, :active_storage]
 
 if Rails.version >= "6.0"
   components << :action_text
@@ -23,12 +22,10 @@ Combustion.initialize!(*components) do
 
   config.active_job.queue_adapter = :inline
 
-  if defined?(ActiveStorage)
-    config.active_storage.service = :test
+  config.active_storage.service = :test
 
-    if ActiveRecord::VERSION::MAJOR >= 7
-      config.active_storage.replace_on_assign_to_many = true
-    end
+  if ActiveRecord::VERSION::MAJOR >= 7
+    config.active_storage.replace_on_assign_to_many = true
   end
 
   # TODO remove
