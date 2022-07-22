@@ -5,15 +5,15 @@ class ModelTypesTest < Minitest::Test
     skip if mongoid?
   end
 
-  def test_type_string
+  def test_string
     assert_attribute :country, "USA", format: "USA"
   end
 
-  def test_type_string_utf8
+  def test_string_utf8
     assert_attribute :country, "Łukasz", format: "Łukasz"
   end
 
-  def test_type_string_non_utf8
+  def test_string_non_utf8
     if postgresql? || mysql?
       error = assert_raises(ActiveRecord::StatementInvalid) do
         assert_attribute :country, "Hi \255", format: "Hi \255"
@@ -28,28 +28,28 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
-  def test_type_boolean_true
+  def test_boolean_true
     assert_attribute :active, true, format: "t"
   end
 
-  def test_type_boolean_false
+  def test_boolean_false
     assert_attribute :active, false, format: "f"
   end
 
-  def test_type_boolean_bytesize
+  def test_boolean_bytesize
     assert_bytesize :active, true, false, size: 1
   end
 
-  def test_type_boolean_invalid
+  def test_boolean_invalid
     # non-falsey values are true
     assert_attribute :active, "invalid", expected: true
   end
 
-  def test_type_boolean_empty_string
+  def test_boolean_empty_string
     assert_attribute :active, "", expected: nil
   end
 
-  def test_type_boolean_query_attribute
+  def test_boolean_query_attribute
     user = User.create!(active: true, active2: true)
     assert user.active?
     assert user.active2?
@@ -65,74 +65,74 @@ class ModelTypesTest < Minitest::Test
     refute user.active2?
   end
 
-  def test_type_date
+  def test_date
     born_on = Date.current
     assert_attribute :born_on, born_on, format: born_on.strftime("%Y-%m-%d")
   end
 
-  def test_type_date_bytesize
+  def test_date_bytesize
     assert_bytesize :born_on, Date.current, Date.current + 10000, size: 10
     assert_bytesize :born_on, Date.current, Date.current - 10000, size: 10
     assert_bytesize :born_on, Date.current, Date.parse("999-01-01"), size: 10
     refute_bytesize :born_on, Date.current, Date.parse("99999-01-01")
   end
 
-  def test_type_date_invalid
+  def test_date_invalid
     assert_attribute :born_on, "invalid", expected: nil
   end
 
-  def test_type_datetime
+  def test_datetime
     skip if mysql?
 
     signed_at = Time.current.round(6)
     assert_attribute :signed_at, signed_at, format: signed_at.utc.iso8601(9), time_zone: true
   end
 
-  def test_type_datetime_bytesize
+  def test_datetime_bytesize
     assert_bytesize :signed_at, Time.current, Time.current + 100.years, size: 30
     assert_bytesize :signed_at, Time.current, Time.current - 100.years, size: 30
   end
 
-  def test_type_datetime_invalid
+  def test_datetime_invalid
     assert_attribute :signed_at, "invalid", expected: nil
   end
 
-  def test_type_time
+  def test_time
     skip if mysql?
 
     opens_at = Time.current.round(6).utc.change(year: 2000, month: 1, day: 1)
     assert_attribute :opens_at, opens_at, format: opens_at.utc.strftime("%H:%M:%S.%N")
   end
 
-  def test_type_time_bytesize
+  def test_time_bytesize
     assert_bytesize :opens_at, Time.current, Time.current + 5.minutes, size: 18
   end
 
-  def test_type_time_invalid
+  def test_time_invalid
     assert_attribute :opens_at, "invalid", expected: nil
   end
 
-  def test_type_integer
+  def test_integer
     sign_in_count = 10
     assert_attribute :sign_in_count, sign_in_count, format: [sign_in_count].pack("q>")
   end
 
-  def test_type_integer_negative
+  def test_integer_negative
     sign_in_count = -10
     assert_attribute :sign_in_count, sign_in_count, format: [sign_in_count].pack("q>")
   end
 
-  def test_type_integer_bytesize
+  def test_integer_bytesize
     assert_bytesize :sign_in_count, 10, 1_000_000_000, size: 8
     assert_bytesize :sign_in_count, -1_000_000_000, 1_000_000_000, size: 8
   end
 
-  def test_type_integer_invalid
+  def test_integer_invalid
     assert_attribute :sign_in_count, "invalid", expected: 0
     assert_attribute :sign_in_count, "55invalid", expected: 55
   end
 
-  def test_type_integer_in_range
+  def test_integer_in_range
     value = 2**63 - 1
     assert_attribute :sign_in_count, value, expected: value
 
@@ -140,7 +140,7 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :sign_in_count, value, expected: value
   end
 
-  def test_type_integer_out_of_range
+  def test_integer_out_of_range
     assert_raises ActiveModel::RangeError do
       User.create!(sign_in_count: 2**63)
     end
@@ -158,7 +158,7 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
-  def test_type_integer_query_attribute
+  def test_integer_query_attribute
     user = User.create!(sign_in_count: 1, sign_in_count2: 1)
     assert user.sign_in_count?
     assert user.sign_in_count2?
@@ -174,58 +174,58 @@ class ModelTypesTest < Minitest::Test
     refute user.sign_in_count2?
   end
 
-  def test_type_float
+  def test_float
     skip if mysql?
 
     latitude = 10.12345678
     assert_attribute :latitude, latitude, format: [latitude].pack("G")
   end
 
-  def test_type_float_negative
+  def test_float_negative
     skip if mysql?
 
     latitude = -10.12345678
     assert_attribute :latitude, latitude, format: [latitude].pack("G")
   end
 
-  def test_type_float_bigdecimal
+  def test_float_bigdecimal
     skip if postgresql? || mysql?
 
     latitude = BigDecimal("123456789.123456789123456789")
     assert_attribute :latitude, latitude, expected: latitude.to_f, format: [latitude].pack("G")
   end
 
-  def test_type_float_bytesize
+  def test_float_bytesize
     assert_bytesize :latitude, 10, 1_000_000_000.123, size: 8
     assert_bytesize :latitude, -1_000_000_000.123, 1_000_000_000.123, size: 8
   end
 
-  def test_type_float_invalid
+  def test_float_invalid
     assert_attribute :latitude, "invalid", expected: 0.0
     assert_attribute :latitude, "1.2invalid", expected: 1.2
   end
 
-  def test_type_float_infinity
+  def test_float_infinity
     skip if mysql?
     assert_attribute :latitude, Float::INFINITY, expected: Float::INFINITY, format: [Float::INFINITY].pack("G")
     assert_attribute :latitude, -Float::INFINITY, expected: -Float::INFINITY, format: [-Float::INFINITY].pack("G")
   end
 
-  def test_type_float_nan
+  def test_float_nan
     skip if mysql?
     assert_attribute :latitude, Float::NAN, expected: Float::NAN, format: [Float::NAN].pack("G")
   end
 
-  def test_type_binary
+  def test_binary
     video = SecureRandom.random_bytes(512)
     assert_attribute :video, video, format: video
   end
 
-  def test_type_binary_bytesize
+  def test_binary_bytesize
     refute_bytesize :video, SecureRandom.random_bytes(15), SecureRandom.random_bytes(16)
   end
 
-  def test_type_json
+  def test_json
     skip if mysql?
 
     data = {a: 1, b: "hi"}.as_json
@@ -239,7 +239,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal [data, new_data], user.changes["data2"]
   end
 
-  def test_type_json_in_place
+  def test_json_in_place
     user = User.create!(data2: {a: 1, b: "hi"})
     user.data2[:c] = "world"
     user.save!
@@ -247,7 +247,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal "world", user.data2["c"]
   end
 
-  def test_type_json_in_place_callbacks
+  def test_json_in_place_callbacks
     Person.create!(data: {"count" => 0})
 
     person = Person.last
@@ -258,7 +258,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal 2, person.data["count"]
   end
 
-  def test_type_json_save_twice
+  def test_json_save_twice
     data2 = {a: 1, b: "hi"}
     user = User.create!(data2: data2)
     user.reload
@@ -271,7 +271,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal new_data2, user.data2
   end
 
-  def test_type_hash
+  def test_hash
     info = {a: 1, b: "hi"}
     assert_attribute :info, info, format: info.to_yaml
 
@@ -284,7 +284,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal [info.stringify_keys, new_info.stringify_keys], user.changes["info2"]
   end
 
-  def test_type_hash_invalid
+  def test_hash_invalid
     assert_raises ActiveRecord::SerializationTypeMismatch do
       User.create!(info: "invalid")
     end
@@ -294,7 +294,7 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
-  def test_type_hash_in_place
+  def test_hash_in_place
     user = User.create!(info2: {a: 1, b: "hi"})
     user.info2[:c] = "world"
     user.save!
@@ -302,7 +302,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal "world", user.info2[:c]
   end
 
-  def test_type_hash_save_twice
+  def test_hash_save_twice
     info2 = {a: 1, b: "hi"}
     user = User.create!(info2: info2)
     user.reload
@@ -313,13 +313,13 @@ class ModelTypesTest < Minitest::Test
     assert_equal info2, user.info2
   end
 
-  def test_type_hash_empty
+  def test_hash_empty
     user = User.create!
     assert_equal({}, user.info)
     assert_equal({}, user.info2)
   end
 
-  def test_type_array
+  def test_array
     coordinates = [1, 2, 3]
     assert_attribute :coordinates, coordinates, format: coordinates.to_yaml
 
@@ -331,7 +331,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal [coordinates, new_coordinates], user.changes["coordinates2"]
   end
 
-  def test_type_array_invalid
+  def test_array_invalid
     assert_raises ActiveRecord::SerializationTypeMismatch do
       User.create!(coordinates: "invalid")
     end
@@ -341,7 +341,7 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
-  def test_type_array_in_place
+  def test_array_in_place
     user = User.create!(coordinates2: [1, 2, 3])
     user.coordinates2[3] = 4
     user.save!
@@ -349,7 +349,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal 4, user.coordinates2[3]
   end
 
-  def test_type_array_save_twice
+  def test_array_save_twice
     coordinates2 = [1, 2, 3]
     user = User.create!(coordinates2: coordinates2)
     user.reload
@@ -360,7 +360,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal coordinates2, user.coordinates2
   end
 
-  def test_type_array_empty
+  def test_array_empty
     user = User.create!
     assert_equal [], user.coordinates
     assert_equal [], user.coordinates2
@@ -447,7 +447,7 @@ class ModelTypesTest < Minitest::Test
     end
   end
 
-  def test_type_inet_ipv4
+  def test_inet_ipv4
     skip unless inet_supported?
 
     ip = IPAddr.new("127.0.0.1")
@@ -455,7 +455,7 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :ip, ip.to_s, expected: ip, format: [0, 32, ip.hton, "\x00"*12].pack("cca4a12")
   end
 
-  def test_type_inet_ipv4_prefix
+  def test_inet_ipv4_prefix
     skip unless inet_supported?
 
     ip = IPAddr.new("127.0.0.0/24")
@@ -463,7 +463,7 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :ip, "127.0.0.0/24", expected: ip, format: [0, 24, ip.hton, "\x00"*12].pack("cca4a12")
   end
 
-  def test_type_inet_ipv6
+  def test_inet_ipv6
     skip unless inet_supported?
 
     ip = IPAddr.new("::")
@@ -471,7 +471,7 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :ip, ip.to_s, expected: ip, format: [1, 128, ip.hton].pack("cca16")
   end
 
-  def test_type_inet_bytesize
+  def test_inet_bytesize
     skip unless inet_supported?
 
     assert_bytesize :ip, "127.0.0.1", "255.255.255.255", size: 18
@@ -479,7 +479,7 @@ class ModelTypesTest < Minitest::Test
     assert_bytesize :ip, "127.0.0.0/24", "255.255.255.255", size: 18
   end
 
-  def test_type_inet_invalid
+  def test_inet_invalid
     skip unless inet_supported?
 
     assert_attribute :ip, "invalid", expected: nil
@@ -491,15 +491,15 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :username, "hello", check_nil: false
   end
 
-  def test_type_custom
+  def test_custom
     assert_attribute :configuration, "USA", format: "USA!!"
   end
 
-  def test_type_custom_attribute
+  def test_custom_attribute
     assert_attribute :config, "USA", format: "USA!!"
   end
 
-  def test_type_migrating
+  def test_migrating
     user = User.create!(conf: "Hi")
     key = Lockbox.attribute_key(table: "users", attribute: "conf_ciphertext")
     box = Lockbox.new(key: key, encode: true)
