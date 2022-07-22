@@ -30,4 +30,7 @@ Combustion.initialize!(*components) do
       config.active_storage.replace_on_assign_to_many = true
     end
   end
+
+  # TODO remove
+  config.active_record.yaml_column_permitted_classes = [Symbol, Time]
 end
