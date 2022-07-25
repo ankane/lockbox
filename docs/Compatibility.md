@@ -6,6 +6,7 @@ Here’s how to decrypt in other languages. For files, skip Base64 decoding the 
 - [Python](#python)
 - [Rust](#rust)
 - [Elixir](#elixir)
+- [Snowflake](#snowflake)
 
 Pull requests are welcome for other languages.
 
@@ -86,4 +87,22 @@ ciphertext_size = byte_size(ciphertext) - 28
 <<nonce::binary-size(12), ciphertext::binary-size(ciphertext_size), tag::binary>> = ciphertext
 
 :crypto.block_decrypt(:aes_gcm, key, nonce, {"", ciphertext, tag})
+```
+
+## Snowflake
+
+```sql
+WITH temporaryTable AS(
+  SELECT
+    BASE64_DECODE_BINARY('Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==') AS data_ciphertext)
+SELECT
+  DECRYPT_RAW(
+    SUBSTRING(t.data_ciphertext, 13, LENGTH(t.data_ciphertext) - 16 - 12) /* value_to_decrypt */,
+    HEX_DECODE_BINARY('61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb') /* key */,
+    LEFT(t.data_ciphertext, 12) /* iv */,
+    NULL, /* auth_tag */
+    'AES-GCM',
+    RIGHT(t.data_ciphertext, 16) /* aead_tag */
+  )
+FROM temporaryTable AS t
 ```
