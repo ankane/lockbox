@@ -205,11 +205,11 @@ module Lockbox
             ciphertext = self.class.send(encrypt_method_name, message, context: self)
             send("#{encrypted_attribute}=", ciphertext)
 
-            super(original_message)
+            write_attribute(name, original_message)
           end
 
           define_method(name) do
-            message = super()
+            message = read_attribute(name)
 
             unless message
               ciphertext = send(encrypted_attribute)
