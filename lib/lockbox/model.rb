@@ -241,7 +241,7 @@ module Lockbox
                 end
 
                 # private
-                # note: for readonly columns, users should mark both plaintext and ciphertext columns
+                # does not try to handle :returning option for simplicity
                 def self.lockbox_map_attributes(records, check_readonly: false)
                   return records unless records.is_a?(Array)
 
@@ -256,6 +256,7 @@ module Lockbox
                     lockbox_attributes.each do |key, lockbox_attribute|
                       attribute = key.to_s
                       # check read only
+                      # users should mark both plaintext and ciphertext columns
                       if check_readonly && readonly_attributes.include?(attribute) && !readonly_attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
                         warn "[lockbox] WARNING: Mark attribute as readonly: #{lockbox_attribute[:encrypted_attribute]}"
                       end
