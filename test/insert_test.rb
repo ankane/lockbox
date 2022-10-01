@@ -9,41 +9,46 @@ class InsertTest < Minitest::Test
 
   def test_insert
     User.insert({name: "Test", email: "test@example.org"})
+    User.insert({"name" => "New", "email" => "new@example.org"})
 
-    user = User.last
-    assert_equal "Test", user.name
-    assert_equal "test@example.org", user.email
+    users = User.order(:id).pluck(:name, :email)
+    expected = [["Test", "test@example.org"], ["New", "new@example.org"]]
+    assert_equal users, expected
   end
 
   def test_insert_all
     User.insert_all([{name: "Test", email: "test@example.org"}])
+    User.insert_all([{"name" => "New", "email" => "new@example.org"}])
 
-    user = User.last
-    assert_equal "Test", user.name
-    assert_equal "test@example.org", user.email
+    users = User.order(:id).pluck(:name, :email)
+    expected = [["Test", "test@example.org"], ["New", "new@example.org"]]
+    assert_equal users, expected
   end
 
   def test_insert_all!
     User.insert_all!([{name: "Test", email: "test@example.org"}])
+    User.insert_all!([{"name" => "New", "email" => "new@example.org"}])
 
-    user = User.last
-    assert_equal "Test", user.name
-    assert_equal "test@example.org", user.email
+    users = User.order(:id).pluck(:name, :email)
+    expected = [["Test", "test@example.org"], ["New", "new@example.org"]]
+    assert_equal users, expected
   end
 
   def test_upsert
-    User.upsert({name: "Test", email: "test@example.org"})
+    User.upsert({id: 1, name: "Test", email: "test@example.org"})
+    User.upsert({"id" => 1, "name" => "New", "email" => "new@example.org"})
 
-    user = User.last
-    assert_equal "Test", user.name
-    assert_equal "test@example.org", user.email
+    users = User.order(:id).pluck(:name, :email)
+    expected = [["New", "new@example.org"]]
+    assert_equal users, expected
   end
 
   def test_upsert_all
-    User.upsert_all([{name: "Test", email: "test@example.org"}])
+    User.upsert_all([{id: 1, name: "Test", email: "test@example.org"}])
+    User.upsert_all([{"id" => 1, "name" => "New", "email" => "new@example.org"}])
 
-    user = User.last
-    assert_equal "Test", user.name
-    assert_equal "test@example.org", user.email
+    users = User.order(:id).pluck(:name, :email)
+    expected = [["New", "new@example.org"]]
+    assert_equal users, expected
   end
 end
