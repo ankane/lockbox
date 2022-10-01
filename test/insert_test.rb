@@ -51,4 +51,11 @@ class InsertTest < Minitest::Test
     expected = [["New", "new@example.org"]]
     assert_equal users, expected
   end
+
+  def test_symbol_options
+    error = assert_raises(Lockbox::Error) do
+      Admin.upsert({email: "test@example.org"})
+    end
+    assert_equal "Not available since :key depends on record", error.message
+  end
 end
