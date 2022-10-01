@@ -13,7 +13,7 @@ class InsertTest < Minitest::Test
 
     users = User.order(:id).pluck(:name, :email)
     expected = [["Test", "test@example.org"], ["New", "new@example.org"]]
-    assert_equal users, expected
+    assert_equal expected, users
   end
 
   def test_insert_all
@@ -22,7 +22,7 @@ class InsertTest < Minitest::Test
 
     users = User.order(:id).pluck(:name, :email)
     expected = [["Test", "test@example.org"], ["New", "new@example.org"]]
-    assert_equal users, expected
+    assert_equal expected, users
   end
 
   def test_insert_all!
@@ -31,7 +31,7 @@ class InsertTest < Minitest::Test
 
     users = User.order(:id).pluck(:name, :email)
     expected = [["Test", "test@example.org"], ["New", "new@example.org"]]
-    assert_equal users, expected
+    assert_equal expected, users
   end
 
   def test_upsert
@@ -40,7 +40,7 @@ class InsertTest < Minitest::Test
 
     users = User.order(:id).pluck(:name, :email)
     expected = [["New", "new@example.org"]]
-    assert_equal users, expected
+    assert_equal expected, users
   end
 
   def test_upsert_all
@@ -49,7 +49,7 @@ class InsertTest < Minitest::Test
 
     users = User.order(:id).pluck(:name, :email)
     expected = [["New", "new@example.org"]]
-    assert_equal users, expected
+    assert_equal expected, users
   end
 
   def test_symbol_options
