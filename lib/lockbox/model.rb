@@ -226,6 +226,47 @@ module Lockbox
 
                 result
               end
+
+              if ActiveRecord::VERSION::MAJOR >= 6
+                def self.insert_all(attributes, **options)
+                  super(lockbox_map_attributes(attributes), **options)
+                end
+
+                def self.insert_all!(attributes, **options)
+                  super(lockbox_map_attributes(attributes), **options)
+                end
+
+                def self.upsert_all(attributes, **options)
+                  super(lockbox_map_attributes(attributes), **options)
+                end
+
+                # private
+                # note: for readonly columns, users should mark both plaintext and ciphertext columns
+                def self.lockbox_map_attributes(records)
+                  return records unless records.is_a?(Array)
+
+                  records.map do |attributes|
+                    # transform keys like Active Record
+                    attributes = attributes.transform_keys do |key|
+                      n = key.to_s
+                      attribute_aliases[n] || n
+                    end
+
+                    lockbox_attributes = self.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
+                    lockbox_attributes.each do |key, lockbox_attribute|
+                      attribute = key.to_s
+
+                      message = attributes[attribute]
+                      attributes.delete(attribute) unless lockbox_attribute[:migrating]
+                      encrypted_attribute = lockbox_attribute[:encrypted_attribute]
+                      ciphertext = send("generate_#{encrypted_attribute}", message)
+                      attributes[encrypted_attribute] = ciphertext
+                    end
+
+                    attributes
+                  end
+                end
+              end
             else
               def reload
                 self.class.lockbox_attributes.each do |_, v|

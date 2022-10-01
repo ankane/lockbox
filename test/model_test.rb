@@ -439,6 +439,56 @@ class ModelTest < Minitest::Test
     assert_equal "new@example.org", User.last.email
   end
 
+  def test_insert
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    User.insert({name: "Test", email: "test@example.org"})
+
+    user = User.last
+    assert_equal "Test", user.name
+    assert_equal "test@example.org", user.email
+  end
+
+  def test_insert_all
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    User.insert_all([{name: "Test", email: "test@example.org"}])
+
+    user = User.last
+    assert_equal "Test", user.name
+    assert_equal "test@example.org", user.email
+  end
+
+  def test_insert_all!
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    User.insert_all!([{name: "Test", email: "test@example.org"}])
+
+    user = User.last
+    assert_equal "Test", user.name
+    assert_equal "test@example.org", user.email
+  end
+
+  def test_upsert
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    User.upsert({name: "Test", email: "test@example.org"})
+
+    user = User.last
+    assert_equal "Test", user.name
+    assert_equal "test@example.org", user.email
+  end
+
+  def test_upsert_all
+    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+
+    User.upsert_all([{name: "Test", email: "test@example.org"}])
+
+    user = User.last
+    assert_equal "Test", user.name
+    assert_equal "test@example.org", user.email
+  end
+
   def test_nil
     user = User.create!(email: "test@example.org")
     user.email = nil

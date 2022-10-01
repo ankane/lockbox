@@ -1,3 +1,7 @@
+## 1.1.0 (unreleased)
+
+- Added support for `insert`, `insert_all`, `insert_all!`, `upsert`, and `upsert_all`
+
 ## 1.0.0 (2022-06-11)
 
 - Deprecated `encrypts` in favor of `has_encrypted` to avoid conflicting with Active Record encryption
