@@ -237,12 +237,12 @@ module Lockbox
                 end
 
                 def self.upsert_all(attributes, **options)
-                  super(lockbox_map_attributes(attributes), **options)
+                  super(lockbox_map_attributes(attributes, check_readonly: true), **options)
                 end
 
                 # private
                 # note: for readonly columns, users should mark both plaintext and ciphertext columns
-                def self.lockbox_map_attributes(records)
+                def self.lockbox_map_attributes(records, check_readonly: false)
                   return records unless records.is_a?(Array)
 
                   records.map do |attributes|
@@ -255,6 +255,10 @@ module Lockbox
                     lockbox_attributes = self.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
                     lockbox_attributes.each do |key, lockbox_attribute|
                       attribute = key.to_s
+                      # check read only
+                      if check_readonly && readonly_attributes.include?(attribute) && !readonly_attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
+                        warn "[lockbox] WARNING: Mark attribute as readonly: #{lockbox_attribute[:encrypted_attribute]}"
+                      end
 
                       message = attributes[attribute]
                       attributes.delete(attribute) unless lockbox_attribute[:migrating]
