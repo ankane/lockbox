@@ -5,6 +5,7 @@ class PluckTest < Minitest::Test
     skip if mongoid?
 
     User.delete_all
+    Admin.delete_all
     Robot.delete_all
   end
 
