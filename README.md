@@ -738,7 +738,7 @@ end
 Make it the default with:
 
 ```ruby
-Lockbox.default_options = {algorithm: "xsalsa20"}
+Lockbox.default_options[:algorithm] = "xsalsa20"
 ```
 
 You can also pass an algorithm to `previous_versions` for key rotation.
