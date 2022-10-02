@@ -1048,66 +1048,6 @@ User.with_attached_license.find_each do |user|
 end
 ```
 
-### 0.3.6
-
-0.3.6 makes content type detection more reliable for Active Storage. You can check and update the content type of existing files with:
-
-```ruby
-User.with_attached_license.find_each do |user|
-  next unless user.license.attached?
-
-  license = user.license
-  content_type = Marcel::MimeType.for(license.download, name: license.filename.to_s)
-  if content_type != license.content_type
-    license.update!(content_type: content_type)
-  end
-end
-```
-
-### 0.2.0
-
-0.2.0 brings a number of improvements. Here are a few to be aware of:
-
-- Added `encrypts` method for database fields
-- Added support for XSalsa20
-- `attached_encrypted` is deprecated in favor of `encrypts_attached`.
-
-#### Optional
-
-To switch to a master key, generate a key:
-
-```ruby
-Lockbox.generate_key
-```
-
-And set `ENV["LOCKBOX_MASTER_KEY"]` or `Lockbox.master_key`.
-
-Update your model:
-
-```ruby
-class User < ApplicationRecord
-  encrypts_attached :license, previous_versions: [{key: key}]
-end
-```
-
-New uploads will be encrypted with the new key.
-
-You can rotate existing records with:
-
-```ruby
-User.unscoped.find_each do |user|
-  user.license.rotate_encryption!
-end
-```
-
-Once that’s complete, update your model:
-
-```ruby
-class User < ApplicationRecord
-  encrypts_attached :license
-end
-```
-
 ## History
 
 View the [changelog](https://github.com/ankane/lockbox/blob/master/CHANGELOG.md)
