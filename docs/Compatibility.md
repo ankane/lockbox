@@ -6,6 +6,7 @@ Here’s how to decrypt in other languages. For files, skip Base64 decoding the 
 - [Python](#python)
 - [Rust](#rust)
 - [Elixir](#elixir)
+- [PHP](#php)
 
 Pull requests are welcome for other languages.
 
@@ -86,4 +87,20 @@ ciphertext_size = byte_size(ciphertext) - 28
 <<nonce::binary-size(12), ciphertext::binary-size(ciphertext_size), tag::binary>> = ciphertext
 
 :crypto.block_decrypt(:aes_gcm, key, nonce, {"", ciphertext, tag})
+```
+
+## PHP
+
+```php
+$ciphertext = "Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==";
+$key = "61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb";
+
+$key = hex2bin($key);
+
+$ciphertext = base64_decode($ciphertext, true);
+$nonce = substr($ciphertext, 0, 12);
+$tag = substr($ciphertext, -16);
+$ciphertext = substr($ciphertext, 12, -16);
+
+$plaintext = openssl_decrypt($ciphertext, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag);
 ```
