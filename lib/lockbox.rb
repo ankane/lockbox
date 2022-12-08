@@ -72,7 +72,7 @@ module Lockbox
   end
 
   def self.to_hex(str)
-    str.unpack("H*").first
+    str.unpack1("H*")
   end
 
   def self.new(**options)

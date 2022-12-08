@@ -576,9 +576,9 @@ module Lockbox
               when :time
                 message = ActiveRecord::Type::Time.new.deserialize(message)
               when :integer
-                message = ActiveRecord::Type::Integer.new(limit: 8).deserialize(message.unpack("q>").first)
+                message = ActiveRecord::Type::Integer.new(limit: 8).deserialize(message.unpack1("q>"))
               when :float
-                message = ActiveRecord::Type::Float.new.deserialize(message.unpack("G").first)
+                message = ActiveRecord::Type::Float.new.deserialize(message.unpack1("G"))
               when :string
                 message.force_encoding(Encoding::UTF_8)
               when :binary
