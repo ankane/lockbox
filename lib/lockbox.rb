@@ -2,6 +2,7 @@
 require "base64"
 require "openssl"
 require "securerandom"
+require "stringio"
 
 # modules
 require "lockbox/aes_gcm"

@@ -1,3 +1,7 @@
+## 1.1.1 (unreleased)
+
+- Fixed error when `StringIO` not loaded
+
 ## 1.1.0 (2022-10-09)
 
 - Added support for `insert`, `insert_all`, `insert_all!`, `upsert`, and `upsert_all`
