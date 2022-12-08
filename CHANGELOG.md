@@ -1,4 +1,4 @@
-## 1.1.1 (unreleased)
+## 1.1.1 (2022-12-08)
 
 - Fixed error when `StringIO` not loaded
 
