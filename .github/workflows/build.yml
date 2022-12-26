@@ -7,46 +7,48 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby: 3.1
-          gemfile: Gemfile
-        - ruby: "3.0"
-          gemfile: gemfiles/rails61.gemfile
-        - ruby: 2.7
-          gemfile: gemfiles/rails60.gemfile
-        - ruby: 2.6
-          gemfile: gemfiles/rails52.gemfile
-        - ruby: 3.1
-          gemfile: gemfiles/mongoid8.gemfile
-          mongodb: true
-        - ruby: 2.7
-          gemfile: gemfiles/mongoid7.gemfile
-          mongodb: true
-        - ruby: 2.6
-          gemfile: gemfiles/mongoid6.gemfile
-          mongodb: true
+          - ruby: 3.2
+            gemfile: Gemfile
+          - ruby: 3.1
+            gemfile: Gemfile
+          - ruby: "3.0"
+            gemfile: gemfiles/rails61.gemfile
+          - ruby: 2.7
+            gemfile: gemfiles/rails60.gemfile
+          - ruby: 2.6
+            gemfile: gemfiles/rails52.gemfile
+          - ruby: 3.1
+            gemfile: gemfiles/mongoid8.gemfile
+            mongodb: true
+          - ruby: 2.7
+            gemfile: gemfiles/mongoid7.gemfile
+            mongodb: true
+          - ruby: 2.6
+            gemfile: gemfiles/mongoid6.gemfile
+            mongodb: true
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - if: ${{ matrix.mongodb }}
-      uses: ankane/setup-mongodb@v1
-    - run: sudo apt-get update && sudo apt-get install libsodium23 poppler-utils
-    - run: bundle exec rake test
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - if: ${{ matrix.mongodb }}
+        uses: ankane/setup-mongodb@v1
+      - run: sudo apt-get update && sudo apt-get install libsodium23 poppler-utils
+      - run: bundle exec rake test
 
-    - if : ${{ !matrix.mongodb }}
-      uses: ankane/setup-postgres@v1
-      with:
-        database: lockbox_test
-    - if : ${{ !matrix.mongodb }}
-      run: ADAPTER=postgresql bundle exec rake test
+      - if : ${{ !matrix.mongodb }}
+        uses: ankane/setup-postgres@v1
+        with:
+          database: lockbox_test
+      - if : ${{ !matrix.mongodb }}
+        run: ADAPTER=postgresql bundle exec rake test
 
-    - if : ${{ !matrix.mongodb }}
-      uses: ankane/setup-mysql@v1
-      with:
-        database: lockbox_test
-    - if : ${{ !matrix.mongodb }}
-      run: ADAPTER=mysql2 bundle exec rake test
+      - if : ${{ !matrix.mongodb }}
+        uses: ankane/setup-mysql@v1
+        with:
+          database: lockbox_test
+      - if : ${{ !matrix.mongodb }}
+        run: ADAPTER=mysql2 bundle exec rake test
