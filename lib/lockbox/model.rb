@@ -543,7 +543,7 @@ module Lockbox
                 # do nothing
                 # encrypt will convert to binary
               else
-                # use original name for serialized attributes
+                # use original name for serialized attributes if no type specified
                 type = (try(:attribute_types) || {})[(options[:type] ? name : original_name).to_s]
                 message = type.serialize(message) if type
               end
@@ -590,7 +590,7 @@ module Lockbox
                 message = IPAddr.new_ntoh(addr.first(len))
                 message.prefix = prefix
               else
-                # use original name for serialized attributes
+                # use original name for serialized attributes if no type specified
                 type = (try(:attribute_types) || {})[(options[:type] ? name : original_name).to_s]
                 message = type.deserialize(message) if type
                 message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
