@@ -544,7 +544,7 @@ module Lockbox
                 # encrypt will convert to binary
               else
                 # use original name for serialized attributes
-                type = (try(:attribute_types) || {})[original_name.to_s]
+                type = (try(:attribute_types) || {})[(options[:type] ? name : original_name).to_s]
                 message = type.serialize(message) if type
               end
             end
@@ -591,7 +591,7 @@ module Lockbox
                 message.prefix = prefix
               else
                 # use original name for serialized attributes
-                type = (try(:attribute_types) || {})[original_name.to_s]
+                type = (try(:attribute_types) || {})[(options[:type] ? name : original_name).to_s]
                 message = type.deserialize(message) if type
                 message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
               end
