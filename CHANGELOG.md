@@ -1,4 +1,4 @@
-## 1.1.2 (unreleased)
+## 1.1.2 (2023-02-01)
 
 - Fixed error when migrating to `array`, `hash`, and `json` types
 
