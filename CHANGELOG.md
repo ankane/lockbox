@@ -1,3 +1,7 @@
+## 1.1.2 (unreleased)
+
+- Fixed error when migrating to `array`, `hash`, and `json` types
+
 ## 1.1.1 (2022-12-08)
 
 - Fixed error when `StringIO` not loaded
