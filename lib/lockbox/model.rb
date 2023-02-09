@@ -32,6 +32,8 @@ module Lockbox
 
       raise ArgumentError, "Cannot use key_attribute with multiple attributes" if options[:key_attribute] && attributes.size > 1
 
+      raise ArgumentError, "Associated Field not recognized (#{options[:with_associated_field]})" if options[:with_associated_field] && self.column_names.exclude?(options[:with_associated_field])
+
       original_options = options.dup
 
       attributes.each do |name|
@@ -159,6 +161,24 @@ module Lockbox
                 end
               end
 
+              def lockbox_associated_attribute
+                attribute = self.class.lockbox_attributes.values.map { |x| x[:with_associated_field] }.compact.uniq.first
+                return nil if attribute.nil?
+
+                self[attribute]
+              end
+
+              def lockbox_sync_attributes_with_associated
+                self.class.lockbox_attributes.each do |_, lockbox_attribute|
+                  attribute = lockbox_attribute[:attribute]
+                  associated_attribute = lockbox_attribute[:with_associated_field]
+                  next if associated_attribute.blank?
+
+                  send("#{attribute}=", send(attribute))
+                end
+                self.save
+              end
+
               # safety check
               [:_create_record, :_update_record].each do |method_name|
                 unless private_method_defined?(method_name) || method_defined?(method_name)
@@ -168,12 +188,16 @@ module Lockbox
 
               def _create_record(*)
                 lockbox_sync_attributes
+                old_associated_attribute = lockbox_associated_attribute
                 super
+                lockbox_sync_attributes_with_associated if old_associated_attribute != lockbox_associated_attribute
               end
 
               def _update_record(*)
                 lockbox_sync_attributes
+                old_associated_attribute = lockbox_associated_attribute
                 super
+                lockbox_sync_attributes_with_associated if old_associated_attribute != lockbox_associated_attribute
               end
 
               def [](attr_name)
@@ -432,7 +456,10 @@ module Lockbox
               end
             end
 
-            send("lockbox_direct_#{name}=", message)
+            associated_field = options.fetch(:with_associated_field)
+            # TODO: Find a better stringify method, AES complains if associated_data/field is different than a string
+            associated_value = associated_field ? self.attributes[associated_field].to_s : ''
+            send("lockbox_direct_#{name}=", message, associated_value || '')
 
             # warn every time, as this should be addressed
             # maybe throw an error in the future
@@ -453,8 +480,8 @@ module Lockbox
 
           # separate method for setting directly
           # used to skip blind indexes for key rotation
-          define_method("lockbox_direct_#{name}=") do |message|
-            ciphertext = self.class.send(encrypt_method_name, message, context: self)
+          define_method("lockbox_direct_#{name}=") do |message, associated_data|
+            ciphertext = self.class.send(encrypt_method_name, message, associated_data, context: self)
             send("#{encrypted_attribute}=", ciphertext)
           end
           private :"lockbox_direct_#{name}="
@@ -470,7 +497,11 @@ module Lockbox
 
               # keep original message for empty hashes and arrays
               unless ciphertext.nil?
-                message = self.class.send(decrypt_method_name, ciphertext, context: self)
+                associated_field = options.fetch(:with_associated_field)
+                # TODO: Find a better stringify method, AES complains if associated_data/field is different than a string
+                associated_value = associated_field ? self[associated_field].to_s : nil
+
+                message = self.class.send(decrypt_method_name, ciphertext, associated_value, context: self)
               end
 
               if activerecord
@@ -500,7 +531,7 @@ module Lockbox
           end
 
           # for fixtures
-          define_singleton_method encrypt_method_name do |message, **opts|
+          define_singleton_method encrypt_method_name do |message, associated_data, **opts|
             table = activerecord ? table_name : collection_name.to_s
 
             unless message.nil?
@@ -552,19 +583,22 @@ module Lockbox
             if message.nil? || (message == "" && !options[:padding])
               message
             else
-              Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
+              lockbox_options = options.except(:with_associated_field)
+              Lockbox::Utils.build_box(opts[:context], lockbox_options, table, encrypted_attribute).encrypt(message, associated_data: associated_data)
             end
           end
 
-          define_singleton_method decrypt_method_name do |ciphertext, **opts|
+          define_singleton_method decrypt_method_name do |ciphertext, associated_data, **opts|
             message =
               if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                 ciphertext
               else
                 table = activerecord ? table_name : collection_name.to_s
-                Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).decrypt(ciphertext)
-              end
+                lockbox_options = options.except(:with_associated_field)
 
+                lockbox = Lockbox::Utils.build_box(opts[:context], lockbox_options, table, encrypted_attribute)
+                lockbox.decrypt(ciphertext, associated_data: associated_data)
+              end
             unless message.nil?
               case options[:type]
               when :boolean
