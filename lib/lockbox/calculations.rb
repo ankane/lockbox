@@ -12,30 +12,33 @@ module Lockbox
 
       return super unless lockbox_columns.any?
 
+      associated_columns_names = column_names.dup
       # replace column with ciphertext column
       lockbox_columns.each do |la, i|
         column_names[i] = la[:encrypted_attribute]
+        associated_columns_names[i] = la[:with_associated_field] if la[:with_associated_field]
       end
 
       # pluck
-      result = super(*column_names)
+      all_columns = (column_names + associated_columns_names).compact.uniq
+      result = super(*column_names + associated_columns_names)
+      result_hash = result.map { |fields| all_columns.zip(fields).to_h }
 
       # decrypt result
       # handle pluck to single columns and multiple
       #
       # we can't pass context to decrypt method
       # so this won't work if any options are a symbol or proc
-      if column_names.size == 1
-        la = lockbox_columns.first.first
-        result.map! { |v| model.send("decrypt_#{la[:encrypted_attribute]}", v) }
-      else
-        lockbox_columns.each do |la, i|
-          result.each do |v|
-            v[i] = model.send("decrypt_#{la[:encrypted_attribute]}", v[i])
-          end
+
+      lockbox_columns.each do |la, i|
+        encrypted_attr = la[:encrypted_attribute]
+        associated_attr = la[:with_associated_field]
+        result_hash.each do |record|
+          record[encrypted_attr] = model.send("decrypt_#{la[:encrypted_attribute]}", record[encrypted_attr], record[associated_attr].to_s || '')
         end
       end
-
+      result = result_hash.map { |record| record.slice(*column_names).values }
+      result.flatten! if column_names.size == 1
       result
     end
   end
