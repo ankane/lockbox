@@ -32,7 +32,12 @@ module Lockbox
 
       raise ArgumentError, "Cannot use key_attribute with multiple attributes" if options[:key_attribute] && attributes.size > 1
 
-      raise ArgumentError, "Associated Field not recognized (#{options[:with_associated_field]})" if options[:with_associated_field] && self.column_names.exclude?(options[:with_associated_field])
+      if options[:with_associated_field] && (
+        activerecord && self.column_names.exclude?(options[:with_associated_field]) ||
+        !activerecord && self.fields.keys.exclude?(options[:with_associated_field])
+      )
+        raise ArgumentError, "Associated Field not recognized (#{options[:with_associated_field]})"
+      end
 
       if options[:with_associated_field] && (options[:with_associated_field] == options[:encrypted_attribute] || options[:with_associated_field] == "#{attributes.first}_ciphertext")
         raise ArgumentError, "Associated Field cannot be the same field being encrypted (#{options[:with_associated_field]})"
@@ -477,10 +482,10 @@ module Lockbox
               end
             end
 
-            associated_field = options.fetch(:with_associated_field)
+            associated_field = options.fetch(:with_associated_field, nil)
             # TODO: Find a better stringify method, AES complains if associated_data/field is different than a string
-            associated_value = associated_field ? self.attributes[associated_field].to_s : ''
-            send("lockbox_direct_#{name}=", message, associated_value || '')
+            associated_value = associated_field ? self.attributes[associated_field] : nil
+            send("lockbox_direct_#{name}=", message, associated_value)
 
             # warn every time, as this should be addressed
             # maybe throw an error in the future
@@ -501,7 +506,7 @@ module Lockbox
 
           # separate method for setting directly
           # used to skip blind indexes for key rotation
-          define_method("lockbox_direct_#{name}=") do |message, associated_data|
+          define_method("lockbox_direct_#{name}=") do |message, associated_data = nil|
             ciphertext = self.class.send(encrypt_method_name, message, associated_data, context: self)
             send("#{encrypted_attribute}=", ciphertext)
           end
@@ -518,9 +523,9 @@ module Lockbox
 
               # keep original message for empty hashes and arrays
               unless ciphertext.nil?
-                associated_field = options.fetch(:with_associated_field)
+                associated_field = options.fetch(:with_associated_field, nil)
                 # TODO: Find a better stringify method, AES complains if associated_data/field is different than a string
-                associated_value = associated_field ? self[associated_field].to_s : nil
+                associated_value = associated_field ? self[associated_field] : nil
 
                 message = self.class.send(decrypt_method_name, ciphertext, associated_value, context: self)
               end
@@ -552,7 +557,7 @@ module Lockbox
           end
 
           # for fixtures
-          define_singleton_method encrypt_method_name do |message, associated_data = "", **opts|
+          define_singleton_method encrypt_method_name do |message, associated_data = nil, **opts|
             table = activerecord ? table_name : collection_name.to_s
 
             unless message.nil?
@@ -605,11 +610,12 @@ module Lockbox
               message
             else
               lockbox_options = options.except(:with_associated_field)
+              associated_data = associated_data ? associated_data.to_s : nil
               Lockbox::Utils.build_box(opts[:context], lockbox_options, table, encrypted_attribute).encrypt(message, associated_data: associated_data)
             end
           end
 
-          define_singleton_method decrypt_method_name do |ciphertext, associated_data = "", **opts|
+          define_singleton_method decrypt_method_name do |ciphertext, associated_data = nil, **opts|
             message =
               if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                 ciphertext
@@ -618,7 +624,7 @@ module Lockbox
                 lockbox_options = options.except(:with_associated_field)
 
                 lockbox = Lockbox::Utils.build_box(opts[:context], lockbox_options, table, encrypted_attribute)
-                lockbox.decrypt(ciphertext, associated_data: associated_data.to_s)
+                lockbox.decrypt(ciphertext, associated_data: associated_data ? associated_data.to_s : nil)
               end
             unless message.nil?
               case options[:type]
