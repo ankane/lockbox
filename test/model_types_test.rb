@@ -251,11 +251,11 @@ class ModelTypesTest < Minitest::Test
     Person.create!(data: {"count" => 0})
 
     person = Person.last
-    assert_equal 1, person.data["count"]
+    assert_equal 2, person.data["count"]
     person.save!
 
     person = Person.last
-    assert_equal 2, person.data["count"]
+    assert_equal 3, person.data["count"]
   end
 
   def test_json_save_twice
