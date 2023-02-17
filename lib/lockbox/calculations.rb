@@ -22,7 +22,14 @@ module Lockbox
       # pluck
       all_columns = (column_names + associated_columns_names).map(&:to_s).compact.uniq
       result = super(*all_columns)
-      result_hash = result.map { |fields| all_columns.zip(fields).to_h }
+      result_hash = result.map do |fields|
+        if all_columns.length == 1
+          column_name = all_columns.first
+          { column_name => fields }
+        else
+          all_columns.zip(fields).to_h
+        end
+      end
 
       # decrypt result
       # handle pluck to single columns and multiple
@@ -37,7 +44,7 @@ module Lockbox
         end
       end
 
-      result = result_hash.map { |record| record.slice(*column_names).values }
+      result = result_hash.map { |record| record.slice(*column_names.map(&:to_s)).values }
       result.flatten! if column_names.size == 1
       result
     end
