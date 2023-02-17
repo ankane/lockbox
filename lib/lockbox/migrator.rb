@@ -129,8 +129,10 @@ module Lockbox
       if rotate
         records.each do |record|
           fields.each do |k, v|
+            associated_field = v.fetch(:with_associated_field, nil)
             # update encrypted attribute directly to skip blind index computation
-            record.send("lockbox_direct_#{k}=", record.send(k))
+            associated_value = associated_field ? record.attributes[associated_field] : nil
+            record.send("lockbox_direct_#{k}=", record.send(k), associated_value || nil)
           end
         end
       else
