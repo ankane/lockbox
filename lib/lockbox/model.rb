@@ -524,9 +524,16 @@ module Lockbox
               # keep original message for empty hashes and arrays
               unless ciphertext.nil?
                 associated_field = options.fetch(:with_associated_field, nil)
-                # TODO: Find a better stringify method, AES complains if associated_data/field is different than a string
                 associated_value = associated_field ? self[associated_field] : nil
 
+                options[:previous_versions] = Array(options[:previous_versions]).map do |prev_version|
+                  if prev_version[:with_associated_field]
+                    prev_version[:associated_field] = self.send("#{prev_version[:with_associated_field]}").to_s
+                  else
+                    prev_version[:associated_field] = nil
+                  end
+                  prev_version
+                end
                 message = self.class.send(decrypt_method_name, ciphertext, associated_value, context: self)
               end
 
@@ -609,7 +616,7 @@ module Lockbox
             if message.nil? || (message == "" && !options[:padding])
               message
             else
-              lockbox_options = options.except(:with_associated_field)
+              lockbox_options = options.except(:with_associated_field, :associated_field)
               associated_data = associated_data ? associated_data.to_s : nil
               Lockbox::Utils.build_box(opts[:context], lockbox_options, table, encrypted_attribute).encrypt(message, associated_data: associated_data)
             end
@@ -621,7 +628,7 @@ module Lockbox
                 ciphertext
               else
                 table = activerecord ? table_name : collection_name.to_s
-                lockbox_options = options.except(:with_associated_field)
+                lockbox_options = options.except(:with_associated_field, :associated_field)
 
                 lockbox = Lockbox::Utils.build_box(opts[:context], lockbox_options, table, encrypted_attribute)
                 lockbox.decrypt(ciphertext, associated_data: associated_data ? associated_data.to_s : nil)

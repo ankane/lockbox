@@ -9,12 +9,19 @@ module Lockbox
 
       @boxes =
         [Box.new(**options)] +
-        Array(previous_versions).map { |v| Box.new(key: options[:key], **v) }
+        Array(previous_versions).map { |v| Box.new(key: options[:key], **v.except(:with_associated_field, :associated_field)) }
+
+      @new_boxes =
+        [{ box: Box.new(**options) }] +
+        Array(previous_versions).map do |v|
+          prev_options = v.except(:with_associated_field, :associated_field)
+          { box: Box.new(key: options[:key], **prev_options), associated_attribute: v[:associated_field] }
+        end
     end
 
     def encrypt(message, **options)
       message = check_string(message)
-      ciphertext = @boxes.first.encrypt(message, **options)
+      ciphertext = @new_boxes.first[:box].encrypt(message, **options)
       ciphertext = Base64.strict_encode64(ciphertext) if @encode
       ciphertext
     end
@@ -29,7 +36,10 @@ module Lockbox
         ciphertext = ciphertext.dup.force_encoding(Encoding::BINARY)
       end
 
-      @boxes.each_with_index do |box, i|
+      @new_boxes.each_with_index do |box_container, i|
+        box = box_container[:box]
+        options[:associated_data] = box_container[:associated_attribute] if box_container.key?(:associated_attribute)
+
         begin
           return box.decrypt(ciphertext, **options)
         rescue => e
