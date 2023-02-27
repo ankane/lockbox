@@ -7,13 +7,14 @@ class MigrateTest < Minitest::Test
 
   def test_migrate
     10.times do |i|
-      Robot.create!(name: "User #{i}", email: "test#{i}@example.org")
+      Robot.create!(name: "User #{i}", email: "test#{i}@example.org", password: "password#{i}test")
     end
-    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil)
+    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil, password_ciphertext: nil)
     Lockbox.migrate(Robot, batch_size: 5)
     robot = Robot.last
     assert_equal robot.name, robot.migrated_name
     assert_equal robot.email, robot.migrated_email
+    assert_equal robot.password, robot.migrated_password
   end
 
   def test_migrate_relation
@@ -27,14 +28,15 @@ class MigrateTest < Minitest::Test
 
   def test_migrate_restart
     10.times do |i|
-      Robot.create!(name: "User #{i}", email: "test#{i}@example.org")
+      Robot.create!(name: "User #{i}", email: "test#{i}@example.org", password: "password#{i}test")
     end
-    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil)
+    Robot.update_all(name_ciphertext: nil, email_ciphertext: nil, password_ciphertext: nil)
     Lockbox.migrate(Robot)
     Lockbox.migrate(Robot, restart: true)
     robot = Robot.last
     assert_equal robot.name, robot.migrated_name
     assert_equal robot.email, robot.migrated_email
+    assert_equal robot.password, robot.migrated_password
   end
 
   def test_migrating_assignment
@@ -60,11 +62,18 @@ class MigrateTest < Minitest::Test
   def test_migrating_update_columns
     skip if mongoid?
 
-    robot = Robot.create!(name: "Hi")
-    robot.update_columns(name: "Bye")
+    robot = Robot.create!(name: "Hi", password: 'password')
+    robot.update_columns(name: "Bye", password: 'newpassword')
 
     assert_equal "Bye", robot.name
     assert_equal "Bye", robot.migrated_name
+    assert_equal "newpassword", robot.password
+    assert_equal "newpassword", robot.migrated_password
+
+    robot.update_column(:id, 20)
+    assert_equal 20, robot.id
+    assert_equal "newpassword", robot.password
+    assert_equal "newpassword", robot.migrated_password
   end
 
   def test_migrating_restore_reset
@@ -76,6 +85,17 @@ class MigrateTest < Minitest::Test
       robot.restore_name!
     end
     assert_equal "Hi", robot.migrated_name
+  end
+
+  def test_migrating_restore_reset_with_associated
+    robot = Robot.create!(password: "testpassword")
+    robot.name = "newpassword"
+    if mongoid?
+      robot.reset_password!
+    else
+      robot.restore_password!
+    end
+    assert_equal "testpassword", robot.migrated_password
   end
 
   def test_migrate_nothing
@@ -96,23 +116,29 @@ class MigrateTest < Minitest::Test
   end
 
   def test_inspect
-    robot = Robot.create!(email: "test@example.org")
+    robot = Robot.create!(email: "test@example.org", password: 'testpassword')
     assert_includes robot.inspect, "migrated_email: [FILTERED]"
     refute_includes robot.inspect, "email_ciphertext"
+    assert_includes robot.inspect, "migrated_password: [FILTERED]"
+    refute_includes robot.inspect, "password_ciphertext"
 
     # still shows up for original attribute
     assert_includes robot.inspect, "test@example.org"
+    assert_includes robot.inspect, "testpassword"
   end
 
   def test_filter_attributes
     skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
 
     assert_includes Robot.filter_attributes, /\Amigrated_email\z/
+    assert_includes Robot.filter_attributes, /\Amigrated_password\z/
     refute_includes Robot.filter_attributes, /\Aemail_ciphertext/
+    refute_includes Robot.filter_attributes, /\Apassword_ciphertext/
 
     # user likely wants original attribute in filter_attributes as well
     # but should already be there if it's sensitive
     # and the attribute isn't managed by Lockbox yet
     refute_includes Robot.filter_attributes, /\Aemail\z/
+    refute_includes Robot.filter_attributes, /\Apassword\z/
   end
 end

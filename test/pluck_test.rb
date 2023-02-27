@@ -10,8 +10,8 @@ class PluckTest < Minitest::Test
   end
 
   def test_symbol
-    User.create!(name: "Test 1", email: "test1@example.org")
-    User.create!(name: "Test 2", email: "test2@example.org")
+    User.create!(name: "Test 1", email: "test1@example.org", password: "password1")
+    User.create!(name: "Test 2", email: "test2@example.org", password: "password2")
 
     # unencrypted
     assert_equal ["Test 1", "Test 2"], User.order(:id).pluck(:name)
@@ -21,16 +21,21 @@ class PluckTest < Minitest::Test
     assert_equal ["test1@example.org", "test2@example.org"], User.order(:id).pluck(:email)
     assert_equal ["test1@example.org", "test2@example.org"], User.order(:id).pluck(:id, :email).map(&:last)
 
+    # encrypted associated
+    assert_equal ["password1", "password2"], User.order(:id).pluck(:password)
+    assert_equal ["password1", "password2"], User.order(:id).pluck(:id, :password).map(&:last)
+
     # multiple
-    assert_equal [["Test 1", "test1@example.org"], ["Test 2", "test2@example.org"]], User.order(:id).pluck(:name, :email)
+    assert_equal [["Test 1", "test1@example.org", "password1"], ["Test 2", "test2@example.org", "password2"]], User.order(:id).pluck(:name, :email, :password)
 
     # where
     assert_equal ["test2@example.org"], User.where(name: "Test 2").pluck(:email)
+    assert_equal ["password2"], User.where(name: "Test 2").pluck(:password)
   end
 
   def test_string
-    User.create!(name: "Test 1", email: "test1@example.org")
-    User.create!(name: "Test 2", email: "test2@example.org")
+    User.create!(name: "Test 1", email: "test1@example.org", password: "password1")
+    User.create!(name: "Test 2", email: "test2@example.org", password: "password2")
 
     # unencrypted
     assert_equal ["Test 1", "Test 2"], User.order(:id).pluck("name")
@@ -40,11 +45,16 @@ class PluckTest < Minitest::Test
     assert_equal ["test1@example.org", "test2@example.org"], User.order(:id).pluck("email")
     assert_equal ["test1@example.org", "test2@example.org"], User.order(:id).pluck("id", "email").map(&:last)
 
+    # encrypted associated
+    assert_equal ["password1", "password2"], User.order(:id).pluck("password")
+    assert_equal ["password1", "password2"], User.order(:id).pluck("id", "password").map(&:last)
+
     # multiple
-    assert_equal [["Test 1", "test1@example.org"], ["Test 2", "test2@example.org"]], User.order(:id).pluck("name", "email")
+    assert_equal [["Test 1", "test1@example.org", "password1"], ["Test 2", "test2@example.org", "password2"]], User.order(:id).pluck("name", "email", "password")
 
     # where
     assert_equal ["test2@example.org"], User.where(name: "Test 2").pluck("email")
+    assert_equal ["password2"], User.where(name: "Test 2").pluck("password")
   end
 
   def test_object

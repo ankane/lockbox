@@ -13,25 +13,42 @@ class ModelTest < Minitest::Test
 
   def test_symmetric
     email = "test@example.org"
-    User.create!(email: email)
+    password = "testpass"
+    User.create!(email: email, password: password)
     user = User.last
     assert_equal email, user.email
+    assert_equal password, user.password
   end
 
   def test_decrypt_after_destroy
     email = "test@example.org"
-    User.create!(email: email)
+    password = "testpass"
+    User.create!(email: email, password: password)
 
     user = User.last
     user.destroy!
 
     user.email
+    user.password
   end
 
   def test_was_bad_ciphertext
     user = User.create!(email_ciphertext: "bad")
+
+    #assert_match "Unable to associate id to password", err
     assert_raises Lockbox::DecryptionError do
       user.email_was
+    end
+  end
+
+  def test_associated_data
+    User.create!(email: "user1@email.com", password: "userpasswordone")
+    User.create!(email: "user1@email.com", password: "userpasswordtwo")
+
+    user = User.last
+    user.update!(password_ciphertext: User.first.password_ciphertext)
+    assert_raises Lockbox::DecryptionError do
+      user.password
     end
   end
 
@@ -54,49 +71,61 @@ class ModelTest < Minitest::Test
   def test_dirty
     original_name = "Test"
     original_email = "test@example.org"
+    original_password = "testpassword"
     new_name = "New"
     new_email = "new@example.org"
+    new_password = "newpassword"
 
-    user = User.create!(name: original_name, email: original_email)
+    user = User.create!(name: original_name, email: original_email, password: original_password)
     user = User.last
     original_email_ciphertext = user.email_ciphertext
+    original_password_ciphertext = user.password_ciphertext
 
     assert !user.name_changed?
     assert !user.email_changed?
+    assert !user.password_changed?
     assert !user.changed?
 
     assert_nil user.name_change
     assert_nil user.email_change
+    assert_nil user.password_change
 
     assert_equal original_name, user.name_was
     assert_equal original_email, user.email_was
+    assert_equal original_password, user.password_was
 
     # in database
     if !mongoid?
       assert_equal original_name, user.name_in_database
       assert_equal original_email, user.email_in_database
+      assert_equal original_password, user.password_in_database
     else
       assert !user.respond_to?(:name_in_database)
       assert !user.respond_to?(:email_in_database)
+      assert !user.respond_to?(:password_in_database)
     end
 
     assert !user.name_changed?
     assert !user.email_changed?
+    assert !user.password_changed?
     assert !user.changed?
     assert_equal [], user.changed
 
     if !mongoid?
       assert !user.will_save_change_to_name?
       assert !user.will_save_change_to_email?
+      assert !user.will_save_change_to_password?
     end
 
     # update
     user.name = new_name
     user.email = new_email
+    user.password = new_password
 
     if !mongoid?
       assert user.will_save_change_to_name?
       assert user.will_save_change_to_email?
+      assert user.will_save_change_to_password?
     end
 
     # ensure changed
@@ -104,41 +133,50 @@ class ModelTest < Minitest::Test
     assert user.email_changed?
     assert user.changed?
     if mongoid?
-      assert_equal ["email_ciphertext", "name"], user.changed.sort
+      assert_equal ["email_ciphertext", "name", "password", "password_ciphertext"], user.changed.sort
     else
-      assert_equal ["email", "email_ciphertext", "name"], user.changed.sort
+      assert_equal ["email", "email_ciphertext", "name", "password", "password_ciphertext"], user.changed.sort
     end
 
     # ensure was
     assert_equal original_name, user.name_was
     assert_equal original_email, user.email_was
+    assert_equal original_password, user.password_was
 
     # ensure in database
     if !mongoid?
       assert_equal original_name, user.name_in_database
       assert_equal original_email, user.email_in_database
+      assert_equal original_password, user.password_in_database
     else
       assert !user.respond_to?(:name_in_database)
       assert !user.respond_to?(:email_in_database)
+      assert !user.respond_to?(:password_in_database)
     end
 
     # ensure changes
     assert_equal [original_name, new_name], user.name_change
     assert_equal [original_email, new_email], user.email_change
+    assert_equal [original_password, new_password], user.password_change
     assert_equal [original_name, new_name], user.changes["name"]
     assert_equal [original_email, new_email], user.changes["email"] unless mongoid?
 
     # ensure final value
     assert_equal new_name, user.name
     assert_equal new_email, user.email
+    assert_equal new_password, user.password
     refute_equal original_email_ciphertext, user.email_ciphertext
+    refute_equal original_password_ciphertext, user.password_ciphertext
 
     # save
     user.save!
 
     # ensure previous changes
     assert_equal [original_name, new_name], user.previous_changes["name"]
-    assert_equal [original_email, new_email], user.previous_changes["email"] unless mongoid?
+    unless mongoid?
+      assert_equal [original_email, new_email], user.previous_changes["email"]
+      assert_equal [original_password, new_password], user.previous_changes["password"]
+    end
   end
 
   def test_dirty_before_last_save
@@ -146,58 +184,82 @@ class ModelTest < Minitest::Test
 
     original_name = "Test"
     original_email = "test@example.org"
+    original_password = 'pass'
     new_name = "New"
     new_email = "new@example.org"
+    new_password = "newpass"
 
-    user = User.create!(name: original_name, email: original_email)
+    user = User.create!(name: original_name, email: original_email, password: original_password)
     user = User.last
 
     assert !user.name_previously_changed?
     assert !user.email_previously_changed?
+    assert !user.password_previously_changed?
 
-    user.update!(name: new_name, email: new_email)
+    user.update!(name: new_name, email: new_email, password: new_password)
 
     assert user.name_previously_changed?
     assert user.email_previously_changed?
+    assert user.password_previously_changed?
 
     assert_equal [original_name, new_name], user.name_previous_change
     assert_equal [original_email, new_email], user.email_previous_change
+    assert_equal [original_password, new_password], user.password_previous_change
 
     if ActiveRecord::VERSION::STRING.to_f >= 6.1
       assert_equal original_name, user.name_previously_was
       assert_equal original_email, user.email_previously_was
+      assert_equal original_password, user.password_previously_was
     end
 
     # ensure updated
     assert_equal original_name, user.name_before_last_save
-    assert_equal original_email, user.email_before_last_save
+    assert_equal original_password, user.password_before_last_save
   end
 
   def test_dirty_bad_ciphertext
-    user = User.create!(email_ciphertext: "bad")
-
+    _, err = capture_io do
+      @user = User.create!(email_ciphertext: "bad", password_ciphertext: 'oops')
+    end
+    assert_match "Unable to associate id to password", err
     assert_output(nil, /Decrypting previous value failed/) do
-      user.email = "test@example.org"
+      @user.email = "test@example.org"
+      @user.password = 'testpass'
     end
 
     if mongoid?
-      assert user.email_changed?
+      assert @user.email_changed?
+      assert @user.password_changed?
     else
-      assert_nil user.email_was
+      assert_nil @user.email_was
+      assert_nil @user.password_was
     end
   end
 
   def test_dirty_nil
     user = User.new
     assert_nil user.email
+    assert_nil user.password
     user.email = "test@example.org"
+    user.password = "testpass"
     assert_nil user.email_was
-    assert_nil user.changes["email"][0] unless mongoid?
+    assert_nil user.password_was
+    unless mongoid?
+      assert_nil user.changes["email"][0]
+      assert_nil user.changes["password"][0]
+    end
     user.email = "new@example.org"
+    user.password = "newpass"
     assert_nil user.email_was
-    assert_nil user.changes["email"][0] unless mongoid?
+    assert_nil user.password_was
+    unless mongoid?
+      assert_nil user.changes["email"][0]
+      assert_nil user.changes["password"][0]
+    end
     user.email = nil
+    user.password = nil
     assert_nil user.email_was
+    assert_nil user.password_was
     assert_empty user.changes unless mongoid?
   end
 
@@ -213,9 +275,10 @@ class ModelTest < Minitest::Test
   def test_attributes
     skip if mongoid?
 
-    User.create!(email: "test@example.org")
+    User.create!(email: "test@example.org", password: 'testpassword')
     user = User.last
     assert_equal "test@example.org", user.attributes["email"]
+    assert_equal "testpassword", user.attributes["password"]
   end
 
   def test_attributes_not_loaded
@@ -243,8 +306,10 @@ class ModelTest < Minitest::Test
 
   def test_attributes_bad_ciphertext
     skip if mongoid?
-
-    User.create!(email_ciphertext: "bad")
+    _, err = capture_io do
+      User.create!(email_ciphertext: "bad", password_ciphertext: "bad")
+    end
+    assert_match "Unable to associate id to password", err
     user = User.last
     assert_raises(Lockbox::DecryptionError) do
       user.attributes
@@ -263,17 +328,21 @@ class ModelTest < Minitest::Test
   def test_keyed_getter
     skip if mongoid?
 
-    user = User.create!(name: "Test", email: "test@example.org")
+    user = User.create!(name: "Test", email: "test@example.org", password: "testpass")
     assert_equal "Test", user[:name]
     assert_equal "Test", user["name"]
     assert_equal "test@example.org", user[:email]
     assert_equal "test@example.org", user["email"]
+    assert_equal "testpass", user[:password]
+    assert_equal "testpass", user["password"]
 
     user = User.last
     assert_equal "Test", user[:name]
     assert_equal "Test", user["name"]
     assert_equal "test@example.org", user[:email]
     assert_equal "test@example.org", user["email"]
+    assert_equal "testpass", user[:password]
+    assert_equal "testpass", user["password"]
   end
 
   def test_keyed_setter
@@ -282,18 +351,23 @@ class ModelTest < Minitest::Test
     user = User.create!
     user[:name] = "Test"
     user[:email] = "test@example.org"
+    user[:password] = "testpass"
     user.save!
 
     user = User.last
     assert_equal "Test", user.name
     assert_equal "test@example.org", user.email
+    assert_equal "testpass", user.password
   end
 
   def test_inspect
-    user = User.create!(email: "test@example.org")
+    user = User.create!(email: "test@example.org", password: "testpass")
     assert_includes user.inspect, "email: [FILTERED]"
     refute_includes user.inspect, "email_ciphertext"
     refute_includes user.inspect, "test@example.org"
+    assert_includes user.inspect, "password: [FILTERED]"
+    refute_includes user.inspect, "password_ciphertext"
+    refute_includes user.inspect, "testpass"
   end
 
   # follow same behavior as filter_attributes
@@ -302,31 +376,41 @@ class ModelTest < Minitest::Test
 
     if mongoid?
       refute_includes user.inspect, "email"
+      refute_includes user.inspect, "password"
     else
       assert_includes user.inspect, "email: nil"
+      assert_includes user.inspect, "password: nil"
     end
     refute_includes user.inspect, "email_ciphertext"
     refute_includes user.inspect, "test@example.org"
+    refute_includes user.inspect, "password_ciphertext"
+    refute_includes user.inspect, "testpass"
   end
 
   def test_inspect_select
     return if mongoid?
 
-    User.create!(email: "test@example.org")
+    User.create!(email: "test@example.org", password: "testpass")
     user = User.select(:id).last
     refute_includes user.inspect, "email"
     refute_includes user.inspect, "email_ciphertext"
     refute_includes user.inspect, "test@example.org"
+    refute_includes user.inspect, "password"
+    refute_includes user.inspect, "password_ciphertext"
+    refute_includes user.inspect, "testpass"
   end
 
   def test_inspect_select_ciphertext
     return if mongoid?
 
-    User.create!(email: "test@example.org")
-    user = User.select(:id, :email_ciphertext).last
+    User.create!(email: "test@example.org", password: "testpass")
+    user = User.select(:id, :email_ciphertext, :password_ciphertext).last
     assert_includes user.inspect, "email: [FILTERED]"
     refute_includes user.inspect, "email_ciphertext"
     refute_includes user.inspect, "test@example.org"
+    assert_includes user.inspect, "password: [FILTERED]"
+    refute_includes user.inspect, "password_ciphertext"
+    refute_includes user.inspect, "testpass"
   end
 
   def test_inspect_filter_attributes
@@ -371,12 +455,17 @@ class ModelTest < Minitest::Test
 
   def test_reload
     original_email = "test@example.org"
+    original_password = "testpass"
     new_email = "new@example.org"
+    new_password = "newpass"
 
-    user = User.create!(email: original_email)
+    user = User.create!(email: original_email, password: original_password)
     user.email = new_email
+    user.password = new_password
     assert_equal new_email, user.email
     assert_equal new_email, user.attributes["email"] unless mongoid?
+    assert_equal new_password, user.password
+    assert_equal new_password, user.attributes["password"] unless mongoid?
 
     # reload
     user.reload
@@ -385,27 +474,38 @@ class ModelTest < Minitest::Test
     # ensure attributes is set before we call email
     assert_equal original_email, user.attributes["email"] unless mongoid?
     assert_equal original_email, user.email
+    assert_equal original_password, user.attributes["password"] unless mongoid?
+    assert_equal original_password, user.password
   end
 
   def test_update_column
     skip if mongoid?
 
-    user = User.create!(name: "Test", email: "test@example.org")
+    user = User.create!(name: "Test", email: "test@example.org", password: 'testpass')
 
     user.update_column(:name, "New")
     assert_equal "New", user.name
+
     user.update_column(:email, "new@example.org")
     assert_equal "new@example.org", user.email
+
+    user.update_column(:password, "newpassword")
+    assert_equal "newpassword", user.password
+
+    before_password_ciphertext = user.password_ciphertext
+    user.update_column(:id, 10)
 
     user = User.last
     assert_equal "New", user.name
     assert_equal "new@example.org", user.email
+    assert_equal "newpassword", user.password
+    refute_equal before_password_ciphertext, user.password_ciphertext
   end
 
   def test_update_columns
     skip if mongoid?
 
-    user = User.create!(name: "Test", email: "test@example.org")
+    user = User.create!(name: "Test", email: "test@example.org", password: "testpass")
 
     user.update_columns(name: "New", email: "new@example.org")
     assert_equal "New", user.name
@@ -414,54 +514,92 @@ class ModelTest < Minitest::Test
     user = User.last
     assert_equal "New", user.name
     assert_equal "new@example.org", user.email
+
+    before_password_ciphertext = user.password_ciphertext
+    user.update_columns(id: 10, email: "update@example.org")
+    assert_equal 10, user.id
+    assert_equal "update@example.org", user.email
+    assert_equal "testpass", user.password
+    refute_equal before_password_ciphertext, user.password_ciphertext
+
+    before_password_ciphertext = user.password_ciphertext
+    user.update_columns(id: 12, password: "newpass")
+    assert_equal 12, user.id
+    assert_equal "newpass", user.password
+    refute_equal before_password_ciphertext, user.password_ciphertext
+
+    user = User.last
+    assert_equal "newpass", user.password
+    assert_equal "update@example.org", user.email
+    refute_equal before_password_ciphertext, user.password_ciphertext
   end
 
   def test_update_attribute
-    user = User.create!(name: "Test", email: "test@example.org")
+    user = User.create!(name: "Test", email: "test@example.org", password: "testpassword")
 
     user.update_attribute(:name, "New")
     assert_equal "New", user.name
     user.update_attribute(:email, "new@example.org")
     assert_equal "new@example.org", user.email
 
+    user.update_attribute(:password, "newpassword")
+    assert_equal "newpassword", user.password
+
+    before_password_ciphertext = user.password_ciphertext
+    user.update_attribute(:id, 15)
+    assert_equal 15, user.id
+    assert_equal "newpassword", user.password
+    refute_equal before_password_ciphertext, user.password_ciphertext
+
     user = User.last
+    assert_equal 15, user.id
     assert_equal "New", user.name
     assert_equal "new@example.org", user.email
+    assert_equal "newpassword", user.password
+    refute_equal before_password_ciphertext, user.password_ciphertext
   end
 
   def test_write_attribute
     skip if mongoid?
 
-    user = User.create!(email: "test@example.org")
+    user = User.create!(email: "test@example.org", password: "testpassword")
     user.write_attribute(:email, "new@example.org")
+    user.write_attribute(:password, "newpassword")
     user.save!
 
     assert_equal "new@example.org", User.last.email
+    assert_equal "newpassword", User.last.password
   end
 
   def test_nil
-    user = User.create!(email: "test@example.org")
+    user = User.create!(email: "test@example.org", password: 'testpassword')
     user.email = nil
     assert_nil user.email_ciphertext
+    user.password = nil
+    assert_nil user.password_ciphertext
   end
 
   def test_empty_string
-    user = User.create!(email: "test@example.org")
+    user = User.create!(email: "test@example.org", password: 'testpassword')
     user.email = ""
+    user.password = ""
     assert_equal "", user.email_ciphertext
   end
 
   def test_attribute_present
-    user = User.create!(name: "Test", email: "test@example.org")
+    user = User.create!(name: "Test", email: "test@example.org", password: "testpassword")
     assert user.name?
     assert user.email?
+    assert user.password?
     user = User.last
     assert user.name?
     assert user.email?
+    assert user.password?
 
-    user2 = User.create!(name: "", email: "")
+    user2 = User.create!(name: "", email: "", password: "")
     assert !user2.name?
     assert !user2.email?
+    assert !user2.password?
   end
 
   def test_hybrid
@@ -541,6 +679,14 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(user.email_ciphertext)
   end
 
+  def test_attribute_key_encrypted_column_with_associated
+    password = "testpassword"
+    user = User.create!(password: password)
+    key = Lockbox.attribute_key(table: "users", attribute: "password_ciphertext")
+    box = Lockbox.new(key: key, encode: true)
+    assert_equal password, box.decrypt(user.password_ciphertext, associated_data: user.id.to_s)
+  end
+
   # TODO prefer encrypt_email
   def test_generate_attribute_ciphertext
     email = "test@example.org"
@@ -550,11 +696,26 @@ class ModelTest < Minitest::Test
     assert_equal email, box.decrypt(ciphertext)
   end
 
+  def test_generate_attribute_ciphertext_with_associated
+    password = "testpass"
+    id = 1
+    ciphertext = User.generate_password_ciphertext(password, id)
+    key = Lockbox.attribute_key(table: "users", attribute: "password_ciphertext")
+    box = Lockbox.new(key: key, encode: true)
+    assert_equal password, box.decrypt(ciphertext, associated_data: id.to_s)
+  end
+
   # TODO prefer decrypt_email
   def test_decrypt_attribute_ciphertext
     email = "test@example.org"
     user = User.create!(email: email)
     assert_equal email, User.decrypt_email_ciphertext(user.email_ciphertext)
+  end
+
+  def test_decrypt_attribute_ciphertext_with_associated
+    password = "testpass"
+    user = User.create!(password: password)
+    assert_equal password, User.decrypt_password_ciphertext(user.password_ciphertext, user.id)
   end
 
   def test_padding
@@ -609,18 +770,23 @@ class ModelTest < Minitest::Test
 
     original_name = "Test"
     original_email = "test@example.org"
+    original_password = 'testpassword'
     new_name = "New"
     new_email = "new@example.org"
+    new_password = 'newpassword'
 
-    user = User.create!(name: original_name, email: original_email)
+    user = User.create!(name: original_name, email: original_email, password: original_password)
     user.name = new_name
     user.email = new_email
+    user.password = new_password
 
     assert_nil user.reset_name_to_default!
     assert_nil user.reset_email_to_default!
+    assert_nil user.reset_password_to_default!
 
     assert_nil user.name
     assert_nil user.email
+    assert_nil user.password
   end
 
   def test_plaintext_not_saved
@@ -704,6 +870,7 @@ class ModelTest < Minitest::Test
     User.create!(email_ciphertext: box.encrypt(email))
     assert_equal email, User.last.email
   end
+  # add test for associated previous
 
   def test_previous_versions_key_table_key_attribute
     email = "test@example.org"
