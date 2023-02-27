@@ -185,8 +185,12 @@ module Lockbox
                   next if associated_attribute.blank?
 
                   if attribute_name == associated_attribute
-                    send("#{attribute}=", send(attribute))
-                    changed_attributes << lockbox_attribute[:encrypted_attribute]
+                    begin
+                      send("#{attribute}=", send(attribute))
+                      changed_attributes << lockbox_attribute[:encrypted_attribute]
+                    rescue Lockbox::DecryptionError
+                      warn "Unable to associate #{attribute_name} to #{attribute}"
+                    end
                   end
                 end
                 changed_attributes
@@ -211,7 +215,7 @@ module Lockbox
               def _create_record(*)
                 lockbox_sync_attributes
                 super
-                lockbox_sync_associated(['id'])
+                lockbox_sync_associated(self.class.lockbox_attributes.values.map { |x| x[:with_associated_field] }.compact.uniq)
                 self.save
               end
 
@@ -236,7 +240,15 @@ module Lockbox
                   self.class.attribute_aliases[n] || n
                 end
 
-                lockbox_attributes = self.class.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
+                lockbox_attributes = self.class.lockbox_attributes.select do |key, options|
+                  next true if attributes.keys.include?(key.to_s)
+
+                  next unless attributes.include?(options[:with_associated_field])
+
+                  attributes[key.to_s] = self.send(key) unless attributes.keys.include?(key.to_s)
+                  true
+                end
+
                 return super unless lockbox_attributes.any?
 
                 attributes_to_set = {}
@@ -249,7 +261,9 @@ module Lockbox
                   message = attributes[attribute]
                   attributes.delete(attribute) unless lockbox_attribute[:migrating]
                   encrypted_attribute = lockbox_attribute[:encrypted_attribute]
-                  ciphertext = self.class.send("generate_#{encrypted_attribute}", message, context: self)
+                  associated_field = lockbox_attribute[:with_associated_field]
+                  associated_value = associated_field ? attributes[associated_field] : nil
+                  ciphertext = self.class.send("generate_#{encrypted_attribute}", message, associated_value, context: self)
                   attributes[encrypted_attribute] = ciphertext
                   attributes_to_set[attribute] = message
                   attributes_to_set[lockbox_attribute[:attribute]] = message if lockbox_attribute[:migrating]
@@ -310,7 +324,14 @@ module Lockbox
                       message = attributes[attribute]
                       attributes.delete(attribute) unless lockbox_attribute[:migrating]
                       encrypted_attribute = lockbox_attribute[:encrypted_attribute]
-                      ciphertext = send("generate_#{encrypted_attribute}", message)
+                      associated_field = lockbox_attribute[:with_associated_field]
+                      if associated_field && !attributes.key?(associated_field)
+                        warn "[lockbox] Unable to associate #{associated_field} for #{attribute}"
+                        next attributes.delete(attribute)
+                      end
+
+                      associated_value = associated_field ? attributes[associated_field] : nil
+                      ciphertext = send("generate_#{encrypted_attribute}", message, associated_value)
                       attributes[encrypted_attribute] = ciphertext
                     end
 
@@ -484,7 +505,7 @@ module Lockbox
 
             associated_field = options.fetch(:with_associated_field, nil)
             # TODO: Find a better stringify method, AES complains if associated_data/field is different than a string
-            associated_value = associated_field ? self.attributes[associated_field] : nil
+            associated_value = associated_field ? self.send(associated_field) : nil
             send("lockbox_direct_#{name}=", message, associated_value)
 
             # warn every time, as this should be addressed
