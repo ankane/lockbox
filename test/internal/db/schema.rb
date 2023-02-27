@@ -85,6 +85,8 @@ ActiveRecord::Schema.define do
     t.text :state
     t.text :state_ciphertext
     t.text :photo_data
+
+    t.text :password_ciphertext
   end
 
   create_table :posts do |t|
@@ -95,9 +97,11 @@ ActiveRecord::Schema.define do
     t.text :name
     t.text :email
     t.text :properties
+    t.text :password
     t.text :name_ciphertext
     t.text :email_ciphertext
     t.text :properties_ciphertext
+    t.text :password_ciphertext
   end
 
   create_table :comments do |t|

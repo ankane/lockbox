@@ -82,7 +82,8 @@ class User < ActiveRecord::Base
   has_encrypted :ssn, encode: false
 
   has_encrypted :state
-
+  has_encrypted :password, with_associated_field: 'id'
+ 
   has_rich_text :content if respond_to?(:has_rich_text)
 
   include PhotoUploader::Attachment(:photo)
@@ -90,7 +91,7 @@ end
 
 class Post < ActiveRecord::Base
   has_encrypted :title
-  validates :title, presence: true, length: {minimum: 3}
+  validates :title, presence: true, length: { minimum: 3 }
 
   if respond_to?(:has_one_attached)
     has_one_attached :photo
@@ -103,6 +104,7 @@ class Robot < ActiveRecord::Base
   serialize :properties, JSON
 
   has_encrypted :name, :email, :properties, migrating: true
+  has_encrypted :password, with_associated_field: 'id', migrating: true
 end
 
 class Comment < ActiveRecord::Base

@@ -15,6 +15,7 @@ class User
   field :ssn_ciphertext, type: BSON::Binary
   field :state, type: String
   field :state_ciphertext, type: String
+  field :password_ciphertext, type: String
 
   has_encrypted :email, previous_versions: [{key: Lockbox.generate_key}, {master_key: Lockbox.generate_key}]
 
@@ -24,6 +25,7 @@ class User
   has_encrypted :city, padding: true
   has_encrypted :ssn, encode: false
   has_encrypted :state
+  has_encrypted :password, with_associated_field: '_id'
 
   include PhotoUploader::Attachment(:photo)
   field :photo_data, type: String
@@ -49,10 +51,13 @@ class Robot
 
   field :name, type: String
   field :email, type: String
+  field :password, type: String
   field :name_ciphertext, type: String
   field :email_ciphertext, type: String
+  field :password_ciphertext, type: String
 
   has_encrypted :name, :email, migrating: true
+  has_encrypted :password, migrating: true, with_associated_field: '_id'
 end
 
 class Admin
