@@ -33,11 +33,13 @@ class ModelTest < Minitest::Test
   end
 
   def test_was_bad_ciphertext
-    user = User.create!(email_ciphertext: "bad")
+    _, err = capture_io do
+      @user = User.create!(email_ciphertext: "bad", password_ciphertext: 'bad')
+    end
 
-    #assert_match "Unable to associate id to password", err
+    assert_match "Unable to associate id to password", err
     assert_raises Lockbox::DecryptionError do
-      user.email_was
+      @user.email_was
     end
   end
 
@@ -891,6 +893,46 @@ class ModelTest < Minitest::Test
       Admin.has_encrypted :dup_email, encrypted_attribute: "encrypted_email"
     end
     assert_equal "Multiple encrypted attributes use the same column: encrypted_email", error.message
+  end
+
+  def test_encrypted_associated_with_non_fields
+    error = assert_raises do
+      Admin.has_encrypted :password, encrypted_attribute: 'encrypted_password', with_associated_field: 'abcd_field'
+    end
+
+    assert_equal "Associated Field not recognized (abcd_field)", error.message
+  end
+
+  def test_encrypted_associated_with_same_field
+    error = assert_raises do
+      Admin.has_encrypted :password, encrypted_attribute: 'encrypted_password', with_associated_field: 'encrypted_password'
+    end
+
+    assert_equal "Associated Field cannot be the same field being encrypted (encrypted_password)", error.message
+  end
+
+  def test_encrypted_associated_fields_loop
+    error = assert_raises do
+      Admin.has_encrypted :balance, with_associated_field: 'encrypted_password'
+    end
+
+    assert_equal "Multiple encrypted attributes depend on each other as associated data balance_ciphertext and encrypted_password)", error.message
+  end
+
+  def test_xsalsa20_error_associated_attributes
+    error = assert_raises do
+      Admin.has_encrypted :age, algorithm: "xsalsa20", with_associated_field: "name"
+    end
+
+    assert_equal "Associated Field cannot be used with algorithm xsalsa20 or hybrid", error.message
+  end
+
+  def test_hybrid_error_associated_attributes
+    error = assert_raises do
+      Admin.has_encrypted :age, algorithm: "hybrid", with_associated_field: "name"
+    end
+
+    assert_equal "Associated Field cannot be used with algorithm xsalsa20 or hybrid", error.message
   end
 
   # uses key from encrypted attribute

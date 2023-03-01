@@ -83,7 +83,8 @@ class User < ActiveRecord::Base
 
   has_encrypted :state
   has_encrypted :password, with_associated_field: 'id'
- 
+  has_encrypted :balance, with_associated_field: 'name', previous_versions: [{ key: Lockbox.generate_key, with_associated_field: 'email_ciphertext' }, { master_key: Lockbox.generate_key, with_associated_field: 'id' }]
+
   has_rich_text :content if respond_to?(:has_rich_text)
 
   include PhotoUploader::Attachment(:photo)
@@ -128,6 +129,7 @@ class Admin < ActiveRecord::Base
 
   has_encrypted :email_address, key_table: "users", key_attribute: "email_ciphertext", previous_versions: [{key_table: "people", key_attribute: "email_ciphertext"}]
   has_encrypted :work_email, encrypted_attribute: "encrypted_email"
+  has_encrypted :password, encrypted_attribute: 'encrypted_password', with_associated_field: 'balance_ciphertext'
 
   attribute :code, :string, default: -> { "hello" }
 end
