@@ -43,6 +43,11 @@ module Lockbox
         raise ArgumentError, "Associated Field cannot be the same field being encrypted (#{options[:with_associated_field]})"
       end
 
+      algorithm_selected = options.fetch(:algorithm, nil) || Lockbox.default_options.fetch(:algorithm, nil)
+      if options.key?(:with_associated_field) && (algorithm_selected == 'xsalsa20' || algorithm_selected == 'hybrid')
+        raise ArgumentError, "Associated Field cannot be used with algorithm xsalsa20 or hybrid"
+      end
+
       original_options = options.dup
 
       attributes.each do |name|
