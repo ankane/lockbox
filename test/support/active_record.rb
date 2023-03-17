@@ -2,6 +2,10 @@ require "active_record"
 
 ActiveRecord::Base.logger = $logger
 
+def serialize_options?
+  ActiveRecord::VERSION::STRING.to_f >= 7.1
+end
+
 class User < ActiveRecord::Base
   class Configuration < ActiveModel::Type::String
     def serialize(value)
@@ -27,26 +31,46 @@ class User < ActiveRecord::Base
 
   mount_uploader :document, DocumentUploader
   mount_uploaders :documents, DocumentUploader
-  serialize :documents, JSON
+  if serialize_options?
+    serialize :documents, coder: JSON
+  else
+    serialize :documents, JSON
+  end
 
   has_encrypted :email, previous_versions: [{key: Lockbox.generate_key}, {master_key: Lockbox.generate_key}]
 
   key_pair = Lockbox.generate_key_pair
   has_encrypted :phone, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: key_pair[:decryption_key]
 
-  serialize :properties, JSON
-  serialize :properties2, JSON
+  if serialize_options?
+    serialize :properties, coder: JSON
+    serialize :properties2, coder: JSON
 
-  serialize :settings, Hash
-  serialize :settings2, Hash
+    serialize :settings, type: Hash
+    serialize :settings2, type: Hash
 
-  serialize :messages, Array
-  serialize :messages2, Array
+    serialize :messages, type: Array
+    serialize :messages2, type: Array
+  else
+    serialize :properties, JSON
+    serialize :properties2, JSON
+
+    serialize :settings, Hash
+    serialize :settings2, Hash
+
+    serialize :messages, Array
+    serialize :messages2, Array
+  end
 
   has_encrypted :properties2, :settings2, :messages2
 
-  serialize :info, Hash
-  serialize :coordinates, Array
+  if serialize_options?
+    serialize :info, type: Hash
+    serialize :coordinates, type: Array
+  else
+    serialize :info, Hash
+    serialize :coordinates, Array
+  end
 
   store :credentials, accessors: [:username], coder: JSON
   store :credentials2, accessors: [:username2], coder: JSON
@@ -100,7 +124,11 @@ end
 class Robot < ActiveRecord::Base
   default_scope { order(:id) }
 
-  serialize :properties, JSON
+  if serialize_options?
+    serialize :properties, coder: JSON
+  else
+    serialize :properties, JSON
+  end
 
   has_encrypted :name, :email, :properties, migrating: true
 end

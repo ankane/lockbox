@@ -24,7 +24,7 @@ Combustion.initialize!(*components) do
 
   config.active_storage.service = :test
 
-  if ActiveRecord::VERSION::MAJOR >= 7
+  if ActiveRecord::VERSION::STRING.to_f == 7.0
     config.active_storage.replace_on_assign_to_many = true
   end
 

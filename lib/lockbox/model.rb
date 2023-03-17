@@ -321,9 +321,15 @@ module Lockbox
 
               attribute name, attribute_type
 
-              serialize name, JSON if options[:type] == :json
-              serialize name, Hash if options[:type] == :hash
-              serialize name, Array if options[:type] == :array
+              if ActiveRecord::VERSION::STRING.to_f >= 7.1
+                serialize name, coder: JSON if options[:type] == :json
+                serialize name, type: Hash if options[:type] == :hash
+                serialize name, type: Array if options[:type] == :array
+              else
+                serialize name, JSON if options[:type] == :json
+                serialize name, Hash if options[:type] == :hash
+                serialize name, Array if options[:type] == :array
+              end
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
               # when migrating it's best to specify the type directly
               # however, we can try to use the original type if its already defined

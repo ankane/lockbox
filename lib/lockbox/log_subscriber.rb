@@ -6,7 +6,7 @@ module Lockbox
       payload = event.payload
       name = "Encrypt File (#{event.duration.round(1)}ms)"
 
-      debug "  #{color(name, YELLOW, true)} Encrypted #{payload[:name]}"
+      debug "  #{color(name, YELLOW, bold: true)} Encrypted #{payload[:name]}"
     end
 
     def decrypt_file(event)
@@ -15,7 +15,7 @@ module Lockbox
       payload = event.payload
       name = "Decrypt File (#{event.duration.round(1)}ms)"
 
-      debug "  #{color(name, YELLOW, true)} Decrypted #{payload[:name]}"
+      debug "  #{color(name, YELLOW, bold: true)} Decrypted #{payload[:name]}"
     end
   end
 end
