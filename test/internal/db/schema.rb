@@ -1,7 +1,7 @@
 ActiveRecord::Schema.define do
   create_table :action_text_rich_texts do |t|
     t.string     :name, null: false
-    t.text       :body_ciphertext, size: :long
+    t.text       :body_ciphertext
     t.references :record, null: false, polymorphic: true, index: false
 
     t.timestamps

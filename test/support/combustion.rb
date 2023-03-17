@@ -12,7 +12,7 @@ Combustion.initialize!(*components) do
     config.active_record.sqlite3.represent_boolean_as_integer = true
   end
 
-  if ActiveRecord::VERSION::MAJOR >= 7
+  if ActiveRecord::VERSION::STRING.to_f == 7.0
     config.active_record.legacy_connection_handling = false
   end
 
