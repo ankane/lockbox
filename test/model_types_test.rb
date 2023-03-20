@@ -216,6 +216,46 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :latitude, Float::NAN, expected: Float::NAN, format: [Float::NAN].pack("G")
   end
 
+  def test_type_decimal
+    longitude = BigDecimal("123456789.123456789123456789")
+    assert_attribute :longitude, longitude, format: "123456789.123456789123456789"
+  end
+
+  def test_type_decimal_integer
+    longitude = BigDecimal("123")
+    assert_attribute :longitude, longitude, format: "123.0"
+  end
+
+  def test_type_decimal_trailing_zeros
+    longitude = BigDecimal("123.00000")
+    assert_attribute :longitude, longitude, format: "123.0"
+  end
+
+  def test_type_decimal_bytesize
+    assert_bytesize :longitude, 0.1, 0.2, size: 3
+    assert_bytesize :longitude, 0.11, 0.22, size: 4
+  end
+
+  def test_type_decimal_invalid
+    assert_attribute :longitude, "invalid", expected: BigDecimal("0.0")
+    assert_attribute :longitude, "1.2invalid", expected: BigDecimal("1.2")
+  end
+
+  def test_type_decimal_infinity
+    skip "Infinity not supported" if mysql?
+    assert_attribute :longitude, BigDecimal("Infinity"), expected: BigDecimal("Infinity"), format: "Infinity"
+    assert_attribute :longitude, BigDecimal("+Infinity"), expected: BigDecimal("Infinity"), format: "Infinity"
+    assert_attribute :longitude, Float::INFINITY, expected: BigDecimal("Infinity"), format: "Infinity"
+    assert_attribute :longitude, BigDecimal("-Infinity"), expected: BigDecimal("-Infinity"), format: "-Infinity"
+    assert_attribute :longitude, -Float::INFINITY, expected: BigDecimal("-Infinity"), format: "-Infinity"
+  end
+
+  def test_type_decimal_nan
+    skip "NaN not supported" if mysql?
+    assert_attribute :longitude, BigDecimal("NaN"), expected: BigDecimal("NaN"), format: "NaN"
+    assert_attribute :longitude, Float::NAN, expected: BigDecimal("NaN"), format: "NaN"
+  end
+
   def test_binary
     video = SecureRandom.random_bytes(512)
     assert_attribute :video, video, format: video
@@ -531,8 +571,8 @@ class ModelTypesTest < Minitest::Test
     end
 
     user = User.last
-    # SQLite does not support NaN
-    assert_equal expected, user.send(attribute) unless expected.try(:nan?) && !ENV["ADAPTER"]
+    # SQLite does not support NaN and only stores 15 digits for decimal columns
+    assert_equal expected, user.send(attribute) unless (expected.try(:nan?) || expected.is_a?(BigDecimal)) && !ENV["ADAPTER"]
     assert_equal expected, user.send(attribute2)
 
     # encoding

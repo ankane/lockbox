@@ -93,6 +93,7 @@ class User < ActiveRecord::Base
   has_encrypted :opens_at2, type: :time
   has_encrypted :sign_in_count2, type: :integer
   has_encrypted :latitude2, type: :float
+  has_encrypted :longitude2, type: :decimal
   has_encrypted :video2, type: :binary
   has_encrypted :data2, type: :json
   has_encrypted :info2, type: :hash

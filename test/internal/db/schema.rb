@@ -59,6 +59,12 @@ ActiveRecord::Schema.define do
     t.text :sign_in_count2_ciphertext
     t.float :latitude
     t.text :latitude2_ciphertext
+    if ENV["ADAPTER"] == "mysql2"
+      t.decimal :longitude, precision: 65, scale: 30
+    else
+      t.decimal :longitude
+    end
+    t.text :longitude2_ciphertext
     t.binary :video
     t.text :video2_ciphertext
     t.column :data, :json

@@ -19,10 +19,12 @@ module Lockbox
       #   options[:type] = :integer
       # when Float
       #   options[:type] = :float
+      # when BigDecimal
+      #   options[:type] = :decimal
       # end
 
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
-      valid_types = [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :binary, :json, :hash, :array, :inet]
+      valid_types = [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :decimal, :binary, :json, :hash, :array, :inet]
       raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || valid_types.include?(options[:type])
 
       activerecord = defined?(ActiveRecord::Base) && self < ActiveRecord::Base
@@ -537,6 +539,14 @@ module Lockbox
                 message = ActiveRecord::Type::Float.new.serialize(message)
                 # double precision, big endian
                 message = [message].pack("G") unless message.nil?
+              when :decimal
+                message = ActiveRecord::Type::Decimal.new.serialize(message)
+                unless message.nil?
+                  # Postgres stores 4 decimal digits in 2 bytes
+                  # plus 3 to 8 bytes of overhead
+                  # but use string for simplicity
+                  message = message.to_s("F")
+                end
               when :inet
                 unless message.nil?
                   ip = message.is_a?(IPAddr) ? message : (IPAddr.new(message) rescue nil)
@@ -585,6 +595,8 @@ module Lockbox
                 message = ActiveRecord::Type::Integer.new(limit: 8).deserialize(message.unpack1("q>"))
               when :float
                 message = ActiveRecord::Type::Float.new.deserialize(message.unpack1("G"))
+              when :decimal
+                message = ActiveRecord::Type::Decimal.new.deserialize(message)
               when :string
                 message.force_encoding(Encoding::UTF_8)
               when :binary
