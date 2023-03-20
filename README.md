@@ -915,6 +915,12 @@ class User < ApplicationRecord
 end
 ```
 
+or set it globally: [unreleased]
+
+```ruby
+Lockbox.encode_attributes = false
+```
+
 ## Compatibility
 
 It’s easy to read encrypted data in another language if needed.
