@@ -1,6 +1,7 @@
 ## 1.2.0 (unreleased)
 
 - Added `decimal` type
+- Added `encode_attributes` option
 - Made it easier to rotate master key
 - Fixed deprecation warnings with Rails 7.1
 

@@ -52,7 +52,7 @@ module Lockbox
 
         options[:attribute] = name.to_s
         options[:encrypted_attribute] = encrypted_attribute
-        options[:encode] = true unless options.key?(:encode)
+        options[:encode] = Lockbox.encode_attributes unless options.key?(:encode)
 
         encrypt_method_name = "generate_#{encrypted_attribute}"
         decrypt_method_name = "decrypt_#{encrypted_attribute}"

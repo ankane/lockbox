@@ -27,10 +27,11 @@ module Lockbox
   extend Padding
 
   class << self
-    attr_accessor :default_options
+    attr_accessor :default_options, :encode_attributes
     attr_writer :master_key
   end
   self.default_options = {}
+  self.encode_attributes = true
 
   def self.master_key
     @master_key ||= ENV["LOCKBOX_MASTER_KEY"]
