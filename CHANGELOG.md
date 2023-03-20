@@ -1,4 +1,4 @@
-## 1.2.0 (unreleased)
+## 1.2.0 (2023-03-20)
 
 - Made it easier to rotate master key
 - Added `associated_data` option for database fields and files

@@ -117,7 +117,7 @@ class User < ApplicationRecord
   has_encrypted :active, type: :boolean
   has_encrypted :salary, type: :integer
   has_encrypted :latitude, type: :float
-  has_encrypted :longitude, type: :decimal # [master]
+  has_encrypted :longitude, type: :decimal
   has_encrypted :video, type: :binary
   has_encrypted :properties, type: :json
   has_encrypted :settings, type: :hash
@@ -915,7 +915,7 @@ class User < ApplicationRecord
 end
 ```
 
-or set it globally: [unreleased]
+or set it globally:
 
 ```ruby
 Lockbox.encode_attributes = false
