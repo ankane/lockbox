@@ -540,17 +540,18 @@ module Lockbox
                 # double precision, big endian
                 message = [message].pack("G") unless message.nil?
               when :decimal
-                message = ActiveRecord::Type::Decimal.new.serialize(message)
+                message =
+                  if ActiveRecord::VERSION::MAJOR >= 6
+                    ActiveRecord::Type::Decimal.new.serialize(message)
+                  else
+                    # for https://github.com/rails/rails/commit/a741208f80dd33420a56486bd9ed2b0b9862234a
+                    ActiveRecord::Type::Decimal.new.cast(message)
+                  end
                 unless message.nil?
                   # Postgres stores 4 decimal digits in 2 bytes
                   # plus 3 to 8 bytes of overhead
                   # but use string for simplicity
-                  if message.is_a?(BigDecimal)
-                    message = message.to_s("F")
-                  else
-                    # not always a BigDecimal with Active Record < 6
-                    message = message.to_s
-                  end
+                  message = message.to_s("F")
                 end
               when :inet
                 unless message.nil?
