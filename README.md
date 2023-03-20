@@ -605,6 +605,16 @@ end
 
 Once everything is rotated, you can remove `previous_versions` from the initializer.
 
+### Individual Fields & Files
+
+You can also pass previous versions to individual fields and files.
+
+```ruby
+class User < ApplicationRecord
+  has_encrypted :email, previous_versions: [{master_key: previous_key}]
+end
+```
+
 ### Local Files & Strings
 
 To rotate local files and strings, use:
