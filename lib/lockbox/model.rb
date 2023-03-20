@@ -544,15 +544,14 @@ module Lockbox
                   if ActiveRecord::VERSION::MAJOR >= 6
                     ActiveRecord::Type::Decimal.new.serialize(message)
                   else
-                    # for https://github.com/rails/rails/commit/a741208f80dd33420a56486bd9ed2b0b9862234a
+                    # issue with serialize in Active Record < 6
+                    # https://github.com/rails/rails/commit/a741208f80dd33420a56486bd9ed2b0b9862234a
                     ActiveRecord::Type::Decimal.new.cast(message)
                   end
-                unless message.nil?
-                  # Postgres stores 4 decimal digits in 2 bytes
-                  # plus 3 to 8 bytes of overhead
-                  # but use string for simplicity
-                  message = message.to_s("F")
-                end
+                # Postgres stores 4 decimal digits in 2 bytes
+                # plus 3 to 8 bytes of overhead
+                # but use string for simplicity
+                message = message.to_s("F") unless message.nil?
               when :inet
                 unless message.nil?
                   ip = message.is_a?(IPAddr) ? message : (IPAddr.new(message) rescue nil)
