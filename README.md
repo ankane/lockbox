@@ -895,6 +895,14 @@ lockbox.decrypt(ciphertext, associated_data: "somecontext")  # success
 lockbox.decrypt(ciphertext, associated_data: "othercontext") # fails
 ```
 
+You can also use it with database fields and files.
+
+```ruby
+class User < ApplicationRecord
+  has_encrypted :email, associated_data: -> { code }
+end
+```
+
 ## Binary Columns
 
 You can use `binary` columns for the ciphertext instead of `text` columns.
