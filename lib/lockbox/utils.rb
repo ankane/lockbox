@@ -26,6 +26,10 @@ module Lockbox
           )
       end
 
+      unless options.key?(:previous_versions)
+        options[:previous_versions] = Lockbox.default_options[:previous_versions]
+      end
+
       if options[:previous_versions].is_a?(Array)
         # dup previous versions array (with map) since elements are updated
         # dup each version (with dup) since keys are sometimes deleted

@@ -9,7 +9,7 @@ module Lockbox
 
       @boxes =
         [Box.new(**options)] +
-        Array(previous_versions).map { |v| Box.new(key: options[:key], **v) }
+        Array(previous_versions).reject { |v| v.key?(:master_key) }.map { |v| Box.new(key: options[:key], **v) }
     end
 
     def encrypt(message, **options)

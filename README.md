@@ -567,51 +567,25 @@ Use `decrypt_str` get the value as UTF-8
 
 To make key rotation easy, you can pass previous versions of keys that can decrypt.
 
-### Active Record & Mongoid
-
-Update your model:
+Create `config/initializers/lockbox.rb` with:
 
 ```ruby
-class User < ApplicationRecord
-  has_encrypted :email, previous_versions: [{master_key: previous_key}]
-end
+Lockbox.default_options[:previous_versions] = [{master_key: previous_key}]
 ```
 
-To rotate existing records, use:
+To rotate existing Active Record & Mongoid records, use:
 
 ```ruby
 Lockbox.rotate(User, attributes: [:email])
 ```
 
-Once all records are rotated, you can remove `previous_versions` from the model.
-
-### Action Text
-
-Update your initializer:
-
-```ruby
-Lockbox.encrypts_action_text_body(previous_versions: [{master_key: previous_key}])
-```
-
-To rotate existing records, use:
+To rotate existing Action Text records, use:
 
 ```ruby
 Lockbox.rotate(ActionText::RichText, attributes: [:body])
 ```
 
-Once all records are rotated, you can remove `previous_versions` from the initializer.
-
-### Active Storage
-
-Update your model:
-
-```ruby
-class User < ApplicationRecord
-  encrypts_attached :license, previous_versions: [{master_key: previous_key}]
-end
-```
-
-To rotate existing files, use:
+To rotate existing Active Storage files, use:
 
 ```ruby
 User.with_attached_license.find_each do |user|
@@ -619,39 +593,21 @@ User.with_attached_license.find_each do |user|
 end
 ```
 
-Once all files are rotated, you can remove `previous_versions` from the model.
-
-### CarrierWave
-
-Update your model:
-
-```ruby
-class LicenseUploader < CarrierWave::Uploader::Base
-  encrypt previous_versions: [{master_key: previous_key}]
-end
-```
-
-To rotate existing files, use:
+To rotate existing CarrierWave files, use:
 
 ```ruby
 User.find_each do |user|
   user.license.rotate_encryption!
-end
-```
-
-For multiple files, use:
-
-```ruby
-User.find_each do |user|
+  # or for multiple files
   user.licenses.map(&:rotate_encryption!)
 end
 ```
 
-Once all files are rotated, you can remove `previous_versions` from the model.
+Once everything is rotated, you can remove `previous_versions` from the initializer.
 
 ### Local Files & Strings
 
-For local files and strings, use:
+To rotate local files and strings, use:
 
 ```ruby
 Lockbox.new(key: key, previous_versions: [{key: previous_key}])
