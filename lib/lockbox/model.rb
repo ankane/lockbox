@@ -545,7 +545,11 @@ module Lockbox
                   # Postgres stores 4 decimal digits in 2 bytes
                   # plus 3 to 8 bytes of overhead
                   # but use string for simplicity
-                  message = message.to_s("F")
+                  if ActiveRecord::VERSION::MAJOR >= 6
+                    message = message.to_s("F")
+                  else
+                    message = message.to_s
+                  end
                 end
               when :inet
                 unless message.nil?
