@@ -545,9 +545,10 @@ module Lockbox
                   # Postgres stores 4 decimal digits in 2 bytes
                   # plus 3 to 8 bytes of overhead
                   # but use string for simplicity
-                  if ActiveRecord::VERSION::MAJOR >= 6
+                  if message.is_a?(BigDecimal)
                     message = message.to_s("F")
                   else
+                    # not always a BigDecimal with Active Record < 6
                     message = message.to_s
                   end
                 end
