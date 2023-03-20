@@ -13,6 +13,7 @@ class User
   field :phone_ciphertext, type: String
   field :city_ciphertext, type: String
   field :ssn_ciphertext, type: BSON::Binary
+  field :region_ciphertext, type: String
   field :state, type: String
   field :state_ciphertext, type: String
 
@@ -23,6 +24,7 @@ class User
 
   has_encrypted :city, padding: true
   has_encrypted :ssn, encode: false
+  has_encrypted :region, associated_data: -> { name }
   has_encrypted :state
 
   include PhotoUploader::Attachment(:photo)

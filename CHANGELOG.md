@@ -1,6 +1,7 @@
 ## 1.2.0 (unreleased)
 
 - Made it easier to rotate master key
+- Added `associated_data` option for database fields and files
 - Added `decimal` type
 - Added `encode_attributes` option
 - Fixed deprecation warnings with Rails 7.1

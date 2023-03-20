@@ -1,6 +1,8 @@
 module Lockbox
   class Box
-    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false)
+    NOT_SET = Object.new
+
+    def initialize(key: nil, algorithm: nil, encryption_key: nil, decryption_key: nil, padding: false, associated_data: nil)
       raise ArgumentError, "Cannot pass both key and encryption/decryption key" if key && (encryption_key || decryption_key)
 
       key = Lockbox::Utils.decode_key(key) if key
@@ -32,9 +34,11 @@ module Lockbox
 
       @algorithm = algorithm
       @padding = padding == true ? 16 : padding
+      @associated_data = associated_data
     end
 
-    def encrypt(message, associated_data: nil)
+    def encrypt(message, associated_data: NOT_SET)
+      associated_data = @associated_data if associated_data == NOT_SET
       message = Lockbox.pad(message, size: @padding) if @padding
       case @algorithm
       when "hybrid"
@@ -53,7 +57,8 @@ module Lockbox
       nonce + ciphertext
     end
 
-    def decrypt(ciphertext, associated_data: nil)
+    def decrypt(ciphertext, associated_data: NOT_SET)
+      associated_data = @associated_data if associated_data == NOT_SET
       message =
         case @algorithm
         when "hybrid"

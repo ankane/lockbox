@@ -537,6 +537,15 @@ class ModelTest < Minitest::Test
     assert_equal nonce_size + ssn.bytesize + auth_tag_size, user.ssn_ciphertext.bytesize
   end
 
+  def test_associated_data
+    user = User.create!(name: "Test", region: "Data")
+    assert_equal "Data", User.last.region
+    user.update!(name: "New")
+    assert_raises(Lockbox::DecryptionError) do
+      User.last.region
+    end
+  end
+
   def test_attribute_key_encrypted_column
     email = "test@example.org"
     user = User.create!(email: email)

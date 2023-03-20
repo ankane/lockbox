@@ -105,6 +105,7 @@ class User < ActiveRecord::Base
 
   has_encrypted :city, padding: true
   has_encrypted :ssn, encode: false
+  has_encrypted :region, associated_data: -> { name }
 
   has_encrypted :state
 
