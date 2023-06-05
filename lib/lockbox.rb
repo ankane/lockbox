@@ -5,17 +5,17 @@ require "securerandom"
 require "stringio"
 
 # modules
-require "lockbox/aes_gcm"
-require "lockbox/box"
-require "lockbox/calculations"
-require "lockbox/encryptor"
-require "lockbox/key_generator"
-require "lockbox/io"
-require "lockbox/migrator"
-require "lockbox/model"
-require "lockbox/padding"
-require "lockbox/utils"
-require "lockbox/version"
+require_relative "lockbox/aes_gcm"
+require_relative "lockbox/box"
+require_relative "lockbox/calculations"
+require_relative "lockbox/encryptor"
+require_relative "lockbox/key_generator"
+require_relative "lockbox/io"
+require_relative "lockbox/migrator"
+require_relative "lockbox/model"
+require_relative "lockbox/padding"
+require_relative "lockbox/utils"
+require_relative "lockbox/version"
 
 module Lockbox
   class Error < StandardError; end
@@ -88,11 +88,11 @@ module Lockbox
 end
 
 # integrations
-require "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
-require "lockbox/railtie" if defined?(Rails)
+require_relative "lockbox/carrier_wave_extensions" if defined?(CarrierWave)
+require_relative "lockbox/railtie" if defined?(Rails)
 
 if defined?(ActiveSupport::LogSubscriber)
-  require "lockbox/log_subscriber"
+  require_relative "lockbox/log_subscriber"
   Lockbox::LogSubscriber.attach_to :lockbox
 end
 
