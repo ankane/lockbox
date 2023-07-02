@@ -1,4 +1,4 @@
-## 1.3.0 (unreleased)
+## 1.3.0 (2023-07-02)
 
 - Added support for CarrierWave 3
 
