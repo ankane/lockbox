@@ -105,7 +105,7 @@ module Lockbox
   end
 end
 
-if CarrierWave::VERSION.to_i > 2
+if CarrierWave::VERSION.to_i > 3
   raise Lockbox::Error, "CarrierWave #{CarrierWave::VERSION} not supported in this version of Lockbox"
 elsif CarrierWave::VERSION.to_i < 1
   raise Lockbox::Error, "CarrierWave #{CarrierWave::VERSION} not supported"

@@ -1,3 +1,7 @@
+## 1.3.0 (unreleased)
+
+- Added support for CarrierWave 3
+
 ## 1.2.0 (2023-03-20)
 
 - Made it easier to rotate master key
