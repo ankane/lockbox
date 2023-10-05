@@ -512,11 +512,7 @@ class ModelTest < Minitest::Test
   def test_validations_presence
     post = Post.new
     assert !post.valid?
-    if mongoid? || ActiveRecord::VERSION::STRING.to_f < 7.1
-      assert_equal "Title can't be blank", post.errors.full_messages.first
-    else
-      assert_equal "Title can’t be blank", post.errors.full_messages.first
-    end
+    assert_equal "Title can't be blank", post.errors.full_messages.first
   end
 
   def test_validations_length
