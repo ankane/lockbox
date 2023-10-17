@@ -72,7 +72,7 @@ Then follow the instructions below for the data you want to encrypt.
 Create a migration with:
 
 ```ruby
-class AddEmailCiphertextToUsers < ActiveRecord::Migration[7.0]
+class AddEmailCiphertextToUsers < ActiveRecord::Migration[7.1]
   def change
     add_column :users, :email_ciphertext, :text
   end
@@ -249,7 +249,7 @@ User.decrypt_email_ciphertext(user.email_ciphertext)
 Create a migration with:
 
 ```ruby
-class AddBodyCiphertextToRichTexts < ActiveRecord::Migration[7.0]
+class AddBodyCiphertextToRichTexts < ActiveRecord::Migration[7.1]
   def change
     add_column :action_text_rich_texts, :body_ciphertext, :text
   end
@@ -380,7 +380,7 @@ Encryption is applied to all versions after processing.
 You can mount the uploader [as normal](https://github.com/carrierwaveuploader/carrierwave#activerecord). With Active Record, this involves creating a migration:
 
 ```ruby
-class AddLicenseToUsers < ActiveRecord::Migration[7.0]
+class AddLicenseToUsers < ActiveRecord::Migration[7.1]
   def change
     add_column :users, :license, :string
   end
@@ -908,7 +908,7 @@ end
 You can use `binary` columns for the ciphertext instead of `text` columns.
 
 ```ruby
-class AddEmailCiphertextToUsers < ActiveRecord::Migration[7.0]
+class AddEmailCiphertextToUsers < ActiveRecord::Migration[7.1]
   def change
     add_column :users, :email_ciphertext, :binary
   end
@@ -959,7 +959,7 @@ end
 Create a migration with:
 
 ```ruby
-class MigrateToLockbox < ActiveRecord::Migration[7.0]
+class MigrateToLockbox < ActiveRecord::Migration[7.1]
   def change
     add_column :users, :name_ciphertext, :text
     add_column :users, :email_ciphertext, :text
@@ -992,7 +992,7 @@ end
 Then remove the previous gem from your Gemfile and drop its columns.
 
 ```ruby
-class RemovePreviousEncryptedColumns < ActiveRecord::Migration[7.0]
+class RemovePreviousEncryptedColumns < ActiveRecord::Migration[7.1]
   def change
     remove_column :users, :encrypted_name, :text
     remove_column :users, :encrypted_name_iv, :text
