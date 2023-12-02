@@ -9,7 +9,7 @@
 
 Learn [the principles behind it](https://ankane.org/modern-encryption-rails), [how to secure emails with Devise](https://ankane.org/securing-user-emails-lockbox), and [how to secure sensitive data in Rails](https://ankane.org/sensitive-data-rails).
 
-[![Build Status](https://github.com/ankane/lockbox/workflows/build/badge.svg?branch=master)](https://github.com/ankane/lockbox/actions)
+[![Build Status](https://github.com/ankane/lockbox/actions/workflows/build.yml/badge.svg)](https://github.com/ankane/lockbox/actions)
 
 ## Installation
 
