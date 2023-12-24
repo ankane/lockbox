@@ -4,7 +4,9 @@ class ActiveStorageTest < Minitest::Test
   def setup
     skip unless defined?(ActiveStorage)
 
-    ActiveStorage::VariantRecord.delete_all
+    if ActiveStorage::VERSION::STRING.to_f >= 6.1
+      ActiveStorage::VariantRecord.delete_all
+    end
     ActiveStorage::Attachment.delete_all
     ActiveStorage::Blob.delete_all
   end
