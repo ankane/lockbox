@@ -180,7 +180,7 @@ class ActiveStorageTest < Minitest::Test
 
     user = User.last
     error = assert_raises(Lockbox::Error) do
-      user.avatar.variant(resize: "500x500").processed
+      user.avatar.variant(**variant_options).processed
     end
     assert_equal "Variant not supported for encrypted files", error.message
   end
@@ -190,7 +190,7 @@ class ActiveStorageTest < Minitest::Test
     User.create!(image: {io: File.open(path), filename: "image.png", content_type: "image/png"})
 
     user = User.last
-    user.image.variant(resize: "500x500").processed
+    user.image.variant(**variant_options).processed
   end
 
   # not yet supported
@@ -202,7 +202,7 @@ class ActiveStorageTest < Minitest::Test
 
     user = User.last
     error = assert_raises(Lockbox::Error) do
-      user.avatar.preview(resize: "500x500").processed.blob.download
+      user.avatar.preview(**variant_options).processed.blob.download
     end
     assert_equal "Preview not supported for encrypted files", error.message
   end
@@ -214,7 +214,7 @@ class ActiveStorageTest < Minitest::Test
     User.create!(image: {io: File.open(path), filename: "doc.pdf", content_type: "application/pdf"})
 
     user = User.last
-    contents = user.image.preview(resize: "500x500").processed.blob.download
+    contents = user.image.preview(**variant_options).processed.blob.download
     assert_match "%PDF-1.3", contents
   end
 
@@ -514,5 +514,13 @@ class ActiveStorageTest < Minitest::Test
       filename: "#{content.downcase.gsub(" ", "-")}.txt",
       tempfile: file
     )
+  end
+
+  def variant_options
+    if ActiveStorage::VERSION::STRING.to_f >= 6.1
+      {resize_to_fit: [500, 500]}
+    else
+      {resize: "500x500"}
+    end
   end
 end
