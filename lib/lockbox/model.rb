@@ -325,8 +325,8 @@ module Lockbox
 
               if ActiveRecord::VERSION::STRING.to_f >= 7.1
                 serialize name, coder: JSON if options[:type] == :json
-                serialize name, type: Hash if options[:type] == :hash
-                serialize name, type: Array if options[:type] == :array
+                serialize name, type: Hash, coder: default_column_serializer || YAML if options[:type] == :hash
+                serialize name, type: Array, coder: default_column_serializer || YAML if options[:type] == :array
               else
                 serialize name, JSON if options[:type] == :json
                 serialize name, Hash if options[:type] == :hash

@@ -1,3 +1,7 @@
+## 1.3.1 (unreleased)
+
+- Fixed error with `array` and `hash` types and no default column serializer with Rails 7.1
+
 ## 1.3.0 (2023-07-02)
 
 - Added support for CarrierWave 3

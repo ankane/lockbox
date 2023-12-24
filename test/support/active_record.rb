@@ -46,11 +46,11 @@ class User < ActiveRecord::Base
     serialize :properties, coder: JSON
     serialize :properties2, coder: JSON
 
-    serialize :settings, type: Hash
-    serialize :settings2, type: Hash
+    serialize :settings, type: Hash, coder: YAML
+    serialize :settings2, type: Hash, coder: YAML
 
-    serialize :messages, type: Array
-    serialize :messages2, type: Array
+    serialize :messages, type: Array, coder: YAML
+    serialize :messages2, type: Array, coder: YAML
   else
     serialize :properties, JSON
     serialize :properties2, JSON
@@ -65,8 +65,8 @@ class User < ActiveRecord::Base
   has_encrypted :properties2, :settings2, :messages2
 
   if serialize_options?
-    serialize :info, type: Hash
-    serialize :coordinates, type: Array
+    serialize :info, type: Hash, coder: YAML
+    serialize :coordinates, type: Array, coder: YAML
   else
     serialize :info, Hash
     serialize :coordinates, Array
