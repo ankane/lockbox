@@ -324,13 +324,23 @@ module Lockbox
               attribute name, attribute_type
 
               if ActiveRecord::VERSION::STRING.to_f >= 7.1
-                serialize name, coder: JSON if options[:type] == :json
-                serialize name, type: Hash, coder: default_column_serializer || YAML if options[:type] == :hash
-                serialize name, type: Array, coder: default_column_serializer || YAML if options[:type] == :array
+                case options[:type]
+                when :json
+                  serialize name, coder: JSON
+                when :hash
+                  serialize name, type: Hash, coder: default_column_serializer || YAML
+                when :array
+                  serialize name, type: Array, coder: default_column_serializer || YAML
+                end
               else
-                serialize name, JSON if options[:type] == :json
-                serialize name, Hash if options[:type] == :hash
-                serialize name, Array if options[:type] == :array
+                case options[:type]
+                when :json
+                  serialize name, JSON
+                when :hash
+                  serialize name, Hash
+                when :array
+                  serialize name, Array
+                end
               end
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
               # when migrating it's best to specify the type directly
