@@ -17,4 +17,10 @@ class ActionTextTest < Minitest::Test
     user.update!(content: "hi")
     refute_equal user.content.body_ciphertext, original_ciphertext
   end
+
+  def test_encoding
+    user = User.create!(content: "ルビー")
+    assert_equal user.content.to_trix_html, "ルビー"
+    assert_equal user.reload.content.to_trix_html, "ルビー"
+  end
 end

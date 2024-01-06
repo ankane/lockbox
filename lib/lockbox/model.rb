@@ -625,6 +625,10 @@ module Lockbox
               else
                 # use original name for serialized attributes if no type specified
                 type = (try(:attribute_types) || {})[(options[:type] ? name : original_name).to_s]
+                # for Action Text
+                if activerecord && type.is_a?(ActiveRecord::Type::Serialized) && defined?(ActionText::Content) && type.coder == ActionText::Content
+                  message.force_encoding(Encoding::UTF_8)
+                end
                 message = type.deserialize(message) if type
                 message.force_encoding(Encoding::UTF_8) if !type || type.is_a?(ActiveModel::Type::String)
               end
