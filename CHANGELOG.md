@@ -1,4 +1,4 @@
-## 1.3.1 (unreleased)
+## 1.3.1 (2024-01-06)
 
 - Fixed error with `array` and `hash` types and no default column serializer with Rails 7.1
 - Fixed Action Text deserialization with Rails 7.1
