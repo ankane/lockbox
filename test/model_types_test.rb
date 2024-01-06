@@ -562,6 +562,10 @@ class ModelTypesTest < Minitest::Test
     if expected.is_a?(String)
       assert_equal expected.encoding, user.send(attribute).encoding
       assert_equal expected.encoding, user.send(attribute2).encoding
+    elsif expected.is_a?(Hash)
+      k = expected.key?("b") ? "b" : :b
+      assert_equal expected[k].encoding, user.send(attribute)[k].encoding
+      assert_equal expected[k].encoding, user.send(attribute2)[k].encoding
     end
 
     # time zone
@@ -579,6 +583,10 @@ class ModelTypesTest < Minitest::Test
     if expected.is_a?(String)
       assert_equal expected.encoding, user.send(attribute).encoding
       assert_equal expected.encoding, user.send(attribute2).encoding
+    elsif expected.is_a?(Hash)
+      k = expected.key?("b") ? "b" : :b
+      assert_equal expected[k].encoding, user.send(attribute)[k].encoding
+      assert_equal expected[k].encoding, user.send(attribute2)[k].encoding
     end
 
     # time zone
