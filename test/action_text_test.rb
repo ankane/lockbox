@@ -19,6 +19,8 @@ class ActionTextTest < Minitest::Test
   end
 
   def test_encoding
+    skip if ActionText::VERSION::MAJOR < 7
+
     user = User.create!(content: "ルビー")
     assert_equal user.content.to_trix_html, "ルビー"
     assert_equal user.reload.content.to_trix_html, "ルビー"
