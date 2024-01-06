@@ -559,14 +559,7 @@ class ModelTypesTest < Minitest::Test
     assert_nil user.send(encrypted_attribute) if expected.nil?
 
     # encoding
-    if expected.is_a?(String)
-      assert_equal expected.encoding, user.send(attribute).encoding
-      assert_equal expected.encoding, user.send(attribute2).encoding
-    elsif expected.is_a?(Hash)
-      k = expected.key?("b") ? "b" : :b
-      assert_equal expected[k].encoding, user.send(attribute)[k].encoding
-      assert_equal expected[k].encoding, user.send(attribute2)[k].encoding
-    end
+    assert_encoding expected, user, attribute, attribute2
 
     # time zone
     if time_zone
@@ -580,14 +573,7 @@ class ModelTypesTest < Minitest::Test
     assert_equal expected, user.send(attribute2)
 
     # encoding
-    if expected.is_a?(String)
-      assert_equal expected.encoding, user.send(attribute).encoding
-      assert_equal expected.encoding, user.send(attribute2).encoding
-    elsif expected.is_a?(Hash)
-      k = expected.key?("b") ? "b" : :b
-      assert_equal expected[k].encoding, user.send(attribute)[k].encoding
-      assert_equal expected[k].encoding, user.send(attribute2)[k].encoding
-    end
+    assert_encoding expected, user, attribute, attribute2
 
     # time zone
     if time_zone
@@ -635,6 +621,17 @@ class ModelTypesTest < Minitest::Test
     result1 = Base64.decode64(user1.send(encrypted_attribute)).bytesize
     result2 = Base64.decode64(user2.send(encrypted_attribute)).bytesize
     [result1, result2]
+  end
+
+  def assert_encoding(expected, user, attribute, attribute2)
+    if expected.is_a?(String)
+      assert_equal expected.encoding, user.send(attribute).encoding
+      assert_equal expected.encoding, user.send(attribute2).encoding
+    elsif expected.is_a?(Hash)
+      k = expected.key?("b") ? "b" : :b
+      assert_equal expected[k].encoding, user.send(attribute)[k].encoding
+      assert_equal expected[k].encoding, user.send(attribute2)[k].encoding
+    end
   end
 
   def mysql?
