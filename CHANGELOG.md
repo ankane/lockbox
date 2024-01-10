@@ -1,4 +1,4 @@
-## 1.3.2 (unreleased)
+## 1.3.2 (2024-01-10)
 
 - Fixed issue with serialized attributes
 
