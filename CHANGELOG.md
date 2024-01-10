@@ -1,3 +1,7 @@
+## 1.3.2 (unreleased)
+
+- Fixed issue with serialized attributes
+
 ## 1.3.1 (2024-01-06)
 
 - Fixed error with `array` and `hash` types and no default column serializer with Rails 7.1

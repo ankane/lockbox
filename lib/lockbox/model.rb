@@ -509,6 +509,9 @@ module Lockbox
                     clear_attribute_change(name)
                   end
                 end
+
+                # ensure same object is returned as next call
+                message = super()
               else
                 instance_variable_set("@#{name}", message)
               end

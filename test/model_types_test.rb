@@ -447,6 +447,13 @@ class ModelTypesTest < Minitest::Test
     assert_equal "world", user.settings2[:c]
   end
 
+  def test_serialize_hash_in_place_update
+    User.create!(settings2: {a: 1, b: "hi"})
+    user = User.last
+    user.settings2[:b] = "hello"
+    assert_equal "hello", user.settings2[:b]
+  end
+
   def test_serialize_hash_invalid
     assert_raises ActiveRecord::SerializationTypeMismatch do
       User.create!(settings: "invalid")
