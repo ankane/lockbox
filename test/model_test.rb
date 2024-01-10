@@ -18,6 +18,15 @@ class ModelTest < Minitest::Test
     assert_equal email, user.email
   end
 
+  def test_object_consistency
+    settings = { 'mfa_enabled' => false }
+    User.create!(settings2: settings)
+    user = User.last
+    decrypted_settings = user.settings2
+    decrypted_settings['mfa_enabled'] = true
+    assert_equal true, user.settings2['mfa_enabled']
+  end
+
   def test_decrypt_after_destroy
     email = "test@example.org"
     User.create!(email: email)
