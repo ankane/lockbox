@@ -143,7 +143,31 @@ module Lockbox
                   # it is possible that the encrypted attribute is not loaded, eg.
                   # if the record was fetched partially (`User.select(:id).first`).
                   # accessing a not loaded attribute raises an `ActiveModel::MissingAttributeError`.
-                  send(lockbox_attribute[:attribute]) if has_attribute?(lockbox_attribute[:encrypted_attribute])
+                  encrypted_attribute = lockbox_attribute[:encrypted_attribute]
+                  if has_attribute?(encrypted_attribute)
+                    send(lockbox_attribute[:attribute])
+                    next
+                  end
+
+                  # encrypted attribute could be inside an ActiveRecord::Store
+                  # which doesn't expose accessors of store as attributes, so
+                  # check if attribute for store is loaded
+                  store, _ = self.class.stored_attributes.detect do |_, accessors|
+                    accessors.map(&:to_sym).include?(encrypted_attribute.to_sym)
+                  end
+                  if store
+                    # if entire store is encrypted, check if encrypted attribute
+                    # for store is loaded
+                    store_encrypted_attribute = self.class.lockbox_attributes.dig(
+                      store.to_sym, :encrypted_attribute
+                    )
+                    if (
+                      (store_encrypted_attribute && has_attribute?(store_encrypted_attribute)) ||
+                      (store_encrypted_attribute.nil? && has_attribute?(store))
+                    )
+                      send(lockbox_attribute[:attribute])
+                    end
+                  end
                 end
                 super
               end

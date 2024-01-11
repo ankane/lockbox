@@ -213,9 +213,10 @@ class ModelTest < Minitest::Test
   def test_attributes
     skip if mongoid?
 
-    User.create!(email: "test@example.org")
+    User.create!(email: "test@example.org", password: "Passw0rd!")
     user = User.last
     assert_equal "test@example.org", user.attributes["email"]
+    assert_equal "Passw0rd!", user.attributes["password"]
   end
 
   def test_attributes_not_loaded
