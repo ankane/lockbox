@@ -75,6 +75,7 @@ class User < ActiveRecord::Base
   store :credentials, accessors: [:username], coder: JSON
   store :credentials2, accessors: [:username2], coder: JSON
   has_encrypted :credentials2
+  store :credentials3, accessors: [:username3], coder: JSON
 
   attribute :configuration, Configuration.new
   has_encrypted :configuration2, type: Configuration.new

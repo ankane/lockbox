@@ -140,6 +140,8 @@ class User < ApplicationRecord
 end
 ```
 
+For [Active Record Store](https://api.rubyonrails.org/classes/ActiveRecord/Store.html), encrypt the column rather than individual accessors.
+
 For [StoreModel](https://github.com/DmitryTsepelev/store_model), use:
 
 ```ruby

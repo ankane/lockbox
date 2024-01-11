@@ -538,6 +538,12 @@ class ModelTypesTest < Minitest::Test
     assert_attribute :username, "hello", check_nil: false
   end
 
+  def test_store_attributes
+    assert_output(nil, /WARNING: encrypting store accessors is not supported/) do
+      User.has_encrypted :username3
+    end
+  end
+
   def test_custom
     assert_attribute :configuration, "USA", format: "USA!!"
   end

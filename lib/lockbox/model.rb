@@ -289,6 +289,11 @@ module Lockbox
           @lockbox_attributes[original_name] = options
 
           if activerecord
+            # warn on store attributes
+            if stored_attributes.any? { |k, v| v.include?(name) }
+              warn "[lockbox] WARNING: encrypting store accessors is not supported. Encrypt the column instead."
+            end
+
             # warn on default attributes
             if attributes_to_define_after_schema_loads.key?(name.to_s)
               opt = attributes_to_define_after_schema_loads[name.to_s][1]

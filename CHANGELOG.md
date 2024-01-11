@@ -1,3 +1,7 @@
+## 1.3.3 (unreleased)
+
+- Added warning for encrypting store attributes
+
 ## 1.3.2 (2024-01-10)
 
 - Fixed issue with serialized attributes

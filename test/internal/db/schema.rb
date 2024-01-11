@@ -81,6 +81,7 @@ ActiveRecord::Schema.define do
     t.text :info2_ciphertext
     t.text :credentials
     t.text :credentials2_ciphertext
+    t.text :credentials3
     t.text :configuration
     t.text :configuration2_ciphertext
     t.text :coordinates
