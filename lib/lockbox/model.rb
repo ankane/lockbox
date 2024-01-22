@@ -170,12 +170,12 @@ module Lockbox
 
               def _create_record(*args, **kwargs)
                 lockbox_sync_attributes
-                  super
+                super(*args)
               end
 
               def _update_record(*args, **kwargs)
                 lockbox_sync_attributes
-                  super
+                super(*args)
               end
 
               def [](attr_name)
