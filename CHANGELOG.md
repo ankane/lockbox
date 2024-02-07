@@ -1,4 +1,4 @@
-## 1.3.3 (unreleased)
+## 1.3.3 (2024-02-07)
 
 - Added warning for encrypting store attributes
 
