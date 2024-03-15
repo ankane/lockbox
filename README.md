@@ -194,7 +194,7 @@ class User < ApplicationRecord
   has_encrypted :email
 
   # remove this line after dropping email column
-  self.ignored_columns = ["email"]
+  self.ignored_columns += ["email"]
 end
 ```
 
