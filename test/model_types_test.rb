@@ -597,7 +597,7 @@ class ModelTypesTest < Minitest::Test
     if format
       key = Lockbox.attribute_key(table: "users", attribute: encrypted_attribute)
       box = Lockbox.new(key: key, encode: true)
-      assert_equal format.force_encoding(Encoding::BINARY), box.decrypt(user.send(encrypted_attribute))
+      assert_equal format.b, box.decrypt(user.send(encrypted_attribute))
     end
 
     if check_nil
