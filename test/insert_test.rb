@@ -16,6 +16,15 @@ class InsertTest < Minitest::Test
     assert_equal expected, users
   end
 
+  def test_insert!
+    User.insert!({name: "Test", email: "test@example.org"})
+    User.insert!({"name" => "New", "email" => "new@example.org"})
+
+    users = User.order(:id).pluck(:name, :email)
+    expected = [["Test", "test@example.org"], ["New", "new@example.org"]]
+    assert_equal expected, users
+  end
+
   def test_insert_all
     User.insert_all([{name: "Test", email: "test@example.org"}])
     User.insert_all([{"name" => "New", "email" => "new@example.org"}])

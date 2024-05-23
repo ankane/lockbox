@@ -230,6 +230,20 @@ module Lockbox
               end
 
               if ActiveRecord::VERSION::MAJOR >= 6
+                if ActiveRecord::VERSION::STRING.to_f >= 7.2
+                  def self.insert(attributes, **options)
+                    super(lockbox_map_record_attributes(attributes), **options)
+                  end
+
+                  def self.insert!(attributes, **options)
+                    super(lockbox_map_record_attributes(attributes), **options)
+                  end
+
+                  def self.upsert(attributes, **options)
+                    super(lockbox_map_record_attributes(attributes), **options)
+                  end
+                end
+
                 def self.insert_all(attributes, **options)
                   super(lockbox_map_attributes(attributes), **options)
                 end
@@ -248,30 +262,36 @@ module Lockbox
                   return records unless records.is_a?(Array)
 
                   records.map do |attributes|
-                    # transform keys like Active Record
-                    attributes = attributes.transform_keys do |key|
-                      n = key.to_s
-                      attribute_aliases[n] || n
-                    end
-
-                    lockbox_attributes = self.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
-                    lockbox_attributes.each do |key, lockbox_attribute|
-                      attribute = key.to_s
-                      # check read only
-                      # users should mark both plaintext and ciphertext columns
-                      if check_readonly && readonly_attributes.include?(attribute) && !readonly_attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
-                        warn "[lockbox] WARNING: Mark attribute as readonly: #{lockbox_attribute[:encrypted_attribute]}"
-                      end
-
-                      message = attributes[attribute]
-                      attributes.delete(attribute) unless lockbox_attribute[:migrating]
-                      encrypted_attribute = lockbox_attribute[:encrypted_attribute]
-                      ciphertext = send("generate_#{encrypted_attribute}", message)
-                      attributes[encrypted_attribute] = ciphertext
-                    end
-
-                    attributes
+                    lockbox_map_record_attributes(attributes, check_readonly: false)
                   end
+                end
+
+                def self.lockbox_map_record_attributes(attributes, check_readonly: false)
+                  return attributes unless attributes.is_a?(Hash)
+
+                  # transform keys like Active Record
+                  attributes = attributes.transform_keys do |key|
+                    n = key.to_s
+                    attribute_aliases[n] || n
+                  end
+
+                  lockbox_attributes = self.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
+                  lockbox_attributes.each do |key, lockbox_attribute|
+                    attribute = key.to_s
+                    # check read only
+                    # users should mark both plaintext and ciphertext columns
+                    if check_readonly && readonly_attributes.include?(attribute) && !readonly_attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
+                      warn "[lockbox] WARNING: Mark attribute as readonly: #{lockbox_attribute[:encrypted_attribute]}"
+                    end
+
+                    message = attributes[attribute]
+                    attributes.delete(attribute) unless lockbox_attribute[:migrating]
+                    encrypted_attribute = lockbox_attribute[:encrypted_attribute]
+                    ciphertext = send("generate_#{encrypted_attribute}", message)
+                    attributes[encrypted_attribute] = ciphertext
+                  end
+
+                  attributes
                 end
               end
             else
@@ -295,7 +315,12 @@ module Lockbox
             end
 
             # warn on default attributes
-            if attributes_to_define_after_schema_loads.key?(name.to_s)
+            if ActiveRecord::VERSION::STRING.to_f >= 7.2
+              # TODO improve
+              if pending_attribute_modifications.any? { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingDefault) && v.name == name.to_s }
+                warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
+              end
+            elsif attributes_to_define_after_schema_loads.key?(name.to_s)
               opt = attributes_to_define_after_schema_loads[name.to_s][1]
 
               has_default =
@@ -345,6 +370,22 @@ module Lockbox
                   serialize name, Hash
                 when :array
                   serialize name, Array
+                end
+              end
+            elsif ActiveRecord::VERSION::STRING.to_f >= 7.2
+              attribute_type = type_for_attribute(name) { nil }
+              if attribute_type.nil?
+                original_type = type_for_attribute(original_name) { nil }
+                if !original_type.nil?
+                  attribute name, original_type
+                elsif options[:migrating]
+                  attribute name, ActiveRecord::Type::Value.new
+                else
+                  attribute name, :string
+                end
+              else
+                if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.instance_of?(ActiveRecord::Type::Value)
+                  attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
                 end
               end
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
@@ -669,7 +710,8 @@ module Lockbox
     end
 
     def lockbox_encrypts(*attributes, **options)
-      ActiveSupport::Deprecation.warn("`#{__callee__}` is deprecated in favor of `has_encrypted`")
+      deprecator = ActiveSupport::VERSION::STRING.to_f >= 7.2 ? ActiveSupport.deprecator : ActiveSupport::Deprecation
+      deprecator.warn("`#{__callee__}` is deprecated in favor of `has_encrypted`")
       has_encrypted(*attributes, **options)
     end
 

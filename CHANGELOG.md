@@ -1,3 +1,7 @@
+## 1.4.0 (unreleased)
+
+- Added support for Active Record 7.2
+
 ## 1.3.3 (2024-02-07)
 
 - Added warning for encrypting store attributes
