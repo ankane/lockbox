@@ -131,6 +131,8 @@ ActiveRecord::Schema.define do
   create_table :agents do |t|
     t.text :name
     t.text :email_ciphertext
+    t.text :skill_ciphertext
+    t.text :specialization_ciphertext
   end
 
   create_table :people do |t|

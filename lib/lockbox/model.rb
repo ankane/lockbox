@@ -138,7 +138,17 @@ module Lockbox
                 # an exception is thrown if decryption fails
                 self.class.lockbox_attributes.each do |_, lockbox_attribute|
                   # don't try to decrypt if no decryption key given
-                  next if lockbox_attribute[:algorithm] == "hybrid" && lockbox_attribute[:decryption_key].nil?
+                  decryption_key = if lockbox_attribute.key?(:decryption_key)
+                                     if lockbox_attribute[:decryption_key].respond_to?(:call)
+                                       instance_exec(&lockbox_attribute[:decryption_key])
+                                     elsif lockbox_attribute[:decryption_key].is_a?(Symbol)
+                                       send(lockbox_attribute[:decryption_key])
+                                     else
+                                       lockbox_attribute[:decryption_key]
+                                     end
+                                   end
+
+                  next if lockbox_attribute[:algorithm] == "hybrid" && decryption_key.nil?
 
                   # it is possible that the encrypted attribute is not loaded, eg.
                   # if the record was fetched partially (`User.select(:id).first`).
@@ -488,7 +498,17 @@ module Lockbox
             # decrypt first for dirty tracking
             # don't raise error if can't decrypt previous
             # don't try to decrypt if no decryption key given
-            unless options[:algorithm] == "hybrid" && options[:decryption_key].nil?
+            decryption_key = if options.key?(:decryption_key)
+                               if options[:decryption_key].respond_to?(:call)
+                                 instance_exec(&options[:decryption_key])
+                               elsif options[:decryption_key].is_a?(Symbol)
+                                  send(options[:decryption_key])
+                                else
+                                  options[:decryption_key]
+                               end
+                             end
+
+            unless options[:algorithm] == "hybrid" && (decryption_key.nil?)
               begin
                 send(name)
               rescue Lockbox::DecryptionError

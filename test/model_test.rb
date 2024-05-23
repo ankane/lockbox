@@ -501,6 +501,66 @@ class ModelTest < Minitest::Test
     assert_equal "No decryption key set", error.message
   end
 
+  def test_hybrid_no_decryption_key_in_callable
+    Agent.delete_all
+
+    agent = Agent.create!(skill: "Problem Solving")
+    original_skill_ciphertext = agent.skill_ciphertext
+    assert_equal agent, Agent.last
+
+    agent = Agent.last
+    agent.name = "Test"
+    agent.save!
+
+    agent = Agent.last
+    assert_equal original_skill_ciphertext, agent.skill_ciphertext
+
+    agent = Agent.last
+    agent.skill = "Strategic Planning"
+    agent.save!
+
+    agent = Agent.last
+    assert agent.inspect
+    assert_nil agent.attributes["skill"]
+    assert agent.attributes["skill_ciphertext"]
+
+    # TODO change to Lockbox::DecryptionError?
+    error = assert_raises(ArgumentError) do
+      agent.skill
+    end
+    assert_equal "No decryption key set", error.message
+  end
+
+  def test_hybrid_no_decryption_key_in_instance
+    Agent.delete_all
+
+    agent = Agent.create!(specialization: "Chess")
+    original_specialization_ciphertext = agent.specialization_ciphertext
+    assert_equal agent, Agent.last
+
+    agent = Agent.last
+    agent.name = "Test"
+    agent.save!
+
+    agent = Agent.last
+    assert_equal original_specialization_ciphertext, agent.specialization_ciphertext
+
+    agent = Agent.last
+    agent.specialization = "Sudoku"
+    agent.save!
+
+    agent = Agent.last
+    assert agent.inspect
+    assert_nil agent.attributes["specialization"]
+    assert agent.attributes["specialization_ciphertext"]
+
+    # TODO change to Lockbox::DecryptionError?
+    error = assert_raises(ArgumentError) do
+      agent.specialization
+    end
+    assert_equal "No decryption key set", error.message
+  end
+
   def test_validations_valid
     post = Post.new(title: "Hello World")
     assert post.valid?
