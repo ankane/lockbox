@@ -240,7 +240,7 @@ module Lockbox
                   end
 
                   def self.upsert(attributes, **options)
-                    super(lockbox_map_record_attributes(attributes), **options)
+                    super(lockbox_map_record_attributes(attributes, check_readonly: true), **options)
                   end
                 end
 
