@@ -266,6 +266,7 @@ module Lockbox
                   end
                 end
 
+                # private
                 def self.lockbox_map_record_attributes(attributes, check_readonly: false)
                   return attributes unless attributes.is_a?(Hash)
 
