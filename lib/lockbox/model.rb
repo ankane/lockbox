@@ -374,23 +374,20 @@ module Lockbox
                 end
               end
             elsif ActiveRecord::VERSION::STRING.to_f >= 7.2
-              attribute_type = pending_attribute_modifications.find { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingType) && v.name == name.to_s }
-              if attribute_type.nil?
-                original_type = pending_attribute_modifications.find { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingType) && v.name == original_name.to_s }
-                if !original_type&.type.nil?
-                  attribute name, original_type.type
-                elsif options[:migrating]
-                  attribute name, ActiveRecord::Type::Value.new
-                else
-                  attribute name, :string
-                end
-              else
-                decorate_attributes([name]) do |attr_name, cast_type|
-                  if cast_type.is_a?(ActiveRecord::Type::Serialized) && cast_type.subtype.instance_of?(ActiveModel::Type::Value)
-                    ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, cast_type.coder)
-                  else
+              decorate_attributes([name]) do |attr_name, cast_type|
+                if cast_type.instance_of?(ActiveRecord::Type::Value)
+                  original_type = pending_attribute_modifications.find { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingType) && v.name == original_name.to_s && !v.type.nil? }&.type
+                  if original_type
+                    original_type
+                  elsif options[:migrating]
                     cast_type
+                  else
+                    ActiveRecord::Type::String.new
                   end
+                elsif cast_type.is_a?(ActiveRecord::Type::Serialized) && cast_type.subtype.instance_of?(ActiveModel::Type::Value)
+                  ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, cast_type.coder)
+                else
+                  cast_type
                 end
               end
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
