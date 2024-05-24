@@ -385,6 +385,9 @@ module Lockbox
                     ActiveRecord::Type::String.new
                   end
                 elsif cast_type.is_a?(ActiveRecord::Type::Serialized) && cast_type.subtype.instance_of?(ActiveModel::Type::Value)
+                  # hack to set string type after serialize
+                  # otherwise, type gets set to ActiveModel::Type::Value
+                  # which always returns false for changed_in_place?
                   ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, cast_type.coder)
                 else
                   cast_type
@@ -403,8 +406,7 @@ module Lockbox
                 attribute name, :string
               end
             else
-              # hack for Active Record 6.1
-              # to set string type after serialize
+              # hack for Active Record 6.1+ to set string type after serialize
               # otherwise, type gets set to ActiveModel::Type::Value
               # which always returns false for changed_in_place?
               # earlier versions of Active Record take the previous code path
