@@ -177,4 +177,6 @@ class Person < ActiveRecord::Base
 end
 
 # ensure has_encrypted does not cause model schema to load
-raise "has_encrypted loading model schema early" if User.send(:schema_loaded?)
+if [User, Post, Robot, Comment, Admin, Agent, Person].any? { |v| v.send(:schema_loaded?) }
+  raise "has_encrypted loading model schema early"
+end
