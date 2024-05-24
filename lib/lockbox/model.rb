@@ -374,19 +374,23 @@ module Lockbox
                 end
               end
             elsif ActiveRecord::VERSION::STRING.to_f >= 7.2
-              attribute_type = type_for_attribute(name) { nil }
+              attribute_type = pending_attribute_modifications.find { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingType) && v.name == name.to_s }
               if attribute_type.nil?
-                original_type = type_for_attribute(original_name) { nil }
-                if !original_type.nil?
-                  attribute name, original_type
+                original_type = pending_attribute_modifications.find { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingType) && v.name == original_name.to_s }
+                if !original_type&.type.nil?
+                  attribute name, original_type.type
                 elsif options[:migrating]
                   attribute name, ActiveRecord::Type::Value.new
                 else
                   attribute name, :string
                 end
               else
-                if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.instance_of?(ActiveRecord::Type::Value)
-                  attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
+                decorate_attributes([name]) do |attr_name, cast_type|
+                  if cast_type.is_a?(ActiveRecord::Type::Serialized) && cast_type.subtype.instance_of?(ActiveModel::Type::Value)
+                    ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, cast_type.coder)
+                  else
+                    cast_type
+                  end
                 end
               end
             elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
