@@ -19,6 +19,9 @@ jobs:
             gemfile: gemfiles/rails60.gemfile
           - ruby: 2.6
             gemfile: gemfiles/rails52.gemfile
+          - ruby: 3.3
+            gemfile: gemfiles/mongoid9.gemfile
+            mongodb: true
           - ruby: 3.1
             gemfile: gemfiles/mongoid8.gemfile
             mongodb: true
