@@ -2,7 +2,7 @@ module Lockbox
   class Migrator
     def initialize(relation, batch_size:)
       @relation = relation
-      @transaction = @relation.respond_to?(:transaction)
+      @transaction = @relation.respond_to?(:transaction) && !mongoid_relation?(base_relation)
       @batch_size = batch_size
     end
 
