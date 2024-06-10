@@ -1016,21 +1016,6 @@ class User < ApplicationRecord
 end
 ```
 
-### 0.6.0
-
-0.6.0 adds `encrypted: true` to Active Storage metadata for new files. This field is informational, but if you prefer to add it to existing files, use:
-
-```ruby
-User.with_attached_license.find_each do |user|
-  next unless user.license.attached?
-
-  metadata = user.license.metadata
-  unless metadata["encrypted"]
-    user.license.blob.update!(metadata: metadata.merge("encrypted" => true))
-  end
-end
-```
-
 ## History
 
 View the [changelog](https://github.com/ankane/lockbox/blob/master/CHANGELOG.md)
