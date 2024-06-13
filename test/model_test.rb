@@ -501,6 +501,36 @@ class ModelTest < Minitest::Test
     assert_equal "No decryption key set", error.message
   end
 
+  def test_hybrid_no_decryption_key_proc
+    Agent.delete_all
+
+    agent = Agent.create!(personal_email: "test@example.org")
+    original_email_ciphertext = agent.personal_email_ciphertext
+    assert_equal agent, Agent.last
+
+    agent = Agent.last
+    agent.name = "Test"
+    agent.save!
+
+    agent = Agent.last
+    assert_equal original_email_ciphertext, agent.personal_email_ciphertext
+
+    agent = Agent.last
+    agent.personal_email = "new@example.org"
+    agent.save!
+
+    agent = Agent.last
+    assert agent.inspect
+    assert_nil agent.attributes["personal_email"]
+    assert agent.attributes["personal_email_ciphertext"]
+
+    # TODO change to Lockbox::DecryptionError?
+    error = assert_raises(ArgumentError) do
+      agent.personal_email
+    end
+    assert_equal "No decryption key set", error.message
+  end
+
   def test_validations_valid
     post = Post.new(title: "Hello World")
     assert post.valid?

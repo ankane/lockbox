@@ -164,6 +164,7 @@ end
 class Agent < ActiveRecord::Base
   key_pair = Lockbox.generate_key_pair
   has_encrypted :email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key]
+  has_encrypted :personal_email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: -> { nil }
 end
 
 class Person < ActiveRecord::Base

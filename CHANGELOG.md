@@ -2,6 +2,7 @@
 
 - Added support for Active Record 7.2
 - Added support for Mongoid 9
+- Fixed error when `decryption_key` option is a proc or symbol and returns `nil`
 
 ## 1.3.3 (2024-02-07)
 
