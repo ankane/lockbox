@@ -86,7 +86,9 @@ class Agent
 
   field :name, type: String
   field :email_ciphertext, type: String
+  field :personal_email_ciphertext, type: String
 
   key_pair = Lockbox.generate_key_pair
   has_encrypted :email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key]
+  has_encrypted :personal_email, algorithm: "hybrid", encryption_key: key_pair[:encryption_key], decryption_key: -> { nil }
 end
