@@ -79,7 +79,7 @@ module Lockbox
             while uploader.parent_version
               uploader = uploader.parent_version
             end
-            uploader.class.name.sub(/Uploader\z/, "").underscore
+            uploader.class.name.delete_suffix("Uploader").underscore
           end
         end
 
