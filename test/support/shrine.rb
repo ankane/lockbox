@@ -3,7 +3,7 @@ require "shrine/storage/file_system"
 
 Shrine.storages = {
   cache: Shrine::Storage::FileSystem.new("/tmp", prefix: "cache"),
-  store: Shrine::Storage::FileSystem.new("/tmp", prefix: "store"),
+  store: Shrine::Storage::FileSystem.new("/tmp", prefix: "store")
 }
 
 if mongoid?
