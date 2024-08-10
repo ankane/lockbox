@@ -1,4 +1,4 @@
-## 1.4.0 (unreleased)
+## 1.4.0 (2024-08-09)
 
 - Added support for Active Record 7.2
 - Added support for Mongoid 9
