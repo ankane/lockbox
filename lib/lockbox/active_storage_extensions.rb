@@ -150,6 +150,18 @@ module Lockbox
     end
 
     module Blob
+      module Representable
+        def previewable?
+          !encrypted?
+        end
+
+        private
+
+        def encrypted?
+          !metadata.fetch("encrypted", false)
+        end
+      end
+
       private
 
       def extract_content_type(io)
