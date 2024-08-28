@@ -25,6 +25,7 @@ module Lockbox
           end
           ActiveSupport.on_load(:active_storage_blob) do
             prepend Lockbox::ActiveStorageExtensions::Blob
+            prepend Lockbox::ActiveStorageExtensions::Blob::Representable
           end
         elsif ActiveStorage::VERSION::MAJOR >= 6
           ActiveSupport.on_load(:active_storage_attachment) do
