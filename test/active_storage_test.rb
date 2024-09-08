@@ -211,7 +211,7 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_no_encrypt_preview
-    skip "Requires Poppler or muPDF" unless ENV["TRAVIS"]
+    skip "Requires Poppler or muPDF" unless ENV["CI"]
 
     path = "test/support/doc.pdf"
     User.create!(image: {io: File.open(path), filename: "doc.pdf", content_type: "application/pdf"})
