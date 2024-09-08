@@ -1,3 +1,7 @@
+## 1.4.1 (unreleased)
+
+- Fixed error message for previews for Active Storage 7.1.4
+
 ## 1.4.0 (2024-08-09)
 
 - Added support for Active Record 7.2
