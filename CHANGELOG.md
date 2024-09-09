@@ -1,4 +1,4 @@
-## 1.4.1 (unreleased)
+## 1.4.1 (2024-09-09)
 
 - Fixed error message for previews for Active Storage 7.1.4
 
