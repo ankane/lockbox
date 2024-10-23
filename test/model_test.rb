@@ -225,13 +225,10 @@ class ModelTest < Minitest::Test
     assert !user.has_attribute?("name")
     assert !user.has_attribute?(:name)
 
-    # TODO try to make virtual attribute behavior consistent
-    # this may be difficult, as virtual attributes are set to self.class._default_attributes
-    # which gets merged with query attributes in initialize method of active_record/core.rb
-    # assert_equal ["id"], user.attributes.keys
-    # assert_equal ["id"], user.attribute_names
-    # assert !user.has_attribute?("email")
-    # assert !user.has_attribute?(:email)
+    assert_equal ["id"], user.attributes.keys
+    assert_equal ["id"], user.attribute_names
+    assert !user.has_attribute?("email")
+    assert !user.has_attribute?(:email)
 
     user = User.select("id AS email_ciphertext").last
     assert_raises(Lockbox::DecryptionError) do

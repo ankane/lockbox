@@ -148,7 +148,40 @@ module Lockbox
                     end
                   end
                 end
-                super
+
+                # remove attributes that do not have a ciphertext attribute
+                attributes = super
+                self.class.lockbox_attributes.each do |k, lockbox_attribute|
+                  if !attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
+                    attributes.delete(k.to_s)
+                    attributes.delete(lockbox_attribute[:attribute])
+                  end
+                end
+                attributes
+              end
+
+              # remove attribute names that do not have a ciphertext attribute
+              def attribute_names
+                # hash preserves key order
+                names_set = super.to_h { |v| [v, true] }
+                self.class.lockbox_attributes.each do |k, lockbox_attribute|
+                  if !names_set.include?(lockbox_attribute[:encrypted_attribute].to_s)
+                    names_set.delete(k.to_s)
+                    names_set.delete(lockbox_attribute[:attribute])
+                  end
+                end
+                names_set.keys
+              end
+
+              # check the ciphertext attribute for encrypted attributes
+              def has_attribute?(attr_name)
+                attr_name = attr_name.to_s
+                _, lockbox_attribute = self.class.lockbox_attributes.find { |_, la| la[:attribute] == attr_name }
+                if lockbox_attribute
+                  super(lockbox_attribute[:encrypted_attribute])
+                else
+                  super
+                end
               end
 
               # needed for in-place modifications
