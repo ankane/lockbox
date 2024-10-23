@@ -1,18 +1,11 @@
 Combustion.path = "test/internal"
 
-components = [:active_record, :active_job, :active_storage]
+components = [:active_record, :active_job, :active_storage, :action_text]
 
-if Rails.version >= "6.0"
-  components << :action_text
-  Lockbox.encrypts_action_text_body
-end
+Lockbox.encrypts_action_text_body
 
 Combustion.initialize!(*components) do
   config.load_defaults Rails.version.to_f
-
-  if ActiveRecord::VERSION::MAJOR < 6 && config.active_record.sqlite3.respond_to?(:represent_boolean_as_integer)
-    config.active_record.sqlite3.represent_boolean_as_integer = true
-  end
 
   if ActiveRecord::VERSION::STRING.to_f == 7.0
     config.active_record.legacy_connection_handling = false

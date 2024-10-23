@@ -163,10 +163,8 @@ class ModelTest < Minitest::Test
     assert_equal [original_name, new_name], user.name_previous_change
     assert_equal [original_email, new_email], user.email_previous_change
 
-    if ActiveRecord::VERSION::STRING.to_f >= 6.1
-      assert_equal original_name, user.name_previously_was
-      assert_equal original_email, user.email_previously_was
-    end
+    assert_equal original_name, user.name_previously_was
+    assert_equal original_email, user.email_previously_was
 
     # ensure updated
     assert_equal original_name, user.name_before_last_save
@@ -330,7 +328,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_inspect_filter_attributes
-    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+    skip if mongoid?
 
     previous_value = User.filter_attributes
     begin
@@ -363,7 +361,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_filter_attributes
-    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+    skip if mongoid?
 
     assert_includes User.filter_attributes, /\Aemail\z/
     refute_includes User.filter_attributes, /\Aemail_ciphertext\z/
@@ -788,7 +786,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_encrypts_deprecated
-    skip if !mongoid? && ActiveRecord::VERSION::MAJOR >= 7
+    skip if !mongoid?
     assert_output(nil, /DEPRECATION WARNING: `encrypts` is deprecated in favor of `has_encrypted`/) do
       Admin.encrypts :dep2
     end

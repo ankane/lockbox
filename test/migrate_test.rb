@@ -105,7 +105,7 @@ class MigrateTest < Minitest::Test
   end
 
   def test_filter_attributes
-    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+    skip if mongoid?
 
     assert_includes Robot.filter_attributes, /\Amigrated_email\z/
     refute_includes Robot.filter_attributes, /\Aemail_ciphertext/

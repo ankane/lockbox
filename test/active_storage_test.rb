@@ -4,9 +4,7 @@ class ActiveStorageTest < Minitest::Test
   def setup
     skip unless defined?(ActiveStorage)
 
-    if ActiveStorage::VERSION::STRING.to_f >= 6.1
-      ActiveStorage::VariantRecord.delete_all
-    end
+    ActiveStorage::VariantRecord.delete_all
     ActiveStorage::Attachment.delete_all
     ActiveStorage::Blob.delete_all
   end
@@ -61,43 +59,25 @@ class ActiveStorageTest < Minitest::Test
   def test_encrypt_blob
     user = User.create!(avatar: attachment)
 
-    if ActiveStorage::VERSION::MAJOR >= 6
-      # blobs are just attached, not (re)encrypted
-      User.create!(avatar: user.avatar.blob)
-    else
-      error = assert_raises(ArgumentError) do
-        User.create!(avatar: user.avatar.blob)
-      end
-      assert_match "Could not find or build blob: expected attachable", error.message
-    end
+    # blobs are just attached, not (re)encrypted
+    User.create!(avatar: user.avatar.blob)
   end
 
   def test_encrypt_unencrypted_blob
     unencrypted_blob = User.create!(image: attachment).image.blob
 
-    if ActiveStorage::VERSION::MAJOR >= 6
-      # attaches but fails to decrypt
-      user = User.create!(avatar: unencrypted_blob)
-      assert_raises(Lockbox::DecryptionError) do
-        user.avatar.download
-      end
-    else
-      # fails to attach
-      error = assert_raises(ArgumentError) do
-        User.create!(avatar: unencrypted_blob)
-      end
-      assert_match "Could not find or build blob: expected attachable", error.message
+    # attaches but fails to decrypt
+    user = User.create!(avatar: unencrypted_blob)
+    assert_raises(Lockbox::DecryptionError) do
+      user.avatar.download
     end
   end
 
   def test_encrypt_unsupported
-    # silently fails with Active Storage 5.2
-    if ActiveStorage::VERSION::MAJOR >= 6
-      error = assert_raises(ArgumentError) do
-        User.create!(image: 123)
-      end
-      assert_equal "Could not find or build blob: expected attachable, got 123", error.message
+    error = assert_raises(ArgumentError) do
+      User.create!(image: 123)
     end
+    assert_equal "Could not find or build blob: expected attachable, got 123", error.message
 
     error = assert_raises(ArgumentError) do
       User.create!(avatar: 123)
@@ -284,8 +264,6 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_open
-    skip if ActiveStorage::VERSION::MAJOR < 6
-
     user = User.create!(avatar: attachment)
     user.avatar.open do |f|
       assert_equal content, f.read
@@ -293,8 +271,6 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_open_blank
-    skip if ActiveStorage::VERSION::MAJOR < 6
-
     user = User.create!(avatar: attachment(""))
     user.avatar.open do |f|
       assert_equal "", f.read
@@ -520,10 +496,6 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def variant_options
-    if ActiveStorage::VERSION::STRING.to_f >= 6.1
-      {resize_to_fit: [500, 500]}
-    else
-      {resize: "500x500"}
-    end
+    {resize_to_fit: [500, 500]}
   end
 end

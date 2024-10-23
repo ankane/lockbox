@@ -21,15 +21,10 @@ class ActionTextTest < Minitest::Test
   def test_encoding
     user = User.create!(content: "ルビー")
     assert_equal "<div class=\"trix-content\">\n  ルビー\n</div>\n", user.content.body.to_s
-    assert_equal user.content.to_trix_html, "ルビー" if trix?
+    assert_equal user.content.to_trix_html, "ルビー"
 
     user.reload
     assert_equal "<div class=\"trix-content\">\n  ルビー\n</div>\n", user.content.body.to_s
-    assert_equal user.content.to_trix_html, "ルビー" if trix?
-  end
-
-  def trix?
-    require "action_text/version"
-    ActionText::VERSION::MAJOR >= 7
+    assert_equal user.content.to_trix_html, "ルビー"
   end
 end

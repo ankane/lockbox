@@ -34,13 +34,6 @@ module Lockbox
     end
 
     module AttachedOne
-      if ActiveStorage::VERSION::MAJOR < 6
-        def attach(attachable)
-          attachable = encrypt_attachable(attachable) if encrypted?
-          super(attachable)
-        end
-      end
-
       def rotate_encryption!
         raise "Not encrypted" unless encrypted?
 
@@ -51,19 +44,6 @@ module Lockbox
     end
 
     module AttachedMany
-      if ActiveStorage::VERSION::MAJOR < 6
-        def attach(*attachables)
-          if encrypted?
-            attachables =
-              attachables.flatten.collect do |attachable|
-                encrypt_attachable(attachable)
-              end
-          end
-
-          super(attachables)
-        end
-      end
-
       def rotate_encryption!
         raise "Not encrypted" unless encrypted?
 
@@ -131,27 +111,25 @@ module Lockbox
         end
       end
 
-      if ActiveStorage::VERSION::MAJOR >= 6
-        def open(**options)
-          blob.open(**options) do |file|
-            options = Utils.encrypted_options(record, name)
-            # only trust the metadata when migrating
-            # as earlier versions of Lockbox won't have it
-            # and it's not a good practice to trust modifiable data
-            encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
-            if encrypted
-              result = Utils.decrypt_result(record, name, options, file.read)
-              file.rewind
-              # truncate may not be available on all platforms
-              # according to the Ruby docs
-              # may need to create a new temp file instead
-              file.truncate(0)
-              file.write(result)
-              file.rewind
-            end
-
-            yield file
+      def open(**options)
+        blob.open(**options) do |file|
+          options = Utils.encrypted_options(record, name)
+          # only trust the metadata when migrating
+          # as earlier versions of Lockbox won't have it
+          # and it's not a good practice to trust modifiable data
+          encrypted = options && (!options[:migrating] || blob.metadata["encrypted"])
+          if encrypted
+            result = Utils.decrypt_result(record, name, options, file.read)
+            file.rewind
+            # truncate may not be available on all platforms
+            # according to the Ruby docs
+            # may need to create a new temp file instead
+            file.truncate(0)
+            file.write(result)
+            file.rewind
           end
+
+          yield file
         end
       end
     end

@@ -99,8 +99,10 @@ end
 if defined?(ActiveSupport.on_load)
   ActiveSupport.on_load(:active_record) do
     ar_version = ActiveRecord::VERSION::STRING.to_f
-    if ar_version < 5.2
-      if ar_version >= 5
+    if ar_version < 7
+      if ar_version >= 5.2
+        raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} requires Lockbox < 2"
+      elsif ar_version >= 5
         raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} requires Lockbox < 0.7"
       else
         raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} not supported"
@@ -109,11 +111,19 @@ if defined?(ActiveSupport.on_load)
 
     extend Lockbox::Model
     extend Lockbox::Model::Attached
-    singleton_class.alias_method(:encrypts, :lockbox_encrypts) if ActiveRecord::VERSION::MAJOR < 7
     ActiveRecord::Relation.prepend Lockbox::Calculations
   end
 
   ActiveSupport.on_load(:mongoid) do
+    mongoid_version = Mongoid::VERSION.to_i
+    if mongoid_version < 8
+      if mongoid_version >= 6
+        raise Lockbox::Error, "Mongoid #{Mongoid::VERSION} requires Lockbox < 2"
+      else
+        raise Lockbox::Error, "Mongoid #{Mongoid::VERSION} not supported"
+      end
+    end
+
     Mongoid::Document::ClassMethods.include(Lockbox::Model)
     Mongoid::Document::ClassMethods.alias_method(:encrypts, :lockbox_encrypts)
   end

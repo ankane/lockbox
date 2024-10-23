@@ -60,7 +60,7 @@ module Lockbox
         class_eval do
           # Lockbox uses custom inspect
           # but this could be useful for other gems
-          if activerecord && ActiveRecord::VERSION::MAJOR >= 6
+          if activerecord
             # only add virtual attribute
             # need to use regexp since strings do partial matching
             # also, need to use += instead of <<
@@ -232,71 +232,69 @@ module Lockbox
                 result
               end
 
-              if ActiveRecord::VERSION::MAJOR >= 6
-                if ActiveRecord::VERSION::STRING.to_f >= 7.2
-                  def self.insert(attributes, **options)
-                    super(lockbox_map_record_attributes(attributes), **options)
-                  end
-
-                  def self.insert!(attributes, **options)
-                    super(lockbox_map_record_attributes(attributes), **options)
-                  end
-
-                  def self.upsert(attributes, **options)
-                    super(lockbox_map_record_attributes(attributes, check_readonly: true), **options)
-                  end
+              if ActiveRecord::VERSION::STRING.to_f >= 7.2
+                def self.insert(attributes, **options)
+                  super(lockbox_map_record_attributes(attributes), **options)
                 end
 
-                def self.insert_all(attributes, **options)
-                  super(lockbox_map_attributes(attributes), **options)
+                def self.insert!(attributes, **options)
+                  super(lockbox_map_record_attributes(attributes), **options)
                 end
 
-                def self.insert_all!(attributes, **options)
-                  super(lockbox_map_attributes(attributes), **options)
+                def self.upsert(attributes, **options)
+                  super(lockbox_map_record_attributes(attributes, check_readonly: true), **options)
+                end
+              end
+
+              def self.insert_all(attributes, **options)
+                super(lockbox_map_attributes(attributes), **options)
+              end
+
+              def self.insert_all!(attributes, **options)
+                super(lockbox_map_attributes(attributes), **options)
+              end
+
+              def self.upsert_all(attributes, **options)
+                super(lockbox_map_attributes(attributes, check_readonly: true), **options)
+              end
+
+              # private
+              # does not try to handle :returning option for simplicity
+              def self.lockbox_map_attributes(records, check_readonly: false)
+                return records unless records.is_a?(Array)
+
+                records.map do |attributes|
+                  lockbox_map_record_attributes(attributes, check_readonly: false)
+                end
+              end
+
+              # private
+              def self.lockbox_map_record_attributes(attributes, check_readonly: false)
+                return attributes unless attributes.is_a?(Hash)
+
+                # transform keys like Active Record
+                attributes = attributes.transform_keys do |key|
+                  n = key.to_s
+                  attribute_aliases[n] || n
                 end
 
-                def self.upsert_all(attributes, **options)
-                  super(lockbox_map_attributes(attributes, check_readonly: true), **options)
-                end
-
-                # private
-                # does not try to handle :returning option for simplicity
-                def self.lockbox_map_attributes(records, check_readonly: false)
-                  return records unless records.is_a?(Array)
-
-                  records.map do |attributes|
-                    lockbox_map_record_attributes(attributes, check_readonly: false)
+                lockbox_attributes = self.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
+                lockbox_attributes.each do |key, lockbox_attribute|
+                  attribute = key.to_s
+                  # check read only
+                  # users should mark both plaintext and ciphertext columns
+                  if check_readonly && readonly_attributes.include?(attribute) && !readonly_attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
+                    warn "[lockbox] WARNING: Mark attribute as readonly: #{lockbox_attribute[:encrypted_attribute]}"
                   end
+
+                  message = attributes[attribute]
+                  attributes.delete(attribute) unless lockbox_attribute[:migrating]
+                  encrypted_attribute = lockbox_attribute[:encrypted_attribute]
+                  ciphertext = send("generate_#{encrypted_attribute}", message)
+                  attributes[encrypted_attribute] = ciphertext
                 end
 
-                # private
-                def self.lockbox_map_record_attributes(attributes, check_readonly: false)
-                  return attributes unless attributes.is_a?(Hash)
-
-                  # transform keys like Active Record
-                  attributes = attributes.transform_keys do |key|
-                    n = key.to_s
-                    attribute_aliases[n] || n
-                  end
-
-                  lockbox_attributes = self.lockbox_attributes.slice(*attributes.keys.map(&:to_sym))
-                  lockbox_attributes.each do |key, lockbox_attribute|
-                    attribute = key.to_s
-                    # check read only
-                    # users should mark both plaintext and ciphertext columns
-                    if check_readonly && readonly_attributes.include?(attribute) && !readonly_attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
-                      warn "[lockbox] WARNING: Mark attribute as readonly: #{lockbox_attribute[:encrypted_attribute]}"
-                    end
-
-                    message = attributes[attribute]
-                    attributes.delete(attribute) unless lockbox_attribute[:migrating]
-                    encrypted_attribute = lockbox_attribute[:encrypted_attribute]
-                    ciphertext = send("generate_#{encrypted_attribute}", message)
-                    attributes[encrypted_attribute] = ciphertext
-                  end
-
-                  attributes
-                end
+                attributes
               end
             else
               def reload
@@ -327,13 +325,8 @@ module Lockbox
             elsif attributes_to_define_after_schema_loads.key?(name.to_s)
               opt = attributes_to_define_after_schema_loads[name.to_s][1]
 
-              has_default =
-                if ActiveRecord::VERSION::MAJOR >= 7
-                  # not ideal, since NO_DEFAULT_PROVIDED is private
-                  opt != ActiveRecord::Attributes::ClassMethods.const_get(:NO_DEFAULT_PROVIDED)
-                else
-                  opt.is_a?(Hash) && opt.key?(:default)
-                end
+              # not ideal, since NO_DEFAULT_PROVIDED is private
+              has_default = opt != ActiveRecord::Attributes::ClassMethods.const_get(:NO_DEFAULT_PROVIDED)
 
               if has_default
                 warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
@@ -413,13 +406,8 @@ module Lockbox
               # otherwise, type gets set to ActiveModel::Type::Value
               # which always returns false for changed_in_place?
               # earlier versions of Active Record take the previous code path
-              if ActiveRecord::VERSION::STRING.to_f >= 7.0 && attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
+              if attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
                 attribute_type = attributes_to_define_after_schema_loads[name.to_s].first.call(nil)
-                if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.nil?
-                  attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
-                end
-              elsif ActiveRecord::VERSION::STRING.to_f >= 6.1 && attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
-                attribute_type = attributes_to_define_after_schema_loads[name.to_s].first.call
                 if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.nil?
                   attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
                 end
@@ -606,14 +594,7 @@ module Lockbox
                 # double precision, big endian
                 message = [message].pack("G") unless message.nil?
               when :decimal
-                message =
-                  if ActiveRecord::VERSION::MAJOR >= 6
-                    ActiveRecord::Type::Decimal.new.serialize(message)
-                  else
-                    # issue with serialize in Active Record < 6
-                    # https://github.com/rails/rails/commit/a741208f80dd33420a56486bd9ed2b0b9862234a
-                    ActiveRecord::Type::Decimal.new.cast(message)
-                  end
+                message = ActiveRecord::Type::Decimal.new.serialize(message)
                 # Postgres stores 4 decimal digits in 2 bytes
                 # plus 3 to 8 bytes of overhead
                 # but use string for simplicity

@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class InsertTest < Minitest::Test
   def setup
-    skip if mongoid? || ActiveRecord::VERSION::MAJOR < 6
+    skip if mongoid?
 
     User.delete_all
   end

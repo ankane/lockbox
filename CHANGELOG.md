@@ -1,3 +1,8 @@
+## 2.0.0 (unreleased)
+
+- Dropped support for Active Record < 7 and Ruby < 3.1
+- Dropped support for Mongoid < 8
+
 ## 1.4.1 (2024-09-09)
 
 - Fixed error message for previews for Active Storage 7.1.4
