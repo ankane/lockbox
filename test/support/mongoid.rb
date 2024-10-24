@@ -49,8 +49,8 @@ end
 class Robot
   include Mongoid::Document
 
-  field :name, type: String
-  field :email, type: String
+  field :name, type: String, default: ""
+  field :email, type: String, default: ""
   field :name_ciphertext, type: String
   field :email_ciphertext, type: String
 
