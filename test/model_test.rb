@@ -234,6 +234,9 @@ class ModelTest < Minitest::Test
     assert !user.has_attribute?("email")
     assert !user.has_attribute?(:email)
 
+    assert user.attribute_present?(:id)
+    assert !user.attribute_present?(:email)
+
     user = User.select("id AS email_ciphertext").last
     assert_raises(Lockbox::DecryptionError) do
       user.attributes
