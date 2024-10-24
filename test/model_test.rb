@@ -220,8 +220,8 @@ class ModelTest < Minitest::Test
     skip if mongoid?
 
     User.create!(email: "test@example.org")
-    user = User.select('id').last
-    assert_nil user.attributes['email']
+    user = User.select("id").last
+    assert_nil user.attributes["email"]
     assert !user.has_attribute?("name")
     assert !user.has_attribute?(:name)
 
