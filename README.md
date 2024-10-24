@@ -35,7 +35,7 @@ Set the following environment variable with your key (you can use this one in de
 LOCKBOX_MASTER_KEY=0000000000000000000000000000000000000000000000000000000000000000
 ```
 
-or add it to your credentials for each environment (`rails credentials:edit --environment <env>` for Rails 6+)
+or add it to your credentials for each environment (`rails credentials:edit --environment <env>`)
 
 ```yml
 lockbox:
