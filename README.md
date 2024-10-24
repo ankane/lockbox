@@ -1004,18 +1004,6 @@ class RemovePreviousEncryptedColumns < ActiveRecord::Migration[7.2]
 end
 ```
 
-## Upgrading
-
-### 1.0.0
-
-`encrypts` is now deprecated in favor of `has_encrypted` to avoid conflicting with Active Record encryption.
-
-```ruby
-class User < ApplicationRecord
-  has_encrypted :email
-end
-```
-
 ## History
 
 View the [changelog](https://github.com/ankane/lockbox/blob/master/CHANGELOG.md)
