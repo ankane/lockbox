@@ -114,12 +114,6 @@ module Lockbox
                   k = lockbox_encrypted_attributes[k]
                 elsif values.key?(k)
                   v = respond_to?(:attribute_for_inspect) ? attribute_for_inspect(k) : values[k].inspect
-
-                  # fix for https://github.com/rails/rails/issues/40725
-                  # TODO only apply to Active Record 6.0
-                  if respond_to?(:inspection_filter, true) && v != "nil"
-                    v = inspection_filter.filter_param(k, v)
-                  end
                 else
                   next
                 end
