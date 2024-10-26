@@ -596,7 +596,6 @@ module Lockbox
               case options[:type]
               when :boolean
                 message = ActiveRecord::Type::Boolean.new.serialize(message)
-                message = nil if message == "" # for Active Record < 5.2
                 message = message ? "t" : "f" unless message.nil?
               when :date
                 message = ActiveRecord::Type::Date.new.serialize(message)
@@ -604,7 +603,6 @@ module Lockbox
                 message = message.strftime("%Y-%m-%d") unless message.nil?
               when :datetime
                 message = ActiveRecord::Type::DateTime.new.serialize(message)
-                message = nil unless message.respond_to?(:iso8601) # for Active Record < 5.2
                 message = message.iso8601(9) unless message.nil?
               when :time
                 message = ActiveRecord::Type::Time.new.serialize(message)
