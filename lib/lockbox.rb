@@ -125,6 +125,5 @@ if defined?(ActiveSupport.on_load)
     end
 
     Mongoid::Document::ClassMethods.include(Lockbox::Model)
-    Mongoid::Document::ClassMethods.alias_method(:encrypts, :lockbox_encrypts)
   end
 end
