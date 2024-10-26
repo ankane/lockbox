@@ -1,6 +1,7 @@
 ## 2.0.0 (unreleased)
 
 - Improved `attributes`, `attribute_names`, and `has_attribute?` when ciphertext attributes not loaded
+- Removed `lockbox_encrypts` (use `has_encrypted` instead)
 - Dropped support for Active Record < 7 and Ruby < 3.1
 - Dropped support for Mongoid < 8
 

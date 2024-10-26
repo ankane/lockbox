@@ -724,12 +724,6 @@ module Lockbox
       end
     end
 
-    def lockbox_encrypts(*attributes, **options)
-      deprecator = ActiveSupport::VERSION::STRING.to_f >= 7.2 ? ActiveSupport.deprecator : ActiveSupport::Deprecation
-      deprecator.warn("`#{__callee__}` is deprecated in favor of `has_encrypted`")
-      has_encrypted(*attributes, **options)
-    end
-
     module Attached
       def encrypts_attached(*attributes, **options)
         attributes.each do |name|

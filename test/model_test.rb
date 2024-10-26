@@ -783,19 +783,6 @@ class ModelTest < Minitest::Test
     assert_equal "No attributes specified", error.message
   end
 
-  def test_lockbox_encrypts_deprecated
-    assert_output(nil, /DEPRECATION WARNING: `lockbox_encrypts` is deprecated in favor of `has_encrypted`/) do
-      Admin.lockbox_encrypts :dep
-    end
-  end
-
-  def test_encrypts_deprecated
-    skip if !mongoid?
-    assert_output(nil, /DEPRECATION WARNING: `encrypts` is deprecated in favor of `has_encrypted`/) do
-      Admin.encrypts :dep2
-    end
-  end
-
   private
 
   def assert_no_plaintext_attributes
