@@ -1,4 +1,4 @@
-## 2.0.0 (unreleased)
+## 2.0.0 (2024-10-26)
 
 - Improved `attributes`, `attribute_names`, and `has_attribute?` when ciphertext attributes not loaded
 - Removed deprecated `lockbox_encrypts` (use `has_encrypted` instead)
