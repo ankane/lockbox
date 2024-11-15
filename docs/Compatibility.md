@@ -75,7 +75,6 @@ fn main() {
     let aead = Aes256Gcm::new(&key);
     let nonce = GenericArray::from_slice(&ciphertext[..12]);
     let plaintext = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failure!");
-    println!("{:?}", String::from_utf8(plaintext).unwrap());
 }
 ```
 
@@ -130,7 +129,7 @@ public class Example
 
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, "AES"), new GCMParameterSpec(128, ciphertextBytes, 0, 12));
-        String plaintext = new String(cipher.doFinal(ciphertextBytes, 12, ciphertextBytes.length - 12));
+        byte[] plaintext = cipher.doFinal(ciphertextBytes, 12, ciphertextBytes.length - 12);
     }
 }
 ```
