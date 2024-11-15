@@ -131,7 +131,7 @@ public class Example
 
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, "AES"), new GCMParameterSpec(128, ciphertextBytes, 0, 12));
-        byte[] plaintext = cipher.doFinal(ciphertextBytes, 12, ciphertextBytes.length - 12);
+        byte[] plaintextBytes = cipher.doFinal(ciphertextBytes, 12, ciphertextBytes.length - 12);
     }
 }
 ```
