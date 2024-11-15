@@ -92,12 +92,12 @@ ciphertext_size = byte_size(ciphertext) - 28
 ## PHP
 
 ```php
-$ciphertext = "Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==";
 $key = "61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb";
+$ciphertext = "Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==";
 
 $key = hex2bin($key);
-
 $ciphertext = base64_decode($ciphertext, true);
+
 $nonce = substr($ciphertext, 0, 12);
 $tag = substr($ciphertext, -16);
 $ciphertext = substr($ciphertext, 12, -16);
