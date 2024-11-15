@@ -55,24 +55,28 @@ Add crates:
 
 ```toml
 [dependencies]
-aead = "0.2.0"
-aes-gcm = "0.3.2"
-base64 = "0.11.0"
-hex = "0.4.2"
+aes-gcm = "0.10.3"
+base64 = "0.22.1"
+hex = "0.4.3"
 ```
 
 And use:
 
 ```rust
-use aes_gcm::Aes256Gcm;
-use aead::{Aead, NewAead, generic_array::GenericArray};
+use aes_gcm::aead::{generic_array::GenericArray, Aead};
+use aes_gcm::{Aes256Gcm, Key, KeyInit};
+use base64::prelude::*;
 
-let key = hex::decode("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb").expect("decode failure!");
-let ciphertext = base64::decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").expect("decode failure!");
+fn main() {
+    let key = hex::decode("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb").expect("decode failure!");
+    let ciphertext = BASE64_STANDARD.decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").expect("decode failure!");
 
-let aead = Aes256Gcm::new(GenericArray::clone_from_slice(&key));
-let nonce = GenericArray::from_slice(&ciphertext[..12]);
-let plaintext = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failure!");
+    let key = Key::<Aes256Gcm>::from_slice(&key);
+    let aead = Aes256Gcm::new(&key);
+    let nonce = GenericArray::from_slice(&ciphertext[..12]);
+    let plaintext = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failure!");
+    println!("{:?}", String::from_utf8(plaintext).unwrap());
+}
 ```
 
 Check out the [aes-gcm docs](https://docs.rs/aes-gcm/) for more on security and performance.
