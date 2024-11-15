@@ -1,6 +1,6 @@
 # Compatibility
 
-Here’s how to decrypt in other languages. For files, skip Base64 decoding the ciphertext.
+Here’s how to decrypt in other languages.
 
 - [Node.js](#node-js)
 - [Python](#python)
@@ -8,6 +8,8 @@ Here’s how to decrypt in other languages. For files, skip Base64 decoding the 
 - [Elixir](#elixir)
 - [PHP](#php)
 - [Java](#java)
+
+Use the [attribute key](https://github.com/ankane/lockbox?tab=readme-ov-file#master-key), not the master key. For files, skip Base64 decoding the ciphertext.
 
 Pull requests are welcome for other languages.
 
