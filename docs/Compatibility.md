@@ -7,6 +7,7 @@ Here’s how to decrypt in other languages. For files, skip Base64 decoding the 
 - [Rust](#rust)
 - [Elixir](#elixir)
 - [PHP](#php)
+- [Java](#java)
 
 Pull requests are welcome for other languages.
 
@@ -103,4 +104,29 @@ $tag = substr($ciphertext, -16);
 $ciphertext = substr($ciphertext, 12, -16);
 
 $plaintext = openssl_decrypt($ciphertext, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag);
+```
+
+## Java
+
+```java
+import java.util.Base64;
+import java.util.HexFormat;
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Example
+{
+    public static void main(String[] args) throws Exception {
+        String key = "61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb";
+        String ciphertext = "Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==";
+
+        byte[] keyBytes = HexFormat.of().parseHex(key);
+        byte[] ciphertextBytes = Base64.getDecoder().decode(ciphertext);
+
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, "AES"), new GCMParameterSpec(128, ciphertextBytes, 0, 12));
+        String plaintext = new String(cipher.doFinal(ciphertextBytes, 12, ciphertextBytes.length - 12));
+    }
+}
 ```
