@@ -31,6 +31,8 @@ ciphertext = ciphertext.slice(12, -16)
 let aesgcm = crypto.createDecipheriv('aes-256-gcm', key, nonce)
 aesgcm.setAuthTag(auth_tag)
 let plaintext = aesgcm.update(ciphertext) + aesgcm.final()
+
+console.log(plaintext)
 ```
 
 ## Python
@@ -49,6 +51,8 @@ ciphertext = b64decode(ciphertext) # skip for files
 
 aesgcm = AESGCM(key)
 plaintext = aesgcm.decrypt(ciphertext[:12], ciphertext[12:], b'')
+
+print(plaintext)
 ```
 
 ## Rust
@@ -74,9 +78,12 @@ fn main() {
     let ciphertext = BASE64_STANDARD.decode("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==").expect("decode failure!");
 
     let key = Key::<Aes256Gcm>::from_slice(&key);
-    let aead = Aes256Gcm::new(&key);
+    let aead = Aes256Gcm::new(key);
     let nonce = GenericArray::from_slice(&ciphertext[..12]);
-    let plaintext = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failure!");
+    let plaintext_bytes = aead.decrypt(nonce, &ciphertext[12..]).expect("decryption failure!");
+    let plaintext = String::from_utf8(plaintext_bytes).expect("utf8 failure!");
+
+    println!("{:?}", plaintext);
 }
 ```
 
@@ -109,6 +116,8 @@ $tag = substr($ciphertext, -16);
 $ciphertext = substr($ciphertext, 12, -16);
 
 $plaintext = openssl_decrypt($ciphertext, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag);
+
+echo $plaintext . "\n";
 ```
 
 ## Java
@@ -132,6 +141,9 @@ public class Example
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, "AES"), new GCMParameterSpec(128, ciphertextBytes, 0, 12));
         byte[] plaintextBytes = cipher.doFinal(ciphertextBytes, 12, ciphertextBytes.length - 12);
+        String plaintext = new String(plaintextBytes);
+
+        System.out.println(plaintext);
     }
 }
 ```
