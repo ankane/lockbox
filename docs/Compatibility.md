@@ -95,11 +95,11 @@ Check out the [aes-gcm docs](https://docs.rs/aes-gcm/) for more on security and 
 {:ok, key} = Base.decode16("61e6ba4a3a2498e3a8fdcd047eff0cd9864016f2c83c34599a3257a57ce6f7fb", case: :lower)
 {:ok, ciphertext} = Base.decode64("Uv/+Sgar0kM216AvVlBH5Gt8vIwtQGfPysl539WY2DER62AoJg==")
 
-ciphertext_size = byte_size(ciphertext) - 28
+data_size = byte_size(ciphertext) - 28
+<<nonce::binary-size(12), data::binary-size(data_size), tag::binary>> = ciphertext
+plaintext = :crypto.crypto_one_time_aead(:aes_256_gcm, key, nonce, data, "", tag, false)
 
-<<nonce::binary-size(12), ciphertext::binary-size(ciphertext_size), tag::binary>> = ciphertext
-
-:crypto.block_decrypt(:aes_gcm, key, nonce, {"", ciphertext, tag})
+IO.inspect(plaintext)
 ```
 
 ## PHP
