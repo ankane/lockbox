@@ -99,7 +99,7 @@ data_size = byte_size(ciphertext) - 28
 <<nonce::binary-size(12), data::binary-size(data_size), tag::binary>> = ciphertext
 plaintext = :crypto.crypto_one_time_aead(:aes_256_gcm, key, nonce, data, "", tag, false)
 
-IO.inspect(plaintext)
+IO.puts(plaintext)
 ```
 
 ## PHP
