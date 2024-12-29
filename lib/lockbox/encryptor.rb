@@ -15,12 +15,12 @@ module Lockbox
     def encrypt(message, **options)
       message = check_string(message)
       ciphertext = @boxes.first.encrypt(message, **options)
-      ciphertext = Base64.strict_encode64(ciphertext) if @encode
+      ciphertext = [ciphertext].pack("m0") if @encode
       ciphertext
     end
 
     def decrypt(ciphertext, **options)
-      ciphertext = Base64.decode64(ciphertext) if @encode
+      ciphertext = ciphertext.unpack1("m") if @encode
       ciphertext = check_string(ciphertext)
 
       # ensure binary

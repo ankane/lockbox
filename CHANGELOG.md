@@ -1,3 +1,7 @@
+## 2.0.1 (unreleased)
+
+- Added support for Ruby 3.4
+
 ## 2.0.0 (2024-10-26)
 
 - Improved `attributes`, `attribute_names`, and `has_attribute?` when ciphertext attributes not loaded
