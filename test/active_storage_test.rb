@@ -205,7 +205,7 @@ class ActiveStorageTest < Minitest::Test
     message = "hello world"
     filename = "test.txt"
     content_type = "image/png"
-    user = User.create!(avatar: {io: StringIO.new(message), filename: filename, content_type: content_type})
+    user = User.create!(avatar: {io: StringIO.new(message.dup), filename: filename, content_type: content_type})
     blob = user.avatar.attachment.blob
     user.avatar.rotate_encryption!
 
@@ -477,7 +477,7 @@ class ActiveStorageTest < Minitest::Test
 
   def attachment(content = nil)
     content ||= self.content
-    {io: StringIO.new(content), filename: "#{content.downcase.gsub(" ", "-")}.txt"}
+    {io: StringIO.new(content.dup), filename: "#{content.downcase.gsub(" ", "-")}.txt"}
   end
 
   def attachments
