@@ -11,12 +11,11 @@ module Lockbox
       if defined?(ActiveStorage)
         require "lockbox/active_storage_extensions"
 
-        ActiveStorage::Attached.prepend(Lockbox::ActiveStorageExtensions::Attached)
-        ActiveStorage::Attached::Changes::CreateOne.prepend(Lockbox::ActiveStorageExtensions::CreateOne)
-        ActiveStorage::Attached::One.prepend(Lockbox::ActiveStorageExtensions::AttachedOne)
-        ActiveStorage::Attached::Many.prepend(Lockbox::ActiveStorageExtensions::AttachedMany)
-
         ActiveSupport.on_load(:active_storage_attachment) do
+          ActiveStorage::Attached.prepend(Lockbox::ActiveStorageExtensions::Attached)
+          ActiveStorage::Attached::Changes::CreateOne.prepend(Lockbox::ActiveStorageExtensions::CreateOne)
+          ActiveStorage::Attached::One.prepend(Lockbox::ActiveStorageExtensions::AttachedOne)
+          ActiveStorage::Attached::Many.prepend(Lockbox::ActiveStorageExtensions::AttachedMany)
           prepend Lockbox::ActiveStorageExtensions::Attachment
         end
         ActiveSupport.on_load(:active_storage_blob) do
