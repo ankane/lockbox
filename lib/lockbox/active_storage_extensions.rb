@@ -135,7 +135,7 @@ module Lockbox
     end
 
     module Blob
-      if ActiveStorage::VERSION::STRING.to_f == 7.1 && ActiveStorage.version >= "7.1.4"
+      if ActiveStorage::VERSION::STRING.to_f == 7.1 && ActiveStorage::VERSION::STRING >= "7.1.4"
         def preview_image_needed_before_processing_variants?
           !instance_variable_defined?(:@lockbox_encrypted) && super
         end
