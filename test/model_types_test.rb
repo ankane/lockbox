@@ -648,7 +648,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def mysql?
-    ENV["ADAPTER"] == "mysql2"
+    ["mysql2", "trilogy"].include?(ENV["ADAPTER"])
   end
 
   def postgresql?

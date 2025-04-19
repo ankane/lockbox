@@ -47,3 +47,5 @@ jobs:
           database: lockbox_test
       - if : ${{ !matrix.mongodb }}
         run: ADAPTER=mysql2 bundle exec rake test
+      - if : ${{ !matrix.mongodb }}
+        run: ADAPTER=trilogy bundle exec rake test
