@@ -24,3 +24,9 @@ else
 end
 
 Lockbox.master_key = SecureRandom.random_bytes(32)
+
+class Minitest::Test
+  def truffleruby?
+    RUBY_ENGINE == "truffleruby"
+  end
+end
