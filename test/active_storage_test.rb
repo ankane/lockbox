@@ -158,6 +158,8 @@ class ActiveStorageTest < Minitest::Test
   # not yet supported
   # tries to transform the encrypted file
   def test_encrypt_variant
+    skip if RUBY_ENGINE == "truffleruby"
+
     path = "test/support/image.png"
     User.create!(avatar: {io: File.open(path), filename: "image.png", content_type: "image/png"})
 
@@ -169,6 +171,8 @@ class ActiveStorageTest < Minitest::Test
   end
 
   def test_no_encrypt_variant
+    skip if RUBY_ENGINE == "truffleruby"
+
     path = "test/support/image.png"
     User.create!(image: {io: File.open(path), filename: "image.png", content_type: "image/png"})
 
