@@ -56,6 +56,8 @@ class LockboxTest < Minitest::Test
   end
 
   def test_encrypt_empty_string_aes_gcm_low_level
+    skip if jruby?
+
     aes_gcm = Lockbox::AES_GCM.new("\x0".b * 32)
     ciphertext = aes_gcm.encrypt("\x0".b * 12, "", nil)
     assert_equal "530f8afbc74536b9a963b4f1c4cb738b", Lockbox.to_hex(ciphertext)

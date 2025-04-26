@@ -82,7 +82,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_datetime
-    skip if mysql? || truffleruby?
+    skip if mysql? || jruby? || truffleruby?
 
     signed_at = Time.current.round(6)
     assert_attribute :signed_at, signed_at, format: signed_at.utc.iso8601(9), time_zone: true
@@ -98,7 +98,7 @@ class ModelTypesTest < Minitest::Test
   end
 
   def test_time
-    skip if mysql? || truffleruby?
+    skip if mysql? || jruby? || truffleruby?
 
     opens_at = Time.current.round(6).utc.change(year: 2000, month: 1, day: 1)
     assert_attribute :opens_at, opens_at, format: opens_at.utc.strftime("%H:%M:%S.%N")

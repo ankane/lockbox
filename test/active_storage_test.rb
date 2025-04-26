@@ -3,6 +3,7 @@ require_relative "test_helper"
 class ActiveStorageTest < Minitest::Test
   def setup
     skip unless defined?(ActiveStorage)
+    skip if jruby?
 
     ActiveStorage::VariantRecord.delete_all
     ActiveStorage::Attachment.delete_all

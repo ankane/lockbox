@@ -19,6 +19,8 @@ class ModelTest < Minitest::Test
   end
 
   def test_decrypt_after_destroy
+    skip if jruby?
+
     email = "test@example.org"
     User.create!(email: email)
 

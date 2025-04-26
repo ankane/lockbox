@@ -26,6 +26,10 @@ end
 Lockbox.master_key = SecureRandom.random_bytes(32)
 
 class Minitest::Test
+  def jruby?
+    RUBY_ENGINE == "jruby"
+  end
+
   def truffleruby?
     RUBY_ENGINE == "truffleruby"
   end
