@@ -9,9 +9,16 @@ gem "rails", "~> 8.0.0"
 gem "carrierwave", "~> 3"
 gem "combustion", ">= 1.3"
 gem "rbnacl", ">= 6"
-gem "sqlite3"
-gem "pg"
-gem "mysql2"
-gem "trilogy"
 gem "shrine"
 gem "base64"
+
+platform :ruby do
+  gem "sqlite3"
+  gem "pg"
+  gem "mysql2"
+  gem "trilogy"
+end
+
+platform :jruby do
+  gem "sqlite3-ffi"
+end
