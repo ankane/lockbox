@@ -656,8 +656,6 @@ class ModelTypesTest < Minitest::Test
   end
 
   def inet_supported?
-    # no NoMethodError for prefix method
-    # but it exists in Ruby 2.4 docs
-    postgresql? && RUBY_VERSION.to_f > 2.4
+    postgresql?
   end
 end
