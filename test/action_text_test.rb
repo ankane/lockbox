@@ -3,7 +3,6 @@ require_relative "test_helper"
 class ActionTextTest < Minitest::Test
   def setup
     skip unless defined?(ActionText)
-    skip if jruby?
   end
 
   def test_create
