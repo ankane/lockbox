@@ -319,9 +319,17 @@ class ModelTypesTest < Minitest::Test
     user = User.last
     new_info = {c: Time.now}
     user.info = new_info
-    assert_equal [info.stringify_keys, new_info.stringify_keys], user.changes["info"]
+    if ActiveRecord::VERSION::STRING.to_f >= 8.1
+      assert_equal [info, new_info], user.changes["info"]
+    else
+      assert_equal [info.stringify_keys, new_info.stringify_keys], user.changes["info"]
+    end
     user.info2 = new_info
-    assert_equal [info.stringify_keys, new_info.stringify_keys], user.changes["info2"]
+    if ActiveRecord::VERSION::STRING.to_f >= 8.1
+      assert_equal [info, new_info], user.changes["info2"]
+    else
+      assert_equal [info.stringify_keys, new_info.stringify_keys], user.changes["info2"]
+    end
   end
 
   def test_hash_invalid
@@ -434,9 +442,17 @@ class ModelTypesTest < Minitest::Test
     user = User.last
     new_settings = {c: Time.now}
     user.settings = new_settings
-    assert_equal [settings.stringify_keys, new_settings.stringify_keys], user.changes["settings"]
+    if ActiveRecord::VERSION::STRING.to_f >= 8.1
+      assert_equal [settings, new_settings], user.changes["settings"]
+    else
+      assert_equal [settings.stringify_keys, new_settings.stringify_keys], user.changes["settings"]
+    end
     user.settings2 = new_settings
-    assert_equal [settings.stringify_keys, new_settings.stringify_keys], user.changes["settings2"]
+    if ActiveRecord::VERSION::STRING.to_f >= 8.1
+      assert_equal [settings, new_settings], user.changes["settings2"]
+    else
+      assert_equal [settings.stringify_keys, new_settings.stringify_keys], user.changes["settings2"]
+    end
   end
 
   def test_serialize_hash_in_place
