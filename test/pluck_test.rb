@@ -52,7 +52,7 @@ class PluckTest < Minitest::Test
     assert_equal ["Test"], User.pluck(Arel::Nodes::Quoted.new("Test"))
   end
 
-  def test_callable_options_record
+  def test_callable_options
     Admin.create!(other_email: "test@example.org")
     assert_equal ["test@example.org"], Admin.pluck(:other_email)
   end
@@ -62,7 +62,7 @@ class PluckTest < Minitest::Test
     error = assert_raises(NameError) do
       Admin.pluck(:personal_email)
     end
-    assert_match /undefined local variable or method ['`]record_key'/, error.message
+    assert_match(/undefined local variable or method ['`]record_key'/, error.message)
   end
 
   def test_symbol_options
