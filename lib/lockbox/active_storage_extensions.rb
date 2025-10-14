@@ -80,7 +80,7 @@ module Lockbox
 
     module Attachment
       def download
-        result = super
+        result = super(&nil)
 
         options = Utils.encrypted_options(record, name)
         # only trust the metadata when migrating
@@ -91,7 +91,15 @@ module Lockbox
           result = Utils.decrypt_result(record, name, options, result)
         end
 
-        result
+        if block_given?
+          io = StringIO.new(result)
+          chunk_size = 5.megabytes
+          while (chunk = io.read(chunk_size))
+            yield chunk
+          end
+        else
+          result
+        end
       end
 
       def variant(*args)

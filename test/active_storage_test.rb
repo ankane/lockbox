@@ -281,6 +281,15 @@ class ActiveStorageTest < Minitest::Test
     end
   end
 
+  def test_download_block
+    user = User.create!(avatar: attachment)
+    chunks = []
+    user.avatar.download do |chunk|
+      chunks << chunk
+    end
+    assert_equal content, chunks.join
+  end
+
   def test_metadata
     user = User.create!
 

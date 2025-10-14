@@ -1,3 +1,7 @@
+## 2.0.2 (unreleased)
+
+- Fixed error for `download` method with block
+
 ## 2.0.1 (2024-12-29)
 
 - Added support for Ruby 3.4
