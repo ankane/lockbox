@@ -1,5 +1,6 @@
 ## 2.0.2 (unreleased)
 
+- Added warning for `download_chunk` method
 - Fixed error for `download` method with block
 
 ## 2.0.1 (2024-12-29)

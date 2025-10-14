@@ -290,6 +290,14 @@ class ActiveStorageTest < Minitest::Test
     assert_equal content, chunks.join
   end
 
+  def test_download_chunk
+    user = User.create!(avatar: attachment)
+    # TODO raise error in 3.0
+    assert_output(nil, /WARNING: download_chunk not supported for encrypted files/) do
+      assert_equal 4, user.avatar.download_chunk(0..3).bytesize
+    end
+  end
+
   def test_metadata
     user = User.create!
 
