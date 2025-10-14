@@ -102,17 +102,17 @@ module Lockbox
         end
       end
 
-      def download_chunk(*args)
+      def download_chunk(...)
         warn "[lockbox] WARNING: download_chunk not supported for encrypted files" if Utils.encrypted_options(record, name)
         super
       end
 
-      def variant(*args)
+      def variant(...)
         raise Lockbox::Error, "Variant not supported for encrypted files" if Utils.encrypted_options(record, name)
         super
       end
 
-      def preview(*args)
+      def preview(...)
         raise Lockbox::Error, "Preview not supported for encrypted files" if Utils.encrypted_options(record, name)
         super
       end
