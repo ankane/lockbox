@@ -103,6 +103,7 @@ module Lockbox
       end
 
       def download_chunk(...)
+        # TODO raise error in 3.0
         warn "[lockbox] WARNING: download_chunk not supported for encrypted files" if Utils.encrypted_options(record, name)
         super
       end
