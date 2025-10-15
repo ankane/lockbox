@@ -2,7 +2,7 @@
 
 - Added warning for `download_chunk` method
 - Fixed error for `download` method with block
-- Dropped support for Ruby < 3.2
+- Dropped support for Active Record < 7.1 and Ruby < 3.2
 
 ## 2.0.1 (2024-12-29)
 

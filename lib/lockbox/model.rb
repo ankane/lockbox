@@ -377,24 +377,13 @@ module Lockbox
 
               attribute name, attribute_type
 
-              if ActiveRecord::VERSION::STRING.to_f >= 7.1
-                case options[:type]
-                when :json
-                  serialize name, coder: JSON
-                when :hash
-                  serialize name, type: Hash, coder: default_column_serializer || YAML
-                when :array
-                  serialize name, type: Array, coder: default_column_serializer || YAML
-                end
-              else
-                case options[:type]
-                when :json
-                  serialize name, JSON
-                when :hash
-                  serialize name, Hash
-                when :array
-                  serialize name, Array
-                end
+              case options[:type]
+              when :json
+                serialize name, coder: JSON
+              when :hash
+                serialize name, type: Hash, coder: default_column_serializer || YAML
+              when :array
+                serialize name, type: Array, coder: default_column_serializer || YAML
               end
             elsif ActiveRecord::VERSION::STRING.to_f >= 7.2
               decorate_attributes([name]) do |attr_name, cast_type|

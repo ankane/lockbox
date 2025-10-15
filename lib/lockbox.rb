@@ -98,8 +98,10 @@ end
 if defined?(ActiveSupport.on_load)
   ActiveSupport.on_load(:active_record) do
     ar_version = ActiveRecord::VERSION::STRING.to_f
-    if ar_version < 7
-      if ar_version >= 5.2
+    if ar_version < 7.1
+      if ar_version >= 7.0
+        raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} requires Lockbox < 2.1"
+      elsif ar_version >= 5.2
         raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} requires Lockbox < 2"
       elsif ar_version >= 5
         raise Lockbox::Error, "Active Record #{ActiveRecord::VERSION::STRING} requires Lockbox < 0.7"

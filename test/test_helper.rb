@@ -1,5 +1,4 @@
 require "bundler/setup"
-require "logger" # for Rails < 7.1
 require "carrierwave"
 require "combustion"
 Bundler.require(:default)
