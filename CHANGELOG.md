@@ -1,4 +1,4 @@
-## 2.1.0 (unreleased)
+## 2.1.0 (2025-10-15)
 
 - Added warning for `download_chunk` method
 - Fixed error for `download` method with block
