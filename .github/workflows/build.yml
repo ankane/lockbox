@@ -15,12 +15,12 @@ jobs:
             gemfile: gemfiles/rails72.gemfile
           - ruby: 3.2
             gemfile: gemfiles/rails71.gemfile
-          - ruby: 3.1
+          - ruby: 3.2
             gemfile: gemfiles/rails70.gemfile
-          - ruby: 3.3
+          - ruby: 3.4
             gemfile: gemfiles/mongoid9.gemfile
             mongodb: true
-          - ruby: 3.1
+          - ruby: 3.2
             gemfile: gemfiles/mongoid8.gemfile
             mongodb: true
     env:
