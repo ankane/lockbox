@@ -3,7 +3,6 @@ require "carrierwave"
 require "combustion"
 Bundler.require(:default)
 require "minitest/autorun"
-require "minitest/pride"
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
