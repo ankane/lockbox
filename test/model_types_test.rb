@@ -100,7 +100,12 @@ class ModelTypesTest < Minitest::Test
   def test_time
     skip if mysql?
 
-    opens_at = Time.current.round(6).utc.change(year: 2000, month: 1, day: 1)
+    opens_at =
+      if ActiveRecord::VERSION::STRING.to_f >= 8.1
+        Time.current.round(6).change(year: 2000, month: 1, day: 1)
+      else
+        Time.current.round(6).utc.change(year: 2000, month: 1, day: 1)
+      end
     assert_attribute :opens_at, opens_at, format: opens_at.utc.strftime("%H:%M:%S.%N")
   end
 
