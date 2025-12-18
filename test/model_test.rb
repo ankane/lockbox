@@ -616,7 +616,7 @@ class ModelTest < Minitest::Test
   end
 
   def test_bad_master_key
-    Lockbox.stub(:master_key, "bad") do
+    with_master_key("bad") do
       assert_raises(Lockbox::Error) do
         User.create!(email: "test@example.org")
       end

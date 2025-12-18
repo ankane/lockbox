@@ -24,6 +24,16 @@ end
 Lockbox.master_key = SecureRandom.random_bytes(32)
 
 class Minitest::Test
+  def with_master_key(key)
+    previous_value = Lockbox.master_key
+    begin
+      Lockbox.master_key = key
+      yield
+    ensure
+      Lockbox.master_key = previous_value
+    end
+  end
+
   def jruby?
     RUBY_ENGINE == "jruby"
   end

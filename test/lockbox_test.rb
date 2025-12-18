@@ -463,10 +463,4 @@ class LockboxTest < Minitest::Test
   def random_key
     Lockbox.generate_key
   end
-
-  def with_master_key(key)
-    Lockbox.stub(:master_key, key) do
-      yield
-    end
-  end
 end
