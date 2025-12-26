@@ -10,14 +10,8 @@ gem "combustion", ">= 1.3"
 gem "rbnacl", ">= 6"
 gem "shrine"
 gem "base64"
-
-platform :ruby do
-  gem "sqlite3"
-  gem "pg"
-  gem "mysql2"
-  gem "trilogy"
-end
-
-platform :jruby do
-  gem "sqlite3-ffi"
-end
+gem "sqlite3", platform: :ruby
+gem "pg", platform: :ruby
+gem "mysql2", platform: :ruby
+gem "trilogy", platform: :ruby
+gem "sqlite3-ffi", platform: :jruby
