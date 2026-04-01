@@ -1,3 +1,7 @@
+## 2.2.0 (unreleased)
+
+- Dropped support for Active Record < 7.2 and Ruby < 3.3
+
 ## 2.1.0 (2025-10-15)
 
 - Added warning for `download_chunk` method

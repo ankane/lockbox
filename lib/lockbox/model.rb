@@ -259,18 +259,16 @@ module Lockbox
                 result
               end
 
-              if ActiveRecord::VERSION::STRING.to_f >= 7.2
-                def self.insert(attributes, **options)
-                  super(lockbox_map_record_attributes(attributes), **options)
-                end
+              def self.insert(attributes, **options)
+                super(lockbox_map_record_attributes(attributes), **options)
+              end
 
-                def self.insert!(attributes, **options)
-                  super(lockbox_map_record_attributes(attributes), **options)
-                end
+              def self.insert!(attributes, **options)
+                super(lockbox_map_record_attributes(attributes), **options)
+              end
 
-                def self.upsert(attributes, **options)
-                  super(lockbox_map_record_attributes(attributes, check_readonly: true), **options)
-                end
+              def self.upsert(attributes, **options)
+                super(lockbox_map_record_attributes(attributes, check_readonly: true), **options)
               end
 
               def self.insert_all(attributes, **options)
@@ -344,20 +342,9 @@ module Lockbox
             end
 
             # warn on default attributes
-            if ActiveRecord::VERSION::STRING.to_f >= 7.2
-              # TODO improve
-              if pending_attribute_modifications.any? { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingDefault) && v.name == name.to_s }
-                warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
-              end
-            elsif attributes_to_define_after_schema_loads.key?(name.to_s)
-              opt = attributes_to_define_after_schema_loads[name.to_s][1]
-
-              # not ideal, since NO_DEFAULT_PROVIDED is private
-              has_default = opt != ActiveRecord::Attributes::ClassMethods.const_get(:NO_DEFAULT_PROVIDED)
-
-              if has_default
-                warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
-              end
+            # TODO improve
+            if pending_attribute_modifications.any? { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingDefault) && v.name == name.to_s }
+              warn "[lockbox] WARNING: attributes with `:default` option are not supported. Use `after_initialize` instead."
             end
 
             # preference:
@@ -385,7 +372,7 @@ module Lockbox
               when :array
                 serialize name, type: Array, coder: default_column_serializer || YAML
               end
-            elsif ActiveRecord::VERSION::STRING.to_f >= 7.2
+            else
               decorate_attributes([name]) do |attr_name, cast_type|
                 if cast_type.instance_of?(ActiveRecord::Type::Value)
                   original_type = pending_attribute_modifications.find { |v| v.is_a?(ActiveModel::AttributeRegistration::ClassMethods::PendingType) && v.name == original_name.to_s && !v.type.nil? }&.type
@@ -404,27 +391,6 @@ module Lockbox
                 else
                   cast_type
                 end
-              end
-            elsif !attributes_to_define_after_schema_loads.key?(name.to_s)
-              # when migrating it's best to specify the type directly
-              # however, we can try to use the original type if its already defined
-              if attributes_to_define_after_schema_loads.key?(original_name.to_s)
-                attribute name, attributes_to_define_after_schema_loads[original_name.to_s].first
-              elsif options[:migrating]
-                # we use the original attribute for serialization in the encrypt and decrypt methods
-                # so we can use a generic value here
-                attribute name, ActiveRecord::Type::Value.new
-              else
-                attribute name, :string
-              end
-            elsif attributes_to_define_after_schema_loads[name.to_s].first.is_a?(Proc)
-              # hack for Active Record 6.1+ to set string type after serialize
-              # otherwise, type gets set to ActiveModel::Type::Value
-              # which always returns false for changed_in_place?
-              # earlier versions of Active Record take the previous code path
-              attribute_type = attributes_to_define_after_schema_loads[name.to_s].first.call(nil)
-              if attribute_type.is_a?(ActiveRecord::Type::Serialized) && attribute_type.subtype.nil?
-                attribute name, ActiveRecord::Type::Serialized.new(ActiveRecord::Type::String.new, attribute_type.coder)
               end
             end
 

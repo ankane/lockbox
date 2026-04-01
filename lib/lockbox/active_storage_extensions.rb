@@ -118,13 +118,6 @@ module Lockbox
         super
       end
 
-      if ActiveStorage::VERSION::STRING.to_f == 7.1 && ActiveStorage.version >= "7.1.4"
-        def transform_variants_later
-          blob.instance_variable_set(:@lockbox_encrypted, true) if Utils.encrypted_options(record, name)
-          super
-        end
-      end
-
       def open(**options)
         blob.open(**options) do |file|
           options = Utils.encrypted_options(record, name)
@@ -149,12 +142,6 @@ module Lockbox
     end
 
     module Blob
-      if ActiveStorage::VERSION::STRING.to_f == 7.1 && ActiveStorage.version >= "7.1.4"
-        def preview_image_needed_before_processing_variants?
-          !instance_variable_defined?(:@lockbox_encrypted) && super
-        end
-      end
-
       private
 
       def extract_content_type(io)
