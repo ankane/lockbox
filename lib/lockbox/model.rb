@@ -516,7 +516,7 @@ module Lockbox
                 # set previous attribute so changes populate correctly
                 # it's fine if this is set on future decryptions (as is the case when message is nil)
                 # as only the first value is loaded into changes
-                @attributes[name.to_s].instance_variable_set("@value_before_type_cast", message)
+                @attributes[name.to_s].instance_variable_set(:@value_before_type_cast, message)
 
                 # cache
                 # decrypt method does type casting

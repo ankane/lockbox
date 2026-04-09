@@ -29,7 +29,7 @@ class RotateTest < Minitest::Test
 
     Lockbox.rotate(User.where(id: users.last.id), attributes: [:email])
 
-    new_ciphertexts = users.map(&:reload).map(&:email_ciphertext)
+    new_ciphertexts = users.map { |u| u.reload.email_ciphertext }
     assert_equal original_ciphertexts.first, new_ciphertexts.first
     refute_equal original_ciphertexts.last, new_ciphertexts.last
   end
