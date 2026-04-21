@@ -605,6 +605,8 @@ User.find_each do |user|
 end
 ```
 
+To rotate [Blind Index](https://github.com/ankane/blind_index) columns, do it as specified in that gem [documentation](https://github.com/ankane/blind_index#key-rotation).
+
 Once everything is rotated, you can remove `previous_versions` from the initializer.
 
 ### Individual Fields & Files
