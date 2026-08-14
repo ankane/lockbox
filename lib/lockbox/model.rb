@@ -125,6 +125,21 @@ module Lockbox
             end
 
             if activerecord
+              unless method_defined?(:lockbox_cant_modify_encrypted_attributes_when_protected)
+                validate :lockbox_cant_modify_encrypted_attributes_when_protected, if: -> { Lockbox.protecting_encrypted_data? }
+
+                def lockbox_cant_modify_encrypted_attributes_when_protected
+                  self.class.lockbox_attributes.each_value do |lockbox_attribute|
+                    attribute = lockbox_attribute[:attribute]
+                    encrypted_attribute = lockbox_attribute[:encrypted_attribute]
+                    if will_save_change_to_attribute?(attribute) || will_save_change_to_attribute?(encrypted_attribute)
+                      errors.add(attribute.to_sym, "can't be modified because it is encrypted")
+                    end
+                  end
+                end
+                private :lockbox_cant_modify_encrypted_attributes_when_protected
+              end
+
               # TODO wrap in module?
               def attributes
                 # load attributes
@@ -149,6 +164,8 @@ module Lockbox
                   if !attributes.include?(lockbox_attribute[:encrypted_attribute].to_s)
                     attributes.delete(k.to_s)
                     attributes.delete(lockbox_attribute[:attribute])
+                  elsif Lockbox.protecting_encrypted_data?
+                    attributes[lockbox_attribute[:attribute]] = attributes[lockbox_attribute[:encrypted_attribute].to_s]
                   end
                 end
                 attributes
@@ -395,6 +412,8 @@ module Lockbox
             end
 
             define_method("#{name}_was") do
+              return send("#{encrypted_attribute}_was") if Lockbox.protecting_encrypted_data?
+
               send(name) # writes attribute when not already set
               super()
             end
@@ -406,6 +425,8 @@ module Lockbox
             end
 
             define_method("#{name}_in_database") do
+              return send("#{encrypted_attribute}_in_database") if Lockbox.protecting_encrypted_data?
+
               send(name) # writes attribute when not already set
               super()
             end
@@ -499,6 +520,8 @@ module Lockbox
           private :"lockbox_direct_#{name}="
 
           define_method(name) do
+            return send(encrypted_attribute) if Lockbox.protecting_encrypted_data?
+
             message = super()
 
             # possibly keep track of decrypted attributes directly in the future
@@ -603,6 +626,8 @@ module Lockbox
           end
 
           define_singleton_method decrypt_method_name do |ciphertext, **opts|
+            return ciphertext if Lockbox.protecting_encrypted_data?
+
             message =
               if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                 ciphertext
