@@ -74,6 +74,25 @@ class ModelTest < Minitest::Test
     assert_equal "New", user.name
   end
 
+  def test_protected_validation_isnt_duplicated_in_subclasses
+    skip if mongoid?
+
+    parent_class = Class.new(ActiveRecord::Base) do
+      self.table_name = "users"
+      has_encrypted :email
+    end
+    child_class = Class.new(parent_class) do
+      has_encrypted :city
+    end
+    user = child_class.create!(email: "test@example.org", city: "San Francisco")
+
+    ActiveRecord::Encryption.protecting_encrypted_data do
+      user.email = "new@example.org"
+      assert !user.valid?
+      assert_equal ["can't be modified because it is encrypted"], user.errors[:email]
+    end
+  end
+
   def test_decrypt_after_destroy
     email = "test@example.org"
     User.create!(email: email)

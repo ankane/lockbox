@@ -125,7 +125,7 @@ module Lockbox
             end
 
             if activerecord
-              unless method_defined?(:lockbox_cant_modify_encrypted_attributes_when_protected)
+              unless private_method_defined?(:lockbox_cant_modify_encrypted_attributes_when_protected)
                 validate :lockbox_cant_modify_encrypted_attributes_when_protected, if: -> { Lockbox.protecting_encrypted_data? }
 
                 def lockbox_cant_modify_encrypted_attributes_when_protected
