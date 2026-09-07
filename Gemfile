@@ -5,6 +5,7 @@ gemspec
 gem "rake"
 gem "minitest"
 gem "rails", "~> 8.1.0"
+gem "nokogiri"
 gem "ruby-vips"
 gem "carrierwave", "~> 3"
 gem "combustion"
