@@ -9,7 +9,6 @@ gem "carrierwave", "~> 3"
 gem "combustion"
 gem "rbnacl"
 gem "shrine"
-gem "base64"
 gem "sqlite3", platform: :ruby
 gem "pg", platform: :ruby
 gem "mysql2", platform: :ruby
