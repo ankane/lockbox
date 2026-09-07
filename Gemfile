@@ -16,3 +16,4 @@ gem "pg", platform: :ruby
 gem "mysql2", platform: :ruby
 gem "trilogy", platform: :ruby
 gem "sqlite3-ffi", platform: :jruby
+gem "json", "< 3"
