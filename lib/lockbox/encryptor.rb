@@ -20,6 +20,8 @@ module Lockbox
     end
 
     def decrypt(ciphertext, **options)
+      return ciphertext if Lockbox.protecting_encrypted_data?
+
       ciphertext = ciphertext.unpack1("m") if @encode
       ciphertext = check_string(ciphertext)
 

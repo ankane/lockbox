@@ -12,6 +12,20 @@ class LockboxTest < Minitest::Test
     assert_equal Encoding::BINARY, lockbox.decrypt(ciphertext).encoding
   end
 
+  def test_protecting_encrypted_data
+    skip unless defined?(ActiveRecord::Encryption)
+
+    lockbox = Lockbox.new(key: random_key, encode: true)
+    message = "it works!"
+    ciphertext = lockbox.encrypt(message)
+
+    ActiveRecord::Encryption.protecting_encrypted_data do
+      assert_equal ciphertext, lockbox.decrypt(ciphertext)
+    end
+
+    assert_equal message, lockbox.decrypt(ciphertext)
+  end
+
   def test_same_message_different_ciphertext
     lockbox = Lockbox.new(key: random_key)
     message = "it works!"
