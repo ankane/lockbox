@@ -208,7 +208,8 @@ module Lockbox
                 super
               end
 
-              def [](attr_name)
+              # also covers [], which reads through read_attribute
+              def read_attribute(attr_name, &block)
                 send(attr_name) if self.class.lockbox_attributes.any? { |_, la| la[:attribute] == attr_name.to_s }
                 super
               end
