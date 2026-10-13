@@ -67,8 +67,8 @@ module Lockbox
       a.each_byte.zip(b.each_byte).map { |ai, bi| (ai ^ bi).chr }.join
     end
 
-    def lshift(v, n)
-      [((v.unpack1("H*").to_i(16) << n) & 0xffffffffffffffffffffffffffffffff).to_s(16)].pack("H*")
+    def lshift(x, n)
+      [((x.unpack1("H*").to_i(16) << n) & 0xffffffffffffffffffffffffffffffff).to_s(16)].pack("H*")
     end
   end
 end
