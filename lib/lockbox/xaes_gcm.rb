@@ -68,7 +68,9 @@ module Lockbox
     end
 
     def lshift(x, n)
-      [((x.unpack1("H*").to_i(16) << n) & 0xffffffffffffffffffffffffffffffff).to_s(16)].pack("H*")
+      a, b = x.unpack("Q>2")
+      i = ((a << 64) | b) << n
+      [i >> 64, i].pack("Q>2")
     end
   end
 end
