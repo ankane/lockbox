@@ -68,8 +68,8 @@ module Lockbox
     end
 
     def lshift(x, n)
-      a, b = x.unpack("Q>2")
-      i = ((a << 64) | b) << n
+      high, low = x.unpack("Q>2")
+      i = ((high << 64) | low) << n
       [i >> 64, i].pack("Q>2")
     end
   end
