@@ -48,9 +48,9 @@ module Lockbox
         else
           xor(lshift(l, 1), "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x87")
         end
-      m1 = "\x00\x01\x58\x00#{n.byteslice(0, 12)}"
-      m2 = "\x00\x02\x58\x00#{n.byteslice(0, 12)}"
-      kx = "#{aes256(k, xor(m1, k1))}#{aes256(k, xor(m2, k1))}"
+      m1 = "\x00\x01\x58\x00" + n.byteslice(0, 12)
+      m2 = "\x00\x02\x58\x00" + n.byteslice(0, 12)
+      kx = aes256(k, xor(m1, k1)) + aes256(k, xor(m2, k1))
       nx = n.byteslice(12..)
       [kx, nx]
     end
