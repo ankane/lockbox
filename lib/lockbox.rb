@@ -15,6 +15,7 @@ require_relative "lockbox/model"
 require_relative "lockbox/padding"
 require_relative "lockbox/utils"
 require_relative "lockbox/version"
+require_relative "lockbox/xaes_gcm"
 
 module Lockbox
   class Error < StandardError; end

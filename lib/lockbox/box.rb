@@ -15,6 +15,9 @@ module Lockbox
       when "aes-gcm"
         raise ArgumentError, "Missing key" unless key
         @box = AES_GCM.new(key)
+      when "xaes-gcm"
+        raise ArgumentError, "Missing key" unless key
+        @box = XAES_GCM.new(key)
       when "xchacha20"
         raise ArgumentError, "Missing key" unless key
         require "rbnacl"

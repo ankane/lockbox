@@ -139,6 +139,51 @@ class LockboxTest < Minitest::Test
     end
   end
 
+  def test_xaes_gcm
+    lockbox = Lockbox.new(key: random_key, algorithm: "xaes-gcm")
+    message = "it works!" * 10000
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
+
+    assert_equal Encoding::UTF_8, message.encoding
+    assert_equal Encoding::BINARY, ciphertext.encoding
+    assert_equal Encoding::BINARY, lockbox.decrypt(ciphertext).encoding
+  end
+
+  def test_xaes_gcm_associated_data
+    lockbox = Lockbox.new(key: random_key, algorithm: "xaes-gcm")
+    message = "it works!"
+    associated_data = "boom"
+    ciphertext = lockbox.encrypt(message, associated_data: associated_data)
+    assert_equal message, lockbox.decrypt(ciphertext, associated_data: associated_data)
+
+    assert_raises(Lockbox::DecryptionError) do
+      lockbox.decrypt(ciphertext, associated_data: "bad")
+    end
+  end
+
+  # https://c2sp.org/XAES-256-GCM@v1.0.1#test-vectors
+  def test_xaes_gcm_low_level
+    xaes_gcm = Lockbox::XAES_GCM.new("\x01".b * 32)
+    nonce = "ABCDEFGHIJKLMNOPQRSTUVWX".b
+    plaintext = "XAES-256-GCM"
+    aad = nil
+    ciphertext = xaes_gcm.encrypt(nonce, plaintext, aad)
+    assert_equal "ce546ef63c9cc60765923609b33a9a1974e96e52daf2fcf7075e2271", Lockbox.to_hex(ciphertext)
+    assert_equal plaintext, xaes_gcm.decrypt(nonce, ciphertext, aad)
+  end
+
+  # https://c2sp.org/XAES-256-GCM@v1.0.1#test-vectors
+  def test_xaes_gcm_associated_data_low_level
+    xaes_gcm = Lockbox::XAES_GCM.new("\x03".b * 32)
+    nonce = "ABCDEFGHIJKLMNOPQRSTUVWX".b
+    plaintext = "XAES-256-GCM"
+    aad = "c2sp.org/XAES-256-GCM"
+    ciphertext = xaes_gcm.encrypt(nonce, plaintext, aad)
+    assert_equal "986ec1832593df5443a179437fd083bf3fdb41abd740a21f71eb769d", Lockbox.to_hex(ciphertext)
+    assert_equal plaintext, xaes_gcm.decrypt(nonce, ciphertext, aad)
+  end
+
   def test_hybrid
     key_pair = Lockbox.generate_key_pair
 

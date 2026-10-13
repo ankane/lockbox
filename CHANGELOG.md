@@ -1,3 +1,7 @@
+## 2.3.0 (unreleased)
+
+- Added experimental support for XAES-GCM
+
 ## 2.2.0 (2026-04-04)
 
 - Dropped support for Active Record < 7.2 and Ruby < 3.3
