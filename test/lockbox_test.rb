@@ -249,6 +249,22 @@ class LockboxTest < Minitest::Test
     end
   end
 
+  def test_bad_ciphertext_xaes_gcm
+    lockbox = Lockbox.new(key: random_key, algorithm: "xaes-gcm")
+
+    assert_raises(Lockbox::DecryptionError) do
+      lockbox.decrypt("0")
+    end
+
+    assert_raises(Lockbox::DecryptionError) do
+      lockbox.decrypt("0"*16)
+    end
+
+    assert_raises(Lockbox::DecryptionError) do
+      lockbox.decrypt("0"*100)
+    end
+  end
+
   def test_bad_ciphertext_xchacha20
     lockbox = Lockbox.new(key: random_key, algorithm: "xchacha20")
 
@@ -321,6 +337,14 @@ class LockboxTest < Minitest::Test
     assert_equal message, lockbox.decrypt(ciphertext)
   end
 
+  def test_xaes_gcm_decrypt_utf8
+    lockbox = Lockbox.new(key: random_key, algorithm: "xaes-gcm")
+    message = "it works!"
+    ciphertext = lockbox.encrypt(message)
+    ciphertext.force_encoding(Encoding::UTF_8)
+    assert_equal message, lockbox.decrypt(ciphertext)
+  end
+
   def test_xsalsa20_decrypt_utf8
     lockbox = Lockbox.new(key: random_key, algorithm: "xsalsa20")
     message = "it works!"
@@ -346,6 +370,13 @@ class LockboxTest < Minitest::Test
 
   def test_uppercase_hex_key
     lockbox = Lockbox.new(key: SecureRandom.hex(32).upcase)
+    message = "it works!"
+    ciphertext = lockbox.encrypt(message)
+    assert_equal message, lockbox.decrypt(ciphertext)
+  end
+
+  def test_xaes_gcm_hex_key
+    lockbox = Lockbox.new(key: SecureRandom.hex(32), algorithm: "xaes-gcm")
     message = "it works!"
     ciphertext = lockbox.encrypt(message)
     assert_equal message, lockbox.decrypt(ciphertext)
