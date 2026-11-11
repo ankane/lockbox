@@ -1,4 +1,4 @@
-## 2.3.0 (unreleased)
+## 2.3.0 (2026-11-10)
 
 - Fixed hybrid encryption key being able to decrypt - [more info](https://github.com/ankane/lockbox/security/advisories/GHSA-586r-mm5q-xhg2)
 
