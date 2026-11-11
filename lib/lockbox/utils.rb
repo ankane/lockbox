@@ -121,5 +121,15 @@ module Lockbox
         content_type: attachment.content_type
       }
     end
+
+    def self.check_options(options)
+      if (options[:encryption_key].is_a?(String) && options[:encryption_key].bytesize == 128) || (options[:decryption_key].is_a?(String) && options[:decryption_key].bytesize == 128)
+        raise_hybrid_error
+      end
+    end
+
+    def self.raise_hybrid_error
+      raise Lockbox::Error, "Rotate your hybrid cryptography keys and data to address GHSA-586r-mm5q-xhg2"
+    end
   end
 end

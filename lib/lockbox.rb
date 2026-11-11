@@ -50,15 +50,10 @@ module Lockbox
 
   def self.generate_key_pair
     require "rbnacl"
-    # encryption and decryption servers exchange public keys
-    # this produces smaller ciphertext than sealed box
-    alice = RbNaCl::PrivateKey.generate
-    bob = RbNaCl::PrivateKey.generate
-    # alice is sending message to bob
-    # use bob first in both cases to prevent keys being swappable
+    key = RbNaCl::PrivateKey.generate
     {
-      encryption_key: to_hex(bob.public_key.to_bytes + alice.to_bytes),
-      decryption_key: to_hex(bob.to_bytes + alice.public_key.to_bytes)
+      encryption_key: to_hex(key.public_key.to_bytes),
+      decryption_key: to_hex(key.to_bytes)
     }
   end
 

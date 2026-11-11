@@ -181,6 +181,28 @@ class LockboxTest < Minitest::Test
     assert_equal "No decryption key set", error.message
   end
 
+  def test_hybrid_legacy_encryption_key
+    encryption_key = "0" * 128
+    lockbox = Lockbox.new(algorithm: "hybrid", encryption_key: encryption_key)
+    error = assert_raises(Lockbox::Error) do
+      lockbox.encrypt("it works!")
+    end
+    assert_equal "Rotate your hybrid cryptography keys and data to address GHSA-586r-mm5q-xhg2", error.message
+  end
+
+  def test_hybrid_legacy_decryption_key
+    a = RbNaCl::PrivateKey.generate
+    b = RbNaCl::PrivateKey.generate
+    decryption_key = Lockbox.to_hex(b.to_bytes + a.public_key.to_bytes)
+
+    nonce = "0".b * 24
+    message = "it works!" * 10000
+    ciphertext = nonce + RbNaCl::Boxes::Curve25519XSalsa20Poly1305.new(b.public_key.to_bytes, a.to_bytes).encrypt(nonce, message)
+
+    lockbox = Lockbox.new(algorithm: "hybrid", decryption_key: decryption_key)
+    assert_equal message, lockbox.decrypt(ciphertext)
+  end
+
   def test_bad_algorithm
     error = assert_raises(ArgumentError) do
       Lockbox.new(key: random_key, algorithm: "bad")

@@ -1,6 +1,8 @@
 module Lockbox
   module CarrierWaveExtensions
     def encrypt(**options)
+      Utils.check_options(options)
+
       class_eval do
         # uses same hook as process (before cache)
         # processing can be disabled, so better to keep separate

@@ -6,8 +6,8 @@ module Lockbox
       raise ArgumentError, "Cannot pass both key and encryption/decryption key" if key && (encryption_key || decryption_key)
 
       key = Lockbox::Utils.decode_key(key) if key
-      encryption_key = Lockbox::Utils.decode_key(encryption_key, size: 64) if encryption_key
-      decryption_key = Lockbox::Utils.decode_key(decryption_key, size: 64) if decryption_key
+      encryption_key, legacy_encryption = decode_hybrid_key(encryption_key) if encryption_key
+      decryption_key, legacy_decryption = decode_hybrid_key(decryption_key) if decryption_key
 
       algorithm ||= "aes-gcm"
 
@@ -26,8 +26,22 @@ module Lockbox
       when "hybrid"
         raise ArgumentError, "Missing key" unless encryption_key || decryption_key
         require "rbnacl"
-        @encryption_box = RbNaCl::Boxes::Curve25519XSalsa20Poly1305.new(encryption_key.slice(0, 32), encryption_key.slice(32..-1)) if encryption_key
-        @decryption_box = RbNaCl::Boxes::Curve25519XSalsa20Poly1305.new(decryption_key.slice(32..-1), decryption_key.slice(0, 32)) if decryption_key
+        if encryption_key
+          @encryption_box =
+            if legacy_encryption
+              nil
+            else
+              RbNaCl::Boxes::Sealed.from_public_key(encryption_key)
+            end
+        end
+        if decryption_key
+          @decryption_box =
+            if legacy_decryption
+              RbNaCl::Boxes::Curve25519XSalsa20Poly1305.new(decryption_key.byteslice(32..-1), decryption_key.byteslice(0, 32))
+            else
+              RbNaCl::Boxes::Sealed.from_private_key(decryption_key)
+            end
+        end
       else
         raise ArgumentError, "Unknown algorithm: #{algorithm}"
       end
@@ -44,17 +58,16 @@ module Lockbox
       when "hybrid"
         raise ArgumentError, "No encryption key set" unless defined?(@encryption_box)
         raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
-        nonce = generate_nonce(@encryption_box)
-        ciphertext = @encryption_box.encrypt(nonce, message)
+        Utils.raise_hybrid_error if @encryption_box.nil?
+        @encryption_box.encrypt(message)
       when "xsalsa20"
         raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
         nonce = generate_nonce(@box)
-        ciphertext = @box.encrypt(nonce, message)
+        nonce + @box.encrypt(nonce, message)
       else
         nonce = generate_nonce(@box)
-        ciphertext = @box.encrypt(nonce, message, associated_data)
+        nonce + @box.encrypt(nonce, message, associated_data)
       end
-      nonce + ciphertext
     end
 
     def decrypt(ciphertext, associated_data: NOT_SET)
@@ -64,8 +77,12 @@ module Lockbox
         when "hybrid"
           raise ArgumentError, "No decryption key set" unless defined?(@decryption_box)
           raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
-          nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
-          @decryption_box.decrypt(nonce, ciphertext)
+          if @decryption_box.is_a?(RbNaCl::Boxes::Sealed)
+            @decryption_box.decrypt(ciphertext)
+          else
+            nonce, ciphertext = extract_nonce(@decryption_box, ciphertext)
+            @decryption_box.decrypt(nonce, ciphertext)
+          end
         when "xsalsa20"
           raise ArgumentError, "Associated data not supported with this algorithm" if associated_data
           nonce, ciphertext = extract_nonce(@box, ciphertext)
@@ -93,6 +110,16 @@ module Lockbox
       nonce_bytes = box.nonce_bytes
       nonce = bytes.slice(0, nonce_bytes)
       [nonce, bytes.slice(nonce_bytes..-1)]
+    end
+
+    def decode_hybrid_key(key)
+      [Lockbox::Utils.decode_key(key), false]
+    rescue Error => e
+      begin
+        [Lockbox::Utils.decode_key(key, size: 64), true]
+      rescue Error
+        raise e
+      end
     end
   end
 end

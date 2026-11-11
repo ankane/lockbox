@@ -23,6 +23,8 @@ module Lockbox
       #   options[:type] = :decimal
       # end
 
+      Utils.check_options(options)
+
       custom_type = options[:type].respond_to?(:serialize) && options[:type].respond_to?(:deserialize)
       valid_types = [nil, :string, :boolean, :date, :datetime, :time, :integer, :float, :decimal, :binary, :json, :hash, :array, :inet]
       raise ArgumentError, "Unknown type: #{options[:type]}" unless custom_type || valid_types.include?(options[:type])
@@ -677,6 +679,8 @@ module Lockbox
 
     module Attached
       def encrypts_attached(*attributes, **options)
+        Utils.check_options(options)
+
         attributes.each do |name|
           name = name.to_sym
 

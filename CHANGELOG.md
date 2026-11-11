@@ -1,3 +1,7 @@
+## 2.3.0 (unreleased)
+
+- Fixed hybrid encryption key being able to decrypt - [more info](https://github.com/ankane/lockbox/security/advisories/GHSA-586r-mm5q-xhg2)
+
 ## 2.2.0 (2026-04-04)
 
 - Dropped support for Active Record < 7.2 and Ruby < 3.3
