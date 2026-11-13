@@ -36,6 +36,10 @@ module Lockbox
     @master_key ||= ENV["LOCKBOX_MASTER_KEY"]
   end
 
+  def self.protecting_encrypted_data?
+    defined?(ActiveRecord::Encryption) && ActiveRecord::Encryption.context.frozen_encryption?
+  end
+
   def self.migrate(relation, batch_size: 1000, restart: false)
     Migrator.new(relation, batch_size: batch_size).migrate(restart: restart)
   end

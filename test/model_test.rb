@@ -18,6 +18,81 @@ class ModelTest < Minitest::Test
     assert_equal email, user.email
   end
 
+  def test_protecting_encrypted_data
+    skip if mongoid?
+
+    email = "test@example.org"
+    user = User.create!(email: email)
+    user = User.last
+    ciphertext = user.email_ciphertext
+
+    # ensure cached plaintext isn't returned in the protected context
+    assert_equal email, user.email
+
+    ActiveRecord::Encryption.protecting_encrypted_data do
+      assert Lockbox.protecting_encrypted_data?
+      assert_equal ciphertext, user.email
+      assert_equal ciphertext, user.attributes["email"]
+      assert_equal ciphertext, user.email_was
+      assert_equal ciphertext, user.email_in_database
+      assert_equal ciphertext, User.decrypt_email_ciphertext(ciphertext)
+      assert_equal [ciphertext], User.where(id: user.id).pluck(:email)
+    end
+
+    assert !Lockbox.protecting_encrypted_data?
+    assert_equal email, user.email
+  end
+
+  def test_protecting_typed_encrypted_data
+    skip if mongoid?
+
+    user = User.create!(born_on2: Date.new(2020, 1, 2))
+    user = User.last
+
+    ActiveRecord::Encryption.protecting_encrypted_data do
+      assert_equal user.born_on2_ciphertext, user.born_on2
+    end
+  end
+
+  def test_cant_modify_encrypted_data_when_protected
+    skip if mongoid?
+
+    email = "test@example.org"
+    user = User.create!(email: email, name: "Test")
+
+    ActiveRecord::Encryption.protecting_encrypted_data do
+      error = assert_raises ActiveRecord::RecordInvalid do
+        user.update!(email: "new@example.org")
+      end
+      assert_includes error.record.errors[:email], "can't be modified because it is encrypted"
+
+      user.reload
+      user.update!(name: "New")
+    end
+
+    assert_equal email, user.reload.email
+    assert_equal "New", user.name
+  end
+
+  def test_protected_validation_isnt_duplicated_in_subclasses
+    skip if mongoid?
+
+    parent_class = Class.new(ActiveRecord::Base) do
+      self.table_name = "users"
+      has_encrypted :email
+    end
+    child_class = Class.new(parent_class) do
+      has_encrypted :city
+    end
+    user = child_class.create!(email: "test@example.org", city: "San Francisco")
+
+    ActiveRecord::Encryption.protecting_encrypted_data do
+      user.email = "new@example.org"
+      assert !user.valid?
+      assert_equal ["can't be modified because it is encrypted"], user.errors[:email]
+    end
+  end
+
   def test_decrypt_after_destroy
     email = "test@example.org"
     User.create!(email: email)
