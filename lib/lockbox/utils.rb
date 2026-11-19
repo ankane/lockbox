@@ -59,7 +59,7 @@ module Lockbox
     end
 
     def self.decode_key(key, size: 32, name: "Key")
-      if key.encoding != Encoding::BINARY && key =~ /\A[0-9a-f]{#{size * 2}}\z/i
+      if key.encoding != Encoding::BINARY && key.bytesize == size * 2 && /\A\h+\z/.match?(key)
         key = [key].pack("H*")
       end
 

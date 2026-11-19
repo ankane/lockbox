@@ -1,5 +1,7 @@
 module Lockbox
   class KeyGenerator
+    C1 = ("\xB4"*32).freeze
+
     def initialize(master_key)
       @master_key = master_key
     end
@@ -10,8 +12,7 @@ module Lockbox
       raise ArgumentError, "Missing table for key generation" if table.to_s.empty?
       raise ArgumentError, "Missing attribute for key generation" if attribute.to_s.empty?
 
-      c = "\xB4"*32
-      hkdf(Lockbox::Utils.decode_key(@master_key, name: "Master key"), salt: table.to_s, info: "#{c}#{attribute}", length: 32, hash: "sha384")
+      hkdf(Lockbox::Utils.decode_key(@master_key, name: "Master key"), salt: table.to_s, info: C1 + attribute, length: 32, hash: "sha384")
     end
 
     private
