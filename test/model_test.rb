@@ -278,6 +278,22 @@ class ModelTest < Minitest::Test
     assert_equal "test@example.org", user["email"]
   end
 
+  def test_read_attribute
+    skip if mongoid?
+
+    user = User.create!(name: "Test", email: "test@example.org")
+    assert_equal "Test", user.read_attribute(:name)
+    assert_equal "Test", user.read_attribute("name")
+    assert_equal "test@example.org", user.read_attribute(:email)
+    assert_equal "test@example.org", user.read_attribute("email")
+
+    user = User.last
+    assert_equal "Test", user.read_attribute(:name)
+    assert_equal "Test", user.read_attribute("name")
+    assert_equal "test@example.org", user.read_attribute(:email)
+    assert_equal "test@example.org", user.read_attribute("email")
+  end
+
   def test_keyed_setter
     skip if mongoid?
 
