@@ -244,6 +244,18 @@ To decrypt data outside the model, use:
 User.decrypt_email_ciphertext(user.email_ciphertext)
 ```
 
+#### Protected Encryption Contexts
+
+Lockbox respects Active Record's protected encryption context. Inside the block, encrypted attributes return their ciphertext and can't be modified.
+
+```ruby
+ActiveRecord::Encryption.protecting_encrypted_data do
+  User.first.email # ciphertext
+end
+```
+
+This provides no-decryption-by-default support for [console1984](https://github.com/basecamp/console1984).
+
 ## Action Text
 
 **Note:** Action Text uses direct uploads for files, which cannot be encrypted with application-level encryption like Lockbox. This only encrypts the database field.
