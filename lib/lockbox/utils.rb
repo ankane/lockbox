@@ -58,8 +58,10 @@ module Lockbox
       record.class.respond_to?(:lockbox_attachments) ? record.class.lockbox_attachments[name.to_sym] : nil
     end
 
+    ONLY_HEXA = /\A\h+\z/.freeze
+
     def self.decode_key(key, size: 32, name: "Key")
-      if key.encoding != Encoding::BINARY && key =~ /\A[0-9a-f]{#{size * 2}}\z/i
+      if key.encoding != Encoding::BINARY && key.size == size * 2 && key.match?(ONLY_HEXA)
         key = [key].pack("H*")
       end
 
