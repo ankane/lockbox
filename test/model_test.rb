@@ -578,8 +578,8 @@ class ModelTest < Minitest::Test
     email = "test@example.org"
     user = User.create!(email: email)
     key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
-    box = Lockbox.new(key: key, encode: true)
-    assert_equal email, box.decrypt(user.email_ciphertext)
+    options = {key: key, encode: true}
+    assert_equal email, Lockbox.decrypt(user.email_ciphertext, **options)
   end
 
   # TODO prefer encrypt_email
@@ -587,8 +587,8 @@ class ModelTest < Minitest::Test
     email = "test@example.org"
     ciphertext = User.generate_email_ciphertext(email)
     key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext")
-    box = Lockbox.new(key: key, encode: true)
-    assert_equal email, box.decrypt(ciphertext)
+    options = {key: key, encode: true}
+    assert_equal email, Lockbox.decrypt(ciphertext, **options)
   end
 
   # TODO prefer decrypt_email
@@ -705,22 +705,22 @@ class ModelTest < Minitest::Test
   def test_callable_options
     email = "test@example.org"
     admin = Admin.create!(other_email: email)
-    box = Lockbox.new(key: "2"*64, encode: true)
-    assert_equal email, box.decrypt(admin.other_email_ciphertext)
+    options = {key: "2"*64, encode: true}
+    assert_equal email, Lockbox.decrypt(admin.other_email_ciphertext, **options)
   end
 
   def test_callable_options_record
     email = "test@example.org"
     admin = Admin.create!(personal_email: email)
-    box = Lockbox.new(key: admin.record_key, encode: true)
-    assert_equal email, box.decrypt(admin.personal_email_ciphertext)
+    options = {key: admin.record_key, encode: true}
+    assert_equal email, Lockbox.decrypt(admin.personal_email_ciphertext, **options)
   end
 
   def test_symbol_options
     email = "test@example.org"
     admin = Admin.create!(email: email)
-    box = Lockbox.new(key: admin.record_key, encode: true)
-    assert_equal email, box.decrypt(admin.email_ciphertext)
+    options = {key: admin.record_key, encode: true}
+    assert_equal email, Lockbox.decrypt(admin.email_ciphertext, **options)
   end
 
   def test_key_table_key_attribute
@@ -732,8 +732,8 @@ class ModelTest < Minitest::Test
   def test_previous_versions_key
     email = "test@example.org"
     key = User.lockbox_attributes[:email][:previous_versions][0].fetch(:key)
-    box = Lockbox.new(key: key, encode: true)
-    User.create!(email_ciphertext: box.encrypt(email))
+    options = {key: key, encode: true}
+    User.create!(email_ciphertext: Lockbox.encrypt(email, **options))
     assert_equal email, User.last.email
   end
 
@@ -741,16 +741,16 @@ class ModelTest < Minitest::Test
     email = "test@example.org"
     master_key = User.lockbox_attributes[:email][:previous_versions][1].fetch(:master_key)
     key = Lockbox.attribute_key(table: "users", attribute: "email_ciphertext", master_key: master_key)
-    box = Lockbox.new(key: key, encode: true)
-    User.create!(email_ciphertext: box.encrypt(email))
+    options = {key: key, encode: true}
+    User.create!(email_ciphertext: Lockbox.encrypt(email, **options))
     assert_equal email, User.last.email
   end
 
   def test_previous_versions_key_table_key_attribute
     email = "test@example.org"
     key = Lockbox.attribute_key(table: "people", attribute: "email_ciphertext")
-    box = Lockbox.new(key: key, encode: true)
-    admin = Admin.create!(email_address_ciphertext: box.encrypt(email))
+    options = {key: key, encode: true}
+    admin = Admin.create!(email_address_ciphertext: Lockbox.encrypt(email, **options))
     assert_equal email, Admin.decrypt_email_address_ciphertext(admin.email_address_ciphertext)
   end
 
@@ -772,8 +772,8 @@ class ModelTest < Minitest::Test
     email = "test@example.org"
     admin = Admin.create!(work_email: email)
     key = Lockbox.attribute_key(table: "admins", attribute: "encrypted_email")
-    box = Lockbox.new(key: key, encode: true)
-    assert_equal email, box.decrypt(admin.encrypted_email)
+    options = {key: key, encode: true}
+    assert_equal email, Lockbox.decrypt(admin.encrypted_email, **options)
   end
 
   def test_encrypts_no_attributes

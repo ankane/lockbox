@@ -6,23 +6,23 @@ class ShrineTest < Minitest::Test
   end
 
   def test_works
-    lockbox = Lockbox.new(key: Lockbox.generate_key)
-    uploaded_file = PhotoUploader.upload(lockbox.encrypt_io(image_file), :store)
-    data = lockbox.decrypt(uploaded_file.read)
+    options = {key: Lockbox.generate_key}
+    uploaded_file = PhotoUploader.upload(Lockbox.encrypt_io(image_file, **options), :store)
+    data = Lockbox.decrypt(uploaded_file.read, **options)
     assert_equal image_content, data
     assert_equal "image/png", Shrine.mime_type(StringIO.new(data))
   end
 
   def test_model
-    lockbox = Lockbox.new(key: Lockbox.generate_key)
+    options = {key: Lockbox.generate_key}
 
-    user = User.create!(photo: lockbox.encrypt_io(image_file))
-    data = lockbox.decrypt(user.photo.read)
+    user = User.create!(photo: Lockbox.encrypt_io(image_file, **options))
+    data = Lockbox.decrypt(user.photo.read, **options)
     assert_equal image_content, data
     assert_equal "image/png", Shrine.mime_type(StringIO.new(data))
 
     user = User.last
-    data = lockbox.decrypt(user.photo.read)
+    data = Lockbox.decrypt(user.photo.read, **options)
     assert_equal image_content, data
     assert_equal "image/png", Shrine.mime_type(StringIO.new(data))
   end

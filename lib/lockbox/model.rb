@@ -237,7 +237,7 @@ module Lockbox
                   message = attributes[attribute]
                   attributes.delete(attribute) unless lockbox_attribute[:migrating]
                   encrypted_attribute = lockbox_attribute[:encrypted_attribute]
-                  ciphertext = self.class.send("generate_#{encrypted_attribute}", message, context: self)
+                  ciphertext = self.class.send("generate_#{encrypted_attribute}", message, self)
                   attributes[encrypted_attribute] = ciphertext
                   attributes_to_set[attribute] = message
                   attributes_to_set[lockbox_attribute[:attribute]] = message if lockbox_attribute[:migrating]
@@ -436,12 +436,12 @@ module Lockbox
 
             define_method "#{name}_was" do
               ciphertext = send("#{encrypted_attribute}_was")
-              self.class.send(decrypt_method_name, ciphertext, context: self)
+              self.class.send(decrypt_method_name, ciphertext, self)
             end
 
             define_method "#{name}_change" do
               ciphertexts = send("#{encrypted_attribute}_change")
-              ciphertexts.map { |v| self.class.send(decrypt_method_name, v, context: self) } if ciphertexts
+              ciphertexts.map { |v| self.class.send(decrypt_method_name, v, self) } if ciphertexts
             end
 
             define_method "reset_#{name}!" do
@@ -495,7 +495,7 @@ module Lockbox
           # separate method for setting directly
           # used to skip blind indexes for key rotation
           define_method("lockbox_direct_#{name}=") do |message|
-            ciphertext = self.class.send(encrypt_method_name, message, context: self)
+            ciphertext = self.class.send(encrypt_method_name, message, self)
             send("#{encrypted_attribute}=", ciphertext)
           end
           private :"lockbox_direct_#{name}="
@@ -511,7 +511,7 @@ module Lockbox
 
               # keep original message for empty hashes and arrays
               unless ciphertext.nil?
-                message = self.class.send(decrypt_method_name, ciphertext, context: self)
+                message = self.class.send(decrypt_method_name, ciphertext, self)
               end
 
               if activerecord
@@ -544,7 +544,7 @@ module Lockbox
           end
 
           # for fixtures
-          define_singleton_method encrypt_method_name do |message, **opts|
+          define_singleton_method encrypt_method_name do |message, context = nil|
             table = activerecord ? table_name : collection_name.to_s
 
             unless message.nil?
@@ -600,17 +600,17 @@ module Lockbox
             if message.nil? || (message == "" && !options[:padding])
               message
             else
-              Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).encrypt(message)
+              Lockbox::Encryptor.encrypt(message, Lockbox::Utils.box_options(context, options, table, encrypted_attribute))
             end
           end
 
-          define_singleton_method decrypt_method_name do |ciphertext, **opts|
+          define_singleton_method decrypt_method_name do |ciphertext, context = nil|
             message =
               if ciphertext.nil? || (ciphertext == "" && !options[:padding])
                 ciphertext
               else
                 table = activerecord ? table_name : collection_name.to_s
-                Lockbox::Utils.build_box(opts[:context], options, table, encrypted_attribute).decrypt(ciphertext)
+                Lockbox::Encryptor.decrypt(ciphertext, Lockbox::Utils.box_options(context, options, table, encrypted_attribute))
               end
 
             unless message.nil?

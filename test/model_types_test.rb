@@ -576,8 +576,8 @@ class ModelTypesTest < Minitest::Test
   def test_migrating
     user = User.create!(conf: "Hi")
     key = Lockbox.attribute_key(table: "users", attribute: "conf_ciphertext")
-    box = Lockbox.new(key: key, encode: true)
-    assert_equal "Hi!!", box.decrypt_str(user.conf_ciphertext)
+    options = {key: key, encode: true}
+    assert_equal "Hi!!", Lockbox.decrypt_str(user.conf_ciphertext, **options)
   end
 
   private
@@ -617,8 +617,8 @@ class ModelTypesTest < Minitest::Test
 
     if format
       key = Lockbox.attribute_key(table: "users", attribute: encrypted_attribute)
-      box = Lockbox.new(key: key, encode: true)
-      assert_equal format.b, box.decrypt(user.send(encrypted_attribute))
+      decrypt_options = {key: key, encode: true}
+      assert_equal format.b, Lockbox.decrypt(user.send(encrypted_attribute), **decrypt_options)
     end
 
     if check_nil

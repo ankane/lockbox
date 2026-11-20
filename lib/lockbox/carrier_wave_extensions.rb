@@ -20,13 +20,13 @@ module Lockbox
           # processors in CarrierWave move updated file to current_path
           # however, this causes versions to use the processed file
           # we only want to change the file for the current version
-          @file = CarrierWave::SanitizedFile.new(lockbox_notify("encrypt_file") { lockbox.encrypt_io(file) })
+          @file = CarrierWave::SanitizedFile.new(lockbox_notify("encrypt_file") { Encryptor.encrypt_io(file, lockbox_options) })
         end
 
         # TODO safe to memoize?
         def read
           r = super
-          lockbox_notify("decrypt_file") { lockbox.decrypt(r) } if r
+          lockbox_notify("decrypt_file") { Encryptor.decrypt(r, lockbox_options) } if r
         end
 
         # use size of plaintext since read and content type use plaintext
@@ -62,12 +62,12 @@ module Lockbox
 
         private
 
-        define_method :lockbox do
-          @lockbox ||= begin
+        define_method :lockbox_options do
+          @lockbox_options ||= begin
             table = model ? model.class.table_name : "_uploader"
             attribute = lockbox_name
 
-            Utils.build_box(self, options, table, attribute)
+            Utils.box_options(self, options, table, attribute)
           end
         end
 
