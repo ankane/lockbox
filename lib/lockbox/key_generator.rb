@@ -1,19 +1,18 @@
 module Lockbox
-  class KeyGenerator
+  module KeyGenerator
     C1 = ("\xB4"*32).freeze
 
-    def initialize(master_key)
-      @master_key = master_key
-    end
+    extend self
 
     # pattern ported from CipherSweet
     # https://ciphersweet.paragonie.com/internals/key-hierarchy
-    def attribute_key(table:, attribute:)
+    def attribute_key(master_key:, table:, attribute:)
       raise ArgumentError, "Missing table for key generation" if table.to_s.empty?
       raise ArgumentError, "Missing attribute for key generation" if attribute.to_s.empty?
 
-      hkdf(Lockbox::Utils.decode_key(@master_key, name: "Master key"), salt: table.to_s, info: "#{C1}#{attribute}", length: 32, hash: "sha384")
+      hkdf(Lockbox::Utils.decode_key(master_key, name: "Master key"), salt: table.to_s, info: "#{C1}#{attribute}", length: 32, hash: "sha384")
     end
+
 
     private
 

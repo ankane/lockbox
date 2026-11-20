@@ -61,7 +61,7 @@ module Lockbox
     master_key ||= Lockbox.master_key
     raise ArgumentError, "Missing master key" unless master_key
 
-    key = Lockbox::KeyGenerator.new(master_key).attribute_key(table: table, attribute: attribute)
+    key = Lockbox::KeyGenerator.attribute_key(master_key: master_key, table: table, attribute: attribute)
     key = to_hex(key) if encode
     key
   end
