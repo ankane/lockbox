@@ -1,6 +1,6 @@
 module Lockbox
   class Utils
-    def self.build_box(context, options, table, attribute)
+    def self.box_options(context, options, table, attribute)
       # dup options (with except) since keys are sometimes changed or deleted
       options = options.except(:attribute, :encrypted_attribute, :migrating, :attached, :type)
       options[:encode] = false unless options.key?(:encode)
@@ -51,7 +51,7 @@ module Lockbox
         end
       end
 
-      Lockbox.new(**options)
+      options
     end
 
     def self.encrypted_options(record, name)
@@ -78,20 +78,20 @@ module Lockbox
 
       ActiveSupport::Notifications.instrument("encrypt_file.lockbox", {name: name}) do
         options = encrypted_options(record, name)
-        box = build_box(record, options, record.class.table_name, name)
+        encryption_options = box_options(record, options, record.class.table_name, name)
 
         case attachable
         when ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile
           io = attachable
           attachable = {
-            io: box.encrypt_io(io),
+            io: Encryptor.encrypt_io(io, encryption_options),
             filename: attachable.original_filename,
             content_type: attachable.content_type
           }
         when Hash
           io = attachable[:io]
           attachable = attachable.dup
-          attachable[:io] = box.encrypt_io(io)
+          attachable[:io] = Encryptor.encrypt_io(io, encryption_options)
         else
           raise ArgumentError, "Could not find or build blob: expected attachable, got #{attachable.inspect}"
         end
@@ -110,7 +110,7 @@ module Lockbox
 
     def self.decrypt_result(record, name, options, result)
       ActiveSupport::Notifications.instrument("decrypt_file.lockbox", {name: name}) do
-        Utils.build_box(record, options, record.class.table_name, name).decrypt(result)
+        Encryptor.decrypt(result, box_options(record, options, record.class.table_name, name))
       end
     end
 

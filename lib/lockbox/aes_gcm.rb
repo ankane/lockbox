@@ -1,75 +1,82 @@
 module Lockbox
-  class AES_GCM
-    def initialize(key)
-      raise ArgumentError, "Key must be 32 bytes" unless key && key.bytesize == 32
-      raise ArgumentError, "Key must be binary" unless key.encoding == Encoding::BINARY
+  module AES_GCM
+    NONCE_BYTES = 12
+    AUTH_TAG_BYTES = 16
 
-      @key = key
+    extend self
+
+    def encrypt_message(key, message, associated_data)
+      nonce = SecureRandom.random_bytes(NONCE_BYTES)
+      nonce << encrypt(key, nonce, message, associated_data)
     end
 
-    def encrypt(nonce, message, associated_data)
+    def decrypt_message(key, data, associated_data)
+      size = data.bytesize
+      fail_decryption if size < NONCE_BYTES + AUTH_TAG_BYTES
+
+      decrypt_parts(
+        key,
+        data.byteslice(0, NONCE_BYTES),
+        data.byteslice(NONCE_BYTES, size - NONCE_BYTES - AUTH_TAG_BYTES),
+        data.byteslice(size - AUTH_TAG_BYTES, AUTH_TAG_BYTES),
+        associated_data
+      )
+    end
+
+    def encrypt(key, nonce, message, associated_data)
+      check_key(key)
+
       cipher = OpenSSL::Cipher.new("aes-256-gcm")
-      # do not change order of operations
       cipher.encrypt
-      cipher.key = @key
+      cipher.key = key
       cipher.iv = nonce
-      # From Ruby 2.5.3 OpenSSL::Cipher docs:
-      # If no associated data shall be used, this method must still be called with a value of ""
-      # In encryption mode, it must be set after calling #encrypt and setting #key= and #iv=
       cipher.auth_data = associated_data || ""
 
-      ciphertext = String.new
-      ciphertext << cipher.update(message) unless message.empty?
-      ciphertext << cipher.final
+      ciphertext = message.empty? ? cipher.final : (cipher.update(message) << cipher.final)
       ciphertext << cipher.auth_tag
-      ciphertext
     end
 
-    def decrypt(nonce, ciphertext, associated_data)
-      auth_tag, ciphertext = extract_auth_tag(ciphertext.to_s)
+    def decrypt(key, nonce, ciphertext, associated_data)
+      ciphertext = ciphertext.to_s
+      size = ciphertext.bytesize
+      fail_decryption if size < AUTH_TAG_BYTES
 
-      fail_decryption if nonce.to_s.bytesize != nonce_bytes
-      fail_decryption if auth_tag.to_s.bytesize != auth_tag_bytes
+      decrypt_parts(
+        key,
+        nonce,
+        ciphertext.byteslice(0, size - AUTH_TAG_BYTES),
+        ciphertext.byteslice(size - AUTH_TAG_BYTES, AUTH_TAG_BYTES),
+        associated_data
+      )
+    end
+
+    def nonce_bytes
+      NONCE_BYTES
+    end
+
+    private
+
+    def decrypt_parts(key, nonce, ciphertext, auth_tag, associated_data)
+      check_key(key)
+      fail_decryption if nonce.to_s.bytesize != NONCE_BYTES
 
       cipher = OpenSSL::Cipher.new("aes-256-gcm")
-      # do not change order of operations
       cipher.decrypt
-      cipher.key = @key
+      cipher.key = key
       cipher.iv = nonce
       cipher.auth_tag = auth_tag
-      # From Ruby 2.5.3 OpenSSL::Cipher docs:
-      # If no associated data shall be used, this method must still be called with a value of ""
-      # When decrypting, set it only after calling #decrypt, #key=, #iv= and #auth_tag= first.
       cipher.auth_data = associated_data || ""
 
       begin
-        message = String.new
-        message << cipher.update(ciphertext) unless ciphertext.to_s.empty?
-        message << cipher.final
-        message
+        ciphertext.empty? ? cipher.final : (cipher.update(ciphertext) << cipher.final)
       rescue OpenSSL::Cipher::CipherError
         fail_decryption
       end
     end
 
-    def nonce_bytes
-      12
-    end
-
-    # protect key
-    def inspect
-      to_s
-    end
-
-    private
-
-    def auth_tag_bytes
-      16
-    end
-
-    def extract_auth_tag(bytes)
-      auth_tag = bytes.slice(-auth_tag_bytes..-1)
-      [auth_tag, bytes.slice(0, bytes.bytesize - auth_tag_bytes)]
+    def check_key(key)
+      raise ArgumentError, "Key must be 32 bytes" unless key && key.bytesize == 32
+      raise ArgumentError, "Key must be binary" unless key.encoding == Encoding::BINARY
     end
 
     def fail_decryption

@@ -600,7 +600,7 @@ module Lockbox
             if message.nil? || (message == "" && !options[:padding])
               message
             else
-              Lockbox::Utils.build_box(context, options, table, encrypted_attribute).encrypt(message)
+              Lockbox::Encryptor.encrypt(message, Lockbox::Utils.box_options(context, options, table, encrypted_attribute))
             end
           end
 
@@ -610,7 +610,7 @@ module Lockbox
                 ciphertext
               else
                 table = activerecord ? table_name : collection_name.to_s
-                Lockbox::Utils.build_box(context, options, table, encrypted_attribute).decrypt(ciphertext)
+                Lockbox::Encryptor.decrypt(ciphertext, Lockbox::Utils.box_options(context, options, table, encrypted_attribute))
               end
 
             unless message.nil?
